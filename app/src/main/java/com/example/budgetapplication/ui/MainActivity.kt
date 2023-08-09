@@ -11,7 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.ui.currencies.CurrenciesList
 import com.example.budgetapplication.ui.currencies.CurrenciesSummary
+import com.example.budgetapplication.ui.currencies.CurrenciesSummaryBody
 import com.example.budgetapplication.ui.theme.BudgetApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,15 +22,33 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BudgetApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                    tonalElevation = 25.dp
-                ) {
-                    CurrenciesSummary()
-                }
+                CurrenciesSummaryBody(
+                    currenciesList = currencies,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
 }
+
+
+private val currencies = listOf(
+    Currency(
+        name = "USD",
+        id = 0,
+        value = 1.0f,
+        updatedTime = "2021-10-10 10:10:10"
+    ),
+    Currency(
+        name = "EUR",
+        id = 0,
+        value = 1.1f,
+        updatedTime = "2021-10-10 10:10:10"
+    ),
+    Currency(
+        name = "SEK",
+        id = 0,
+        value = 0.1f,
+        updatedTime = "2021-10-10 10:10:10"
+    )
+)
