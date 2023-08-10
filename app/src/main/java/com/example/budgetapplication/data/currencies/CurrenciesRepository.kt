@@ -4,7 +4,5 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface CurrenciesRepository {
-
     fun getAllCurrenciesStream(): Flow<List<Currency>>
-
 }
