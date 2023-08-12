@@ -1,40 +1,62 @@
 package com.example.budgetapplication.data.currencies
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.onEach
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class OnlineCurrenciesRepository(
     private val currencyDao: CurrencyDao,
     private val currenciesApiService: CurrenciesApiService,
     private val apiKey: String
 ) : CurrenciesRepository {
-    override fun getAllCurrenciesStream(): Flow<List<Currency>> {
-        val currentTime = System.currentTimeMillis()
-        val threshold = TimeUnit.DAYS.toMillis(1) // 1 day threshold
 
-        return currencyDao.getAllCurrencies().map { currencies ->
-            if (currencies.isEmpty()) {
+    private val TAG = "OnlineCurrenciesRepo"
+
+    override fun getAllCurrenciesStream(): Flow<List<Currency>> {
+        val currentTime = LocalDateTime.now()
+        Log.d(TAG, "Getting all currencies stream at: $currentTime")
+
+
+        return currencyDao.getAllCurrencies().onEach {
+            if (it.isNotEmpty()) {
+                val lastUpdatedTime = it[0].updatedTime
+
+                if (lastUpdatedTime < currentTime.minusDays(1)) {
+                    Log.d(TAG, "Fetching API data because last update is older than 1 day.")
+                    fetchApi()
+                }else{
+                    Log.d(TAG, "Not refreshing data.")
+                }
+            }else{
+                Log.d(TAG, "Fetching API data because database is empty.")
                 fetchApi()
             }
-            currencies
+
         }
     }
 
-
     private suspend fun fetchApi() {
+        Log.d(TAG, "Fetching data from API...")
         val responses: CurrenciesResponse = currenciesApiService.getCurrencies(apiKey)
 
-        for (rate in responses.rates){
+        // Insert all currencies into the database
+        for (rate in responses.rates) {
             val currency = Currency(
                 name = rate.key,
                 value = rate.value.toFloat(),
-                updatedTime = responses.date,
+                updatedTime = LocalDateTime.parse(
+                    responses.date,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
+                )
             )
             currencyDao.insert(currency)
         }
 
+        //currencyDao.insert(Currency("EUR", 1.5f, LocalDateTime.now()))
+
+        Log.d(TAG, "Data fetched from API and inserted into database.")
     }
-
-
 }

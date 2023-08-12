@@ -20,8 +20,8 @@ interface CurrencyDao {
     @Delete
     suspend fun delete(currency: Currency)
 
-    @Query("SELECT * from currencies WHERE id = :id")
-    fun getItem(id: Int): Flow<Currency>
+    @Query("SELECT * from currencies WHERE name = :name")
+    fun getItem(name: String): Flow<Currency>
 
     @Query("SELECT * from currencies ORDER BY name ASC")
     fun getAllCurrencies(): Flow<List<Currency>>

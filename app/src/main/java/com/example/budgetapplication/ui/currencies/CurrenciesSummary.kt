@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CurrenciesSummary(
@@ -116,7 +118,7 @@ fun CurrencyItem(
                 )
 
                 Text(
-                    text = currency.updatedTime,
+                    text = currency.updatedTime.toString(),
                     modifier = Modifier.padding(
                         start = 20.dp,
                         end = 20.dp
@@ -191,23 +193,28 @@ fun CurrenciesSummaryPreview() {
 }
 
 
+private val input = "2023-03-21 12:43:00+00"
+
+// Define a DateTimeFormatter to match the input format
+private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
+
+// Parse the input string to a LocalDateTime
+private val localDateTime = LocalDateTime.parse(input, formatter)
+
 private val currencies = listOf(
     Currency(
         name = "USD",
-        id = 0,
         value = 1.0f,
-        updatedTime = "2021-10-10 10:10:10"
+        updatedTime = localDateTime
     ),
     Currency(
         name = "EUR",
-        id = 0,
         value = 1.1f,
-        updatedTime = "2021-10-10 10:10:10"
+        updatedTime = localDateTime
     ),
     Currency(
         name = "SEK",
-        id = 0,
         value = 0.1f,
-        updatedTime = "2021-10-10 10:10:10"
+        updatedTime = localDateTime
     )
 )
