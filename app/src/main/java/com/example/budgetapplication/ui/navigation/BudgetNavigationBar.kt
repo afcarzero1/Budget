@@ -58,7 +58,7 @@ fun BudgetNavigationBar(
 @Composable
 private fun BudgetTab(
     text: String,
-    icon: ImageVector,
+    icon: @Composable (tint: Color) -> Unit,
     onSelected: () -> Unit,
     selected: Boolean
 ) {
@@ -93,8 +93,10 @@ private fun BudgetTab(
             )
             .clearAndSetSemantics { contentDescription = text }
     ) {
-        Icon(imageVector = icon, contentDescription = text, tint = tabTintColor)
-        if (selected) {
+
+         icon(tabTintColor)
+
+         if (selected) {
             Spacer(Modifier.width(12.dp))
             Text(text.uppercase(Locale.getDefault()), color = tabTintColor)
         }
