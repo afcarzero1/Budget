@@ -13,4 +13,8 @@ interface AccountsRepository {
     fun getAccountStream(id: Int): Flow<Account?>
 
     fun getAllAccountsStream(): Flow<List<Account>>
+
+    fun getAccountWithTransactionsStream(id: Int): Flow<AccountWithTransactions>
+
+    fun getAllAccountsWithTransactionsStream(): Flow<List<AccountWithTransactions>>
 }
