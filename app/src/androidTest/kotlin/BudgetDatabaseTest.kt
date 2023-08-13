@@ -138,6 +138,15 @@ class BudgetDatabaseTest {
             amount = 10000.0f,
             date = localDateTime.plusDays(5),
         ),
+        TransactionRecord(
+            id = 5,
+            name = "Burger King",
+            type = "Expense",
+            accountId = 2,
+            categoryId = 1,
+            amount = 15.0f,
+            date = localDateTime.plusDays(7),
+        ),
     )
 
     @Before
@@ -221,6 +230,37 @@ class BudgetDatabaseTest {
                 assertTrue(transaction.categoryId == category.category.id)
                 assertTrue(transactions.contains(transaction))
             }
+
+            if (category.category.name == "Food") {
+                assertTrue(category.transactions.size == 2)
+            }
+
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun getAllAccountsWithTransactionsTest(){
+        runBlocking {
+            addAllItemsToDb()
+            val allAccounts = accountDao.getAllAccountsWithTransactions().first()
+            for(account in allAccounts) {
+                assertTrue(accounts.contains(account.account))
+                for(transaction in account.transactionRecords) {
+                    assertTrue(transaction.accountId == account.account.id)
+                    assertTrue(transactions.contains(transaction))
+                }
+
+                if (account.account.name == "JPMorgan Chase") {
+                    assertTrue(account.transactionRecords.size == 4)
+
+                    assertTrue(account.balance == (100f + 10000f - 10f - 20f - 1000f))
+                }
+
+            }
+
+
+
         }
     }
 

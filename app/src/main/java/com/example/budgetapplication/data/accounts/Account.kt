@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.accounts
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -19,5 +20,6 @@ data class Account (
     val id: Int,
     val name: String,
     val initialBalance: Float,
-    val currency: String
+    val currency: String,
+    val color: Long = 0x000000
 )

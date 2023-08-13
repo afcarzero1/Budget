@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.currencies
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,8 +40,9 @@ fun CurrenciesSummary(
     modifier: Modifier = Modifier,
     viewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    Log.d("CurrenciesSummary", "Currencies summary composable")
     val currenciesState by viewModel.currenciesUiState.collectAsState()
-
+    Log.d("CurrenciesSummary", "Currencies state collected: $currenciesState")
     CurrenciesSummaryBody(
         currenciesList = currenciesState.currenciesList,
         modifier = modifier
