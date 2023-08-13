@@ -3,6 +3,7 @@ package com.example.budgetapplication.ui.accounts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountWithTransactions
 import com.example.budgetapplication.data.accounts.AccountsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,7 @@ class AccountsViewModel(accountsRepository: AccountsRepository): ViewModel() {
     }
 
     val accountsUiState: StateFlow<AccountsUiState> = accountsRepository
-        .getAllAccountsStream()
+        .getAllAccountsWithTransactionsStream()
         .map { AccountsUiState(it) }
         .stateIn(
             scope = viewModelScope,
@@ -27,4 +28,4 @@ class AccountsViewModel(accountsRepository: AccountsRepository): ViewModel() {
 
 }
 
-data class AccountsUiState(val accountsList: List<Account> = listOf())
+data class AccountsUiState(val accountsList: List<AccountWithTransactions> = listOf())

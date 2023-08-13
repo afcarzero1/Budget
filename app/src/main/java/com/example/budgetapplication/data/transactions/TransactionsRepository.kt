@@ -14,4 +14,7 @@ interface TransactionsRepository {
 
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
 
+    fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord>
+
+    fun getAllFullTransactionsStream(): Flow<List<FullTransactionRecord>>
 }

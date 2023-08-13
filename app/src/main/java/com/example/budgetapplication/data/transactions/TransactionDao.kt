@@ -24,4 +24,10 @@ interface TransactionDao {
 
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
+
+    @Query("SELECT * from transactions WHERE id = :id")
+    fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord>
+
+    @Query("SELECT * from transactions ORDER BY date DESC")
+    fun getAllFullTransactionsStream(): Flow<List<FullTransactionRecord>>
 }

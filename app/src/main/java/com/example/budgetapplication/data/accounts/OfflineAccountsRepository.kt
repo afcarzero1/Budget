@@ -12,4 +12,8 @@ class OfflineAccountsRepository(private val accountDao: AccountDao) : AccountsRe
     override fun getAccountStream(id: Int): Flow<Account?> = accountDao.getAccount(id)
 
     override fun getAllAccountsStream(): Flow<List<Account>> = accountDao.getAllAccounts()
+
+    override fun getAccountWithTransactionsStream(id: Int): Flow<AccountWithTransactions> = accountDao.getAccountWithTransactions(id)
+
+    override fun getAllAccountsWithTransactionsStream(): Flow<List<AccountWithTransactions>> = accountDao.getAllAccountsWithTransactions()
 }
