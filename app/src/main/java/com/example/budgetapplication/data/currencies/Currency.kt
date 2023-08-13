@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.example.budgetapplication.data.DateConverter
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -16,15 +17,3 @@ data class Currency(
     @TypeConverters(DateConverter::class)
     val updatedTime: LocalDateTime
 )
-
-class DateConverter{
-    @TypeConverter
-    fun toDate(value: Long?): LocalDateTime? {
-        return value?.let { LocalDateTime.ofEpochSecond(it, 0, ZoneOffset.UTC) }
-    }
-
-    @TypeConverter
-    fun toTimestamp(value: LocalDateTime?): Long? {
-        return value?.toEpochSecond(ZoneOffset.UTC)
-    }
-}

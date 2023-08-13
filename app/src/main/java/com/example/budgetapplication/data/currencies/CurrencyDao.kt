@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CurrencyDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(currency: Currency)
 
     @Update

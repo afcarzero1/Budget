@@ -28,6 +28,7 @@ class OnlineCurrenciesRepository(
                     Log.d(TAG, "Fetching API data because last update is older than 1 day.")
                     fetchApi()
                 }else{
+                    Log.d(TAG, "Current data is from $lastUpdatedTime")
                     Log.d(TAG, "Not refreshing data.")
                 }
             }else{
@@ -43,6 +44,7 @@ class OnlineCurrenciesRepository(
         val responses: CurrenciesResponse = currenciesApiService.getCurrencies(apiKey)
 
         // Insert all currencies into the database
+        //todo: figure out why dates are saved with 00:00 time
         for (rate in responses.rates) {
             val currency = Currency(
                 name = rate.key,
@@ -54,8 +56,6 @@ class OnlineCurrenciesRepository(
             )
             currencyDao.insert(currency)
         }
-
-        //currencyDao.insert(Currency("EUR", 1.5f, LocalDateTime.now()))
 
         Log.d(TAG, "Data fetched from API and inserted into database.")
     }

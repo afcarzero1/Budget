@@ -4,13 +4,34 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountDao
+import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.categories.CategoryDao
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.currencies.CurrencyDao
+import com.example.budgetapplication.data.transactions.TransactionDao
+import com.example.budgetapplication.data.transactions.TransactionRecord
+import java.util.Locale
 
-@Database(entities = [Currency::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        Currency::class,
+        Account::class,
+        Category::class,
+        TransactionRecord::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class BudgetDatabase : RoomDatabase() {
 
     abstract fun currencyDao(): CurrencyDao
+
+    abstract fun accountDao(): AccountDao
+
+    abstract fun categoryDao(): CategoryDao
+
+    abstract fun transactionDao(): TransactionDao
 
     companion object {
 
