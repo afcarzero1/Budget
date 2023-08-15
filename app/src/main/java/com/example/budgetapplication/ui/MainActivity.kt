@@ -35,10 +35,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BudgetApplicationApp() {
     BudgetApplicationTheme {
-
-
-
-
         var currentScreen: BudgetDestination by remember { mutableStateOf(Overview) }
         Log.d("MainActivity", "Current screen: ${currentScreen.route}")
 
