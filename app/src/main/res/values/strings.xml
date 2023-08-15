@@ -1,3 +1,9 @@
 <resources>
   <string name="app_name">BudgetApplication</string>
+
+  <string name="entry_account_save">Save Account</string>
+  <string name="entry_account_title">Account</string>
+  <string name="entry_account_name">Account Name</string>
+  <string name="entry_account_initial_balance">Initial Balance</string>
+  <string name="entry_account_currency">Currency</string>
 </resources>

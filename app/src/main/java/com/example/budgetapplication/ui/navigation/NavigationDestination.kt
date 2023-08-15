@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.budgetapplication.R
+import com.example.budgetapplication.ui.accounts.AccountsSummary
 import com.example.budgetapplication.ui.currencies.CurrenciesSummary
 
 interface BudgetDestination {
@@ -18,7 +19,6 @@ interface BudgetDestination {
     val route: String
     val screen: @Composable () -> Unit
 }
-
 
 object Overview : BudgetDestination {
     override val icon = @Composable { tint: Color ->
@@ -33,9 +33,8 @@ object Accounts : BudgetDestination {
         Icon(painter = painterResource(id = R.drawable.bank), contentDescription = null, tint= tint)
     }
     override val route = "accounts"
-    override val screen: @Composable () -> Unit = { Text(text = "Under development") }
+    override val screen: @Composable () -> Unit = { AccountsSummary() }
 }
-
 
 object Currencies: BudgetDestination {
     override val icon = @Composable { tint: Color ->
@@ -54,4 +53,3 @@ object Categories: BudgetDestination {
 }
 
 val tabDestinations = listOf(Overview, Accounts, Currencies, Categories)
-

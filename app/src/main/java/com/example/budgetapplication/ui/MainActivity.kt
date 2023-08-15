@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.example.budgetapplication.ui.navigation.BudgetDestination
@@ -21,27 +22,43 @@ import com.example.budgetapplication.ui.navigation.tabDestinations
 
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BudgetApplicationTheme {
-                var currentScreen: BudgetDestination by remember { mutableStateOf(Overview) }
-                Log.d("MainActivity", "Current screen: ${currentScreen.route}")
-                Scaffold(
-                    topBar = {
-                        BudgetNavigationBar(
-                            allScreens = tabDestinations,
-                            onTabSelected = { screen -> currentScreen = screen },
-                            currentScreen = currentScreen
-                        )
-                    }
-                ) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)){
-                        currentScreen.screen()
-                    }
+            BudgetApplicationApp()
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BudgetApplicationApp() {
+    BudgetApplicationTheme {
+
+
+
+
+        var currentScreen: BudgetDestination by remember { mutableStateOf(Overview) }
+        Log.d("MainActivity", "Current screen: ${currentScreen.route}")
+
+        //TODO: Use NavHost to navigate between screens
+        if (currentScreen in tabDestinations){
+            Scaffold(
+                topBar = {
+                    BudgetNavigationBar(
+                        allScreens = tabDestinations,
+                        onTabSelected = { screen -> currentScreen = screen },
+                        currentScreen = currentScreen
+                    )
+                }
+            ) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)){
+                    currentScreen.screen()
                 }
             }
+        }else{
+            currentScreen.screen()
         }
     }
 }

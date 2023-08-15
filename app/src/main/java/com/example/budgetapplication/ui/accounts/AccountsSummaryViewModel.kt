@@ -2,7 +2,6 @@ package com.example.budgetapplication.ui.accounts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.accounts.AccountWithTransactions
 import com.example.budgetapplication.data.accounts.AccountsRepository
 import kotlinx.coroutines.flow.SharingStarted
