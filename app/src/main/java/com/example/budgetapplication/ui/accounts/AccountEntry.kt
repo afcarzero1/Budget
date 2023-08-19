@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -26,8 +27,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.DropdownMenu
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +42,8 @@ fun AccountEntryScreen(
     viewModel: AccountsEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val currenciesListState by viewModel.currenciesListState.collectAsState()
+
 
     Scaffold(
         topBar = {
@@ -60,6 +68,7 @@ fun AccountEntryScreen(
                     navigateBack()
                 }
             },
+            availableCurrencies = currenciesListState,
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -71,6 +80,7 @@ fun AccountEntryScreen(
 @Composable
 fun AccountEntryBody(
     accountUiState: AccountUiState,
+    availableCurrencies: List<Currency>,
     onAccountValueChange: (Account) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -81,6 +91,7 @@ fun AccountEntryBody(
     ) {
         AccountForm(
             account = accountUiState.account,
+            availableCurrencies = availableCurrencies,
             onValueChange = onAccountValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -99,6 +110,7 @@ fun AccountEntryBody(
 @Composable
 fun AccountForm(
     account: Account,
+    availableCurrencies: List<Currency>,
     modifier: Modifier = Modifier,
     onValueChange: (Account) -> Unit = {},
     enabled: Boolean = true
@@ -131,17 +143,13 @@ fun AccountForm(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        OutlinedTextField(
-            value = account.currency,
+        DropdownMenu(
+            options = availableCurrencies.map { it.name },
             onValueChange = {onValueChange(account.copy(currency = it))},
-            label ={ Text(text = stringResource(R.string.entry_account_currency)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
+            label = { Text(text = stringResource(R.string.entry_account_currency)) },
+            modifier = Modifier.fillMaxWidth()
         )
+
     }
 }
 
@@ -157,6 +165,11 @@ fun AccountFormPreview(){
         color = 0x000000
     )
 
-    AccountForm(account = account)
+    val availableCurrencies = listOf(
+        Currency("USD", 1f, LocalDateTime.now()),
+        Currency("EUR", 1.2f, LocalDateTime.now())
+    )
+
+    AccountForm(account = account, availableCurrencies = availableCurrencies)
 
 }

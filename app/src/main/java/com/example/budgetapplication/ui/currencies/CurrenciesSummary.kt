@@ -16,6 +16,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,11 +30,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.navigation.Currencies
+import com.example.budgetapplication.ui.theme.InitialScreen
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+
+@Composable
+fun CurrenciesScreen(navHostController: NavHostController) {
+    InitialScreen(
+        navController = navHostController,
+        destination = Currencies,
+        screenBody = {
+            CurrenciesSummary(
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    )
+}
 
 @Composable
 fun CurrenciesSummary(
@@ -42,7 +60,6 @@ fun CurrenciesSummary(
 ) {
     Log.d("CurrenciesSummary", "Currencies summary composable")
     val currenciesState by viewModel.currenciesUiState.collectAsState()
-    Log.d("CurrenciesSummary", "Currencies state collected: $currenciesState")
     CurrenciesSummaryBody(
         currenciesList = currenciesState.currenciesList,
         modifier = modifier
@@ -56,10 +73,12 @@ fun CurrenciesSummaryBody(
     currenciesList: List<Currency>,
     modifier: Modifier = Modifier,
 ) {
-    CurrenciesList(
-        currenciesList = currenciesList,
-        modifier = modifier
-    )
+    Surface(color = MaterialTheme.colorScheme.surface) {
+        CurrenciesList(
+            currenciesList = currenciesList,
+            modifier = modifier
+        )
+    }
 }
 
 

@@ -1,5 +1,7 @@
 package com.example.budgetapplication.ui.accounts
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.accounts.Account
@@ -9,16 +11,17 @@ import com.example.budgetapplication.data.currencies.Currency
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 class AccountsEntryViewModel(
     private val accountsRepository: AccountsRepository,
     private val currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
 
-    var accountUiState: AccountUiState = AccountUiState()
+    var accountUiState by mutableStateOf(AccountUiState())
         private set
 
-    private var currenciesListState: StateFlow<List<Currency>> = currenciesRepository
+    var currenciesListState: StateFlow<List<Currency>> = currenciesRepository
         .getAllCurrenciesStream()
         .stateIn(
             scope = viewModelScope,
@@ -28,6 +31,7 @@ class AccountsEntryViewModel(
 
 
     fun updateUiState(account: Account) {
+        Log.d("AccountEntryViewModel", "updateUiState: $account")
         this.accountUiState = AccountUiState(
             account = account,
             isValid = validateInput(account)
@@ -59,5 +63,5 @@ data class AccountUiState(
         currency = "USD",
         color = 0
     ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

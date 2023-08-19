@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.budgetapplication.ui.currencies.CurrenciesSummary
+import com.example.budgetapplication.ui.theme.InitialScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,52 +27,20 @@ fun BudgetNavHost(
         modifier = modifier
     ){
         composable(route = Overview.route){
-            Scaffold(
-                topBar = {
-                    BudgetNavigationBar(
-                        allScreens = tabDestinations,
-                        onTabSelected = { screen -> navController.navigate(screen.route)},
-                        currentScreen = Overview
-                    )
-                }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)){
-                    Overview.screen()
-                }
-            }
+            Overview.screen(navController)
         }
         composable(route = Currencies.route){
-            Scaffold(
-                topBar = {
-                    BudgetNavigationBar(
-                        allScreens = tabDestinations,
-                        onTabSelected = { screen -> navController.navigate(screen.route)},
-                        currentScreen = Currencies
-                    )
-                }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)){
-                    Currencies.screen()
-                }
-            }
+            Currencies.screen(navController)
         }
         composable(route = Accounts.route){
-            Scaffold(
-                topBar = {
-                    BudgetNavigationBar(
-                        allScreens = tabDestinations,
-                        onTabSelected = { screen -> navController.navigate(screen.route)},
-                        currentScreen = Accounts
-                    )
-                }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)){
-                    Currencies.screen()
-                }
-            }
+            Accounts.screen(navController)
         }
         composable(route=Categories.route){
+            Categories.screen(navController)
+        }
 
+        composable(route=AccountEntry.route){
+            AccountEntry.screen(navController)
         }
     }
 }

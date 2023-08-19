@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.budgetapplication.ui.navigation.BudgetNavHost
 import com.example.budgetapplication.ui.navigation.BudgetNavigationBar
 import com.example.budgetapplication.ui.navigation.tabDestinations
+import com.example.budgetapplication.ui.theme.BudgetApplicationApp
 
 
 class MainActivity : ComponentActivity() {
@@ -47,8 +48,5 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun BudgetApplicationApp(navController: NavHostController = rememberNavController()) {
-    BudgetNavHost(navController = navController)
-}
+
 
