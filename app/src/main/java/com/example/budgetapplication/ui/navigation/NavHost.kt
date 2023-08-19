@@ -70,8 +70,8 @@ fun BudgetNavHost(
                 }
             }
         }
+        composable(route=Categories.route){
 
-
-
+        }
     }
 }
