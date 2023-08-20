@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.accounts
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,10 +30,9 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
-import com.example.budgetapplication.ui.components.DropdownMenu
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +64,10 @@ fun AccountEntryScreen(
             onAccountValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
+                    Log.d(
+                        "AccountEntryScreen",
+                        "Saving account: ${viewModel.accountUiState.account}"
+                    )
                     viewModel.saveAccount()
                     navigateBack()
                 }
@@ -123,7 +127,7 @@ fun AccountForm(
         OutlinedTextField(
             value = account.name,
             onValueChange = { onValueChange(account.copy(name = it)) },
-            label ={ Text(text = stringResource(R.string.entry_account_name)) },
+            label = { Text(text = stringResource(R.string.entry_account_name)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
@@ -133,8 +137,8 @@ fun AccountForm(
         )
         OutlinedTextField(
             value = account.initialBalance.toString(),
-            onValueChange = {onValueChange(account.copy(initialBalance = it.toFloat()))},
-            label ={ Text(text = stringResource(R.string.entry_account_initial_balance)) },
+            onValueChange = { onValueChange(account.copy(initialBalance = it.toFloat())) },
+            label = { Text(text = stringResource(R.string.entry_account_initial_balance)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
@@ -143,11 +147,10 @@ fun AccountForm(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        DropdownMenu(
-            options = availableCurrencies.map { it.name },
-            onValueChange = {onValueChange(account.copy(currency = it))},
-            label = { Text(text = stringResource(R.string.entry_account_currency)) },
-            modifier = Modifier.fillMaxWidth()
+        LargeDropdownMenu<String>(
+            label = stringResource(id = R.string.entry_account_currency),
+            items = availableCurrencies.map { it.name },
+            onItemSelected = { index, item ->  onValueChange(account.copy(currency = item))}
         )
 
     }
@@ -156,7 +159,7 @@ fun AccountForm(
 
 @Preview
 @Composable
-fun AccountFormPreview(){
+fun AccountFormPreview() {
     val account = Account(
         id = 0,
         name = "Account 1",
