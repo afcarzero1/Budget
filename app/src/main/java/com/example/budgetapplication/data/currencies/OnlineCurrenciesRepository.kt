@@ -54,7 +54,7 @@ class OnlineCurrenciesRepository(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
                 )
             )
-            currencyDao.insert(currency)
+            currencyDao.insertOrReplace(currency)
         }
 
         Log.d(TAG, "Data fetched from API and inserted into database.")
