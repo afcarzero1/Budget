@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +32,14 @@ fun BaseRow(
     subtitle: String,
     amount: Float,
     currency: String,
-    negative: Boolean
+    negative: Boolean,
+    onItemSelected : (String) -> Unit = {}
 ) {
     val formattedAmount = formatAmount(amount)
     Row(
         modifier = Modifier
-            .height(68.dp),
+            .height(68.dp)
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -49,8 +53,10 @@ fun BaseRow(
 
         // Title and subtitle
         Column(Modifier) {
-            Text(text = title, style = MaterialTheme.typography.bodySmall)
-            Text(text = subtitle, style = MaterialTheme.typography.titleMedium)
+            Text(text = title, style = MaterialTheme.typography.headlineSmall)
+            if (subtitle.isNotEmpty()){
+                Text(text = subtitle, style = MaterialTheme.typography.titleMedium)
+            }
         }
 
         Spacer(Modifier.weight(1f))
@@ -61,23 +67,24 @@ fun BaseRow(
         ) {
             Text(
                 text = if (negative) "-$currency" else currency,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = formattedAmount,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = null,
-            )
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = {onItemSelected(title)}) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
         }
-
-
         Spacer(Modifier.width(16.dp))
-
     }
     ListDivider()
 }

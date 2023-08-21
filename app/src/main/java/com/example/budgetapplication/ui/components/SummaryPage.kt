@@ -20,51 +20,20 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun <T> SummaryPage(
     items: List<T>,
-    colors: (T) -> Color,
-    amounts: (T) -> Float,
-    circleLabel: String,
     rows: @Composable (T) -> Unit
 ) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-
-        // Circle chart
-        Box(Modifier.padding(16.dp)) {
-            val itemProportion = items.extractProportions { amounts(it) }
-            val total: Float = items.sumOf { amounts(it).toDouble() }.toFloat()
-            val circleColors = items.map { colors(it) }
-            AnimatedCircle(
-                itemProportion,
-                circleColors,
-                Modifier
-                    .height(300.dp)
-                    .align(Alignment.Center)
-                    .fillMaxWidth()
-            )
-            Column(modifier = Modifier.align(Alignment.Center)) {
-                Text(
-                    text = circleLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-                Text(
-                    text = formatAmount(total),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
-            // List of items
-            Card{
-                Column(modifier = Modifier.padding(16.dp)) {
-                    items.forEach { item ->
-                        rows(item)
-                    }
+        // List of items
+        Card {
+            Column(modifier = Modifier.padding(16.dp)) {
+                items.forEach { item ->
+                    rows(item)
                 }
             }
         }
     }
 }
+
 
 /**
  * Extracts the proportions of each item in a list.

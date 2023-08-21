@@ -117,7 +117,7 @@ fun AccountForm(
     availableCurrencies: List<Currency>,
     modifier: Modifier = Modifier,
     onValueChange: (Account) -> Unit = {},
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
 
     Column(

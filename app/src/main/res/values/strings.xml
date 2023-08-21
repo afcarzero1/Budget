@@ -1,5 +1,12 @@
 <resources>
   <string name="app_name">BudgetApplication</string>
+  <string name="yes">Yes</string>
+  <string name="no">No</string>
+
+  <string name="save">Save</string>
+  <string name="delete">Delete</string>
+  <string name="delete_account">Deleting Account</string>
+  <string name="attention">Attention!</string>
 
   <string name="entry_account_save">Save Account</string>
   <string name="entry_account_title">Account</string>
