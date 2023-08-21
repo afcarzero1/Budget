@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -38,6 +39,8 @@ fun AccountDetailsScreen(
 ) {
 
     val accountDetails by viewModel.accountState.collectAsState()
+    var useUpdatedUiState by remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
 
     Log.d("AccountDetailsScreen", "Loading account with ID : ${viewModel.accountId}")
@@ -58,9 +61,12 @@ fun AccountDetailsScreen(
         }
     ) { innerPadding ->
         AccountDetailsBody(
-            accountDetails = accountDetails.account,
+            accountDetailsUiState = if (useUpdatedUiState) viewModel.accountUiState else accountDetails,
             navigateBack = navigateBack,
-            onAccountDetailsChanged = viewModel::updateUiState,
+            onAccountDetailsChanged = {
+                useUpdatedUiState = true
+                viewModel.updateUiState(it)
+            },
             onAccountDetailsSaved = {
                 coroutineScope.launch {
                     viewModel.updateAccount()
@@ -78,7 +84,7 @@ fun AccountDetailsScreen(
 
 @Composable
 fun AccountDetailsBody(
-    accountDetails: Account,
+    accountDetailsUiState: AccountDetailsUiState,
     navigateBack: () -> Unit,
     onAccountDetailsChanged: (Account) -> Unit,
     onAccountDetailsSaved: () -> Unit,
@@ -91,7 +97,7 @@ fun AccountDetailsBody(
 
     Column(modifier = modifier.fillMaxWidth()) {
         AccountForm(
-            account = accountDetails,
+            account = accountDetailsUiState.account,
             availableCurrencies = availableCurrencies.currenciesList,
             onValueChange = { onAccountDetailsChanged(it) }
         )
@@ -102,8 +108,8 @@ fun AccountDetailsBody(
                 navigateBack()
             },
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-
+            modifier = Modifier.fillMaxWidth(),
+            enabled = accountDetailsUiState.isValid
         ) {
             Text(stringResource(R.string.save))
         }

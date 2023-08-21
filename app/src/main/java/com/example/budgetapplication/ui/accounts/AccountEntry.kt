@@ -120,6 +120,8 @@ fun AccountForm(
     enabled: Boolean = true,
 ) {
 
+    val currencyIndex = availableCurrencies.indexOfFirst { it.name == account.currency }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
@@ -150,9 +152,9 @@ fun AccountForm(
         LargeDropdownMenu<String>(
             label = stringResource(id = R.string.entry_account_currency),
             items = availableCurrencies.map { it.name },
-            onItemSelected = { index, item ->  onValueChange(account.copy(currency = item))}
+            onItemSelected = { index, item ->  onValueChange(account.copy(currency = item))},
+            initialIndex = currencyIndex,
         )
-
     }
 }
 
