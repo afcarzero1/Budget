@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,14 +59,17 @@ fun <T> LargeDropdownMenu(
             onClick = onClick,
         )
     },
+    initialIndex: Int = -1,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(-1) }
+    var selectedIndex by remember { mutableIntStateOf(-1) }
+
+    val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
 
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
             label = { Text(label) },
-            value = items.getOrNull(selectedIndex)?.let { selectedItemToString(it) } ?: "",
+            value = items.getOrNull(uiIndex)?.let { selectedItemToString(it) } ?: "",
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
@@ -97,9 +101,9 @@ fun <T> LargeDropdownMenu(
                 modifier = Modifier.padding(8.dp),
             ) {
                 val listState = rememberLazyListState()
-                if (selectedIndex > -1) {
+                if (uiIndex > -1) {
                     LaunchedEffect("ScrollToSelected") {
-                        listState.scrollToItem(index = selectedIndex)
+                        listState.scrollToItem(index = uiIndex)
                     }
                 }
 
@@ -115,7 +119,7 @@ fun <T> LargeDropdownMenu(
                         }
                     }
                     itemsIndexed(items) { index, item ->
-                        val selectedItem: Boolean = index == selectedIndex
+                        val selectedItem: Boolean = index == uiIndex
                         drawItem(
                             item,
                             selectedItem,
