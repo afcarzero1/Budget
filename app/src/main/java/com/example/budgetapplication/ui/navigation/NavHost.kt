@@ -31,10 +31,6 @@ fun BudgetNavHost(
         composable(route = Accounts.route) {
             Accounts.screen(navController)
         }
-        composable(route = Categories.route) {
-            Categories.screen(navController)
-        }
-
         composable(route = AccountEntry.route) {
             AccountEntry.screen(navController)
         }
@@ -48,5 +44,12 @@ fun BudgetNavHost(
         ) {
             AccountDetails.screen(navController)
         }
+        composable(route = Categories.route) {
+            Categories.screen(navController)
+        }
+        composable(route = CategoryEntry.route) {
+            CategoryEntry.screen(navController)
+        }
+
     }
 }

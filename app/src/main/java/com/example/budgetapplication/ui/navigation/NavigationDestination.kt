@@ -12,6 +12,8 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.ui.accounts.AccountDetailsScreen
 import com.example.budgetapplication.ui.accounts.AccountEntryScreen
 import com.example.budgetapplication.ui.accounts.AccountsSummary
+import com.example.budgetapplication.ui.categories.CategoriesSummary
+import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
 
@@ -104,14 +106,19 @@ object Categories : BudgetDestination {
     }
     override val route = "categories"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
-        InitialScreen(
-            navController = it,
-            destination = Categories,
-            screenBody = {
-                Text(text = "Under development")
-            }
-        )
+        CategoriesSummary(navController = it)
     }
+}
+
+object CategoryEntry: BudgetDestination{
+    override val icon = @Composable { tint: Color ->
+        Icon(Icons.Filled.Home, contentDescription = null, tint = tint)
+    }
+    override val route: String = "categoryEntry"
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        CategoryEntryScreen(navigateBack = {it.popBackStack() })
+    }
+
 }
 
 val tabDestinations = listOf(Overview, Accounts, Currencies, Categories)

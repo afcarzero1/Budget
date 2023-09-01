@@ -9,6 +9,8 @@ import com.example.budgetapplication.BudgetApplication
 import com.example.budgetapplication.ui.accounts.AccountDetailsViewModel
 import com.example.budgetapplication.ui.accounts.AccountsEntryViewModel
 import com.example.budgetapplication.ui.accounts.AccountsViewModel
+import com.example.budgetapplication.ui.categories.CategoriesSummaryViewModel
+import com.example.budgetapplication.ui.categories.CategoryEntryViewModel
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
 
 object AppViewModelProvider {
@@ -34,6 +36,14 @@ object AppViewModelProvider {
                 this.createSavedStateHandle(),
                 budgetApplication().container.accountsRepository
             )
+        }
+
+        initializer {
+            CategoriesSummaryViewModel(budgetApplication().container.categoriesRepository)
+        }
+
+        initializer {
+            CategoryEntryViewModel(budgetApplication().container.categoriesRepository)
         }
 
     }

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,14 +39,19 @@ fun AccountsSummary(
         screenBody = {
             val accountsState by viewModel.accountsUiState.collectAsState()
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                AccountsSummaryBody(
-                    accounts = accountsState.accountsList,
-                    navController = navController
-                )
+            if (accountsState.accountsList.isEmpty()){
+                EmptyAccountScreen()
+
+            }else{
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    AccountsSummaryBody(
+                        accounts = accountsState.accountsList,
+                        navController = navController
+                    )
+                }
             }
         },
         floatingButton = {
@@ -98,4 +104,18 @@ private fun AccountRow(
             navController.navigate("${AccountDetails.route}/${accountWithTransactions.account.id}")
         }
     )
+}
+
+
+@Composable
+fun EmptyAccountScreen(){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "No accounts yet. Create one by clicking the + button",
+            modifier = Modifier.padding(16.dp)
+        )
+    }
 }

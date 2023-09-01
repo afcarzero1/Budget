@@ -46,7 +46,7 @@ fun BaseRow(
         // Color bar in the left side
         VerticalBar(
             color = color,
-            modifier = Modifier
+            modifier = Modifier.width(2.dp)
         )
 
         Spacer(Modifier.width(12.dp))
@@ -91,7 +91,7 @@ fun BaseRow(
 
 
 @Composable
-private fun VerticalBar(color: Color, modifier: Modifier = Modifier) {
+fun VerticalBar(color: Color, modifier: Modifier = Modifier) {
     Spacer(
         modifier
             .size(4.dp, 36.dp)
