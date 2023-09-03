@@ -16,6 +16,7 @@ import com.example.budgetapplication.ui.categories.CategoriesSummary
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.example.budgetapplication.ui.transactions.TransactionsSummary
 
 interface BudgetDestination {
     val icon: @Composable (tint: Color) -> Unit
@@ -53,7 +54,7 @@ object Accounts : BudgetDestination {
     }
 }
 
-object AccountEntry: BudgetDestination{
+object AccountEntry : BudgetDestination {
     override val icon = @Composable { tint: Color ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
@@ -69,7 +70,7 @@ object AccountEntry: BudgetDestination{
     }
 }
 
-object AccountDetails: BudgetDestination{
+object AccountDetails : BudgetDestination {
     override val icon = @Composable { tint: Color ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
@@ -84,15 +85,19 @@ object AccountDetails: BudgetDestination{
     val routeWithArgs = "$route/{$accountIdArg}"
 
     override val screen: @Composable (navController: NavHostController) -> Unit =
-    {
-        AccountDetailsScreen(navigateBack = { it.popBackStack()})
-    }
+        {
+            AccountDetailsScreen(navigateBack = { it.popBackStack() })
+        }
 
 }
 
 object Currencies : BudgetDestination {
     override val icon = @Composable { tint: Color ->
-        Icon(Icons.Filled.Home, contentDescription = null, tint = tint)
+        Icon(
+            painter = painterResource(id = R.drawable.currencies),
+            contentDescription = null,
+            tint = tint
+        )
     }
     override val route = "currencies"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
@@ -102,7 +107,11 @@ object Currencies : BudgetDestination {
 
 object Categories : BudgetDestination {
     override val icon = @Composable { tint: Color ->
-        Icon(Icons.Filled.Home, contentDescription = null, tint = tint)
+        Icon(
+            painter = painterResource(id = R.drawable.categories),
+            contentDescription = null,
+            tint = tint
+        )
     }
     override val route = "categories"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
@@ -110,15 +119,31 @@ object Categories : BudgetDestination {
     }
 }
 
-object CategoryEntry: BudgetDestination{
+object CategoryEntry : BudgetDestination {
     override val icon = @Composable { tint: Color ->
         Icon(Icons.Filled.Home, contentDescription = null, tint = tint)
     }
     override val route: String = "categoryEntry"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
-        CategoryEntryScreen(navigateBack = {it.popBackStack() })
+        CategoryEntryScreen(navigateBack = { it.popBackStack() })
     }
 
 }
 
-val tabDestinations = listOf(Overview, Accounts, Currencies, Categories)
+
+object Transactions: BudgetDestination{
+    override val icon = @Composable { tint: Color ->
+        Icon(
+            painter = painterResource(id = R.drawable.transactions),
+            contentDescription = null,
+            tint = tint
+        )
+    }
+    override val route: String = "transactions"
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        TransactionsSummary(navController = it)
+    }
+
+}
+
+val tabDestinations = listOf(Overview, Accounts, Transactions, Currencies, Categories)

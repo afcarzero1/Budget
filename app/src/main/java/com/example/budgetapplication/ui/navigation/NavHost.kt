@@ -51,5 +51,9 @@ fun BudgetNavHost(
             CategoryEntry.screen(navController)
         }
 
+        composable(route = Transactions.route) {
+            Transactions.screen(navController)
+        }
+
     }
 }

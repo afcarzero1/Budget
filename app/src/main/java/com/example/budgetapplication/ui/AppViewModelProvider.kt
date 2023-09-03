@@ -12,6 +12,8 @@ import com.example.budgetapplication.ui.accounts.AccountsViewModel
 import com.example.budgetapplication.ui.categories.CategoriesSummaryViewModel
 import com.example.budgetapplication.ui.categories.CategoryEntryViewModel
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
+import com.example.budgetapplication.ui.transactions.TransactionEntryViewModel
+import com.example.budgetapplication.ui.transactions.TransactionsSummaryViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -44,6 +46,18 @@ object AppViewModelProvider {
 
         initializer {
             CategoryEntryViewModel(budgetApplication().container.categoriesRepository)
+        }
+
+        initializer {
+            TransactionsSummaryViewModel(budgetApplication().container.transactionsRepository)
+        }
+
+        initializer {
+            TransactionEntryViewModel(
+                budgetApplication().container.transactionsRepository,
+                budgetApplication().container.accountsRepository,
+                budgetApplication().container.categoriesRepository
+            )
         }
 
     }

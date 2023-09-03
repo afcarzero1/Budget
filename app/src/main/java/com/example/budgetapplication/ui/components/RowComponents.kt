@@ -26,14 +26,15 @@ import java.text.DecimalFormat
 
 
 @Composable
-fun BaseRow(
+fun <T>BaseRow(
     color: Color,
     title: String,
     subtitle: String,
     amount: Float,
     currency: String,
     negative: Boolean,
-    onItemSelected : (String) -> Unit = {}
+    holdedItem : T,
+    onItemSelected : (T) -> Unit = {}
 ) {
     val formattedAmount = formatAmount(amount)
     Row(
@@ -77,7 +78,7 @@ fun BaseRow(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = {onItemSelected(title)}) {
+            IconButton(onClick = {onItemSelected(holdedItem)}) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = null,
@@ -109,17 +110,3 @@ fun formatAmount(amount: Float): String {
 
 private val AmountDecimalFormat = DecimalFormat("###,###.##")
 
-@Composable
-private fun TransactionRow(
-    transaction: FullTransactionRecord,
-    color: Color,
-){
-    BaseRow(
-        color = color,
-        title = transaction.transactionRecord.name,
-        subtitle = transaction.category.name,
-        amount = transaction.transactionRecord.amount,
-        currency = transaction.account.currency,
-        negative = transaction.transactionRecord.type == "Expense"
-    )
-}

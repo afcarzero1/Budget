@@ -13,4 +13,16 @@
   <string name="entry_account_name">Account Name</string>
   <string name="entry_account_initial_balance">Initial Balance</string>
   <string name="entry_account_currency">Currency</string>
+
+  <string name="entry_category_save">Save Category</string>
+  <string name="entry_category_title">Category</string>
+  <string name="entry_category_name">Category Name</string>
+  <string name="entry_category_type">Category Type</string>
+  <string name="entry_category_parent">Parent Category</string>
+
+  <string name="entry_transaction_save">Save Transaction</string>
+  <string name="entry_transaction_title">Transaction</string>
+  <string name="entry_transaction_account">Account</string>
+  <string name="entry_transaction_category">Category</string>
+  <string name="entry_transaction_amount">Amount</string>
 </resources>
