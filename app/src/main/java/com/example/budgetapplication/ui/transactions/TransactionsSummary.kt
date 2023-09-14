@@ -23,6 +23,8 @@ import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.navigation.AccountEntry
 import com.example.budgetapplication.ui.navigation.Accounts
+import com.example.budgetapplication.ui.navigation.TransactionEntry
+import com.example.budgetapplication.ui.navigation.Transactions
 import com.example.budgetapplication.ui.theme.InitialScreen
 
 @Composable
@@ -33,7 +35,7 @@ fun TransactionsSummary(
 ) {
     InitialScreen(
         navController = navController,
-        destination = Accounts,
+        destination = Transactions,
         screenBody = {
             val transactionsState by viewModel.transactionsUiState.collectAsState()
 
@@ -55,7 +57,7 @@ fun TransactionsSummary(
         floatingButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(AccountEntry.route)
+                    navController.navigate(TransactionEntry.route)
                 },
                 modifier = Modifier.padding(16.dp)
             ) {

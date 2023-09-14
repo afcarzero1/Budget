@@ -32,17 +32,17 @@ fun AccountsSummary(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     viewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory)
-){
+) {
     InitialScreen(
         navController = navController,
         destination = Accounts,
         screenBody = {
             val accountsState by viewModel.accountsUiState.collectAsState()
 
-            if (accountsState.accountsList.isEmpty()){
+            if (accountsState.accountsList.isEmpty()) {
                 EmptyAccountScreen()
 
-            }else{
+            } else {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.SpaceBetween
@@ -75,16 +75,33 @@ fun AccountsSummaryBody(
     accounts: List<AccountWithTransactions>,
     navController: NavHostController
 ) {
-    SummaryPage(
-        items = accounts,
-        rows = { accountWithTransactions ->
-            AccountRow(
-                accountWithTransactions,
-                Color(accountWithTransactions.account.color),
-                navController
-            )
-        },
-    )
+    val amountByCurrency: MutableMap<String, Float> = mutableMapOf()
+
+    for (account in accounts) {
+        amountByCurrency[account.account.currency] =
+            amountByCurrency.getOrElse(account.account.currency, { 0f }) + account.balance
+    }
+
+    Column() {
+        //TODO: Add here total in selected currency
+        //TODO : Add here horisontal bar showing balances in each currency
+        //TODO : add here bar separating (horiontal)
+
+        SummaryPage(
+            items = accounts,
+            rows = { accountWithTransactions ->
+                AccountRow(
+                    accountWithTransactions,
+                    Color(accountWithTransactions.account.color),
+                    navController
+                )
+            },
+        )
+    }
+
+
+
+
 }
 
 @Composable
@@ -92,7 +109,7 @@ private fun AccountRow(
     accountWithTransactions: AccountWithTransactions,
     color: Color,
     navController: NavHostController
-){
+) {
     //TODO: move navigation code to appropriate place
     BaseRow(
         color = color,
@@ -110,7 +127,7 @@ private fun AccountRow(
 
 
 @Composable
-fun EmptyAccountScreen(){
+fun EmptyAccountScreen() {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center

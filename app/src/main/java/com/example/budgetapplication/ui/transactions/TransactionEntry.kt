@@ -33,6 +33,7 @@ import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.ui.accounts.AccountEntryBody
 import com.example.budgetapplication.ui.accounts.AccountForm
+import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import kotlinx.coroutines.launch
 
@@ -41,7 +42,7 @@ import kotlinx.coroutines.launch
 fun TransactionEntryScreen(
     navigateBack: () -> Unit,
     viewModel: TransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
-){
+) {
     val coroutineScore = rememberCoroutineScope()
     val accountsListState by viewModel.accountsListState.collectAsState()
     val categoriesListState by viewModel.categoriesListState.collectAsState()
@@ -62,6 +63,24 @@ fun TransactionEntryScreen(
         }
     ) { innerPadding ->
 
+        TransactionEntryBody(
+            transactionUiState = viewModel.transactionUiState,
+            availableAccounts = accountsListState,
+            availableCategories = categoriesListState,
+            onTransactionValueChanged = viewModel::updateUiState,
+            onSaveClick = {
+                coroutineScore.launch {
+                    viewModel.saveTransaction()
+                    navigateBack()
+                }
+            },
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+
+        )
+
     }
 }
 
@@ -73,7 +92,7 @@ fun TransactionEntryBody(
     onTransactionValueChanged: (TransactionRecord) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
@@ -106,7 +125,7 @@ fun TransactionForm(
     availableCategories: List<Category>,
     onValueChange: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
 
     Column(
         modifier = modifier,
@@ -124,21 +143,48 @@ fun TransactionForm(
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
+        OutlinedTextField(
+            value = transactionRecord.name,
+            onValueChange = { onValueChange(transactionRecord.copy(name = it)) },
+            label = { Text(text = stringResource(R.string.entry_transaction_name)) },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true,
+            singleLine = true,
+        )
 
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_account),
             items = availableAccounts.map { it.name },
-            onItemSelected = {index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) }
+            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) }
         )
 
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_category),
-            items = availableAccounts.map { it.name },
-            onItemSelected = {index, item -> onValueChange(transactionRecord.copy(categoryId = availableCategories[index].id))}
+            items = availableCategories.map { it.name },
+            onItemSelected = { index, item ->
+                onValueChange(
+                    transactionRecord.copy(
+                        categoryId = availableCategories[index].id,
+                        type = availableCategories[index].defaultType
+                    )
+                )
+            }
         )
 
+        //TODO : fix here mismatch between category and category type
+        LargeDropdownMenu(
+            label = stringResource(id = R.string.entry_category_type),
+            items = listOf("Expense", "Income"),
+            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
+            initialIndex = 0
+        )
 
-
-
+        DatePickerField(
+            label = stringResource(id = R.string.entry_transaction_date),
+            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) }
+        )
     }
 }
