@@ -11,7 +11,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetNavHost(
     navController: NavHostController,
@@ -51,11 +50,22 @@ fun BudgetNavHost(
             CategoryEntry.screen(navController)
         }
 
+        composable(
+            route = CategoryDetails.routeWithArgs,
+            arguments = listOf(
+                navArgument(CategoryDetails.categoryIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            CategoryDetails.screen(navController)
+        }
+
         composable(route = Transactions.route) {
             Transactions.screen(navController)
         }
 
-        composable(route =  TransactionEntry.route){
+        composable(route = TransactionEntry.route) {
             TransactionEntry.screen(navController)
         }
 

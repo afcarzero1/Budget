@@ -48,26 +48,27 @@ fun TransactionEntryScreen(
     val categoriesListState by viewModel.categoriesListState.collectAsState()
 
 
-    Scaffold(
-        topBar = {
-            Surface(
-                Modifier
-                    .height(dimensionResource(id = R.dimen.tab_height))
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.entry_transaction_title),
-                    modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
-                )
-            }
+    Scaffold(topBar = {
+        Surface(
+            Modifier
+                .height(dimensionResource(id = R.dimen.tab_height))
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.entry_transaction_title),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+            )
         }
-    ) { innerPadding ->
+    }) { innerPadding ->
 
         TransactionEntryBody(
             transactionUiState = viewModel.transactionUiState,
             availableAccounts = accountsListState,
             availableCategories = categoriesListState,
-            onTransactionValueChanged = viewModel::updateUiState,
+            onTransactionValueChanged = {
+                Log.d("TransactionEntryScreen", "TransactionEntryScreen: $it")
+                viewModel.updateUiState(it)
+            },
             onSaveClick = {
                 coroutineScore.launch {
                     viewModel.saveTransaction()
@@ -131,9 +132,10 @@ fun TransactionForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        OutlinedTextField(
-            value = transactionRecord.amount.toString(),
-            onValueChange = { onValueChange(transactionRecord.copy(amount = it.toFloat())) },
+        OutlinedTextField(value = transactionRecord.amount.toString(),
+            onValueChange = {
+                onValueChange(transactionRecord.copy(amount = it.toFloat()))
+            },
             label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -143,6 +145,32 @@ fun TransactionForm(
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
+
+        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_account),
+            items = availableAccounts.map { it.name },
+            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) })
+
+        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
+            items = availableCategories.map { it.name },
+            onItemSelected = { index, item ->
+                onValueChange(
+                    transactionRecord.copy(
+                        categoryId = availableCategories[index].id,
+                    )
+                )
+            })
+
+        //TODO : make this radio button for adding transfers
+        LargeDropdownMenu(
+            label = stringResource(id = R.string.entry_category_type),
+            items = listOf("Expense", "Income"),
+            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
+            initialIndex = 0
+        )
+
+        DatePickerField(label = stringResource(id = R.string.entry_transaction_date),
+            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) })
+
         OutlinedTextField(
             value = transactionRecord.name,
             onValueChange = { onValueChange(transactionRecord.copy(name = it)) },
@@ -155,36 +183,5 @@ fun TransactionForm(
             singleLine = true,
         )
 
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_transaction_account),
-            items = availableAccounts.map { it.name },
-            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) }
-        )
-
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_transaction_category),
-            items = availableCategories.map { it.name },
-            onItemSelected = { index, item ->
-                onValueChange(
-                    transactionRecord.copy(
-                        categoryId = availableCategories[index].id,
-                        type = availableCategories[index].defaultType
-                    )
-                )
-            }
-        )
-
-        //TODO : fix here mismatch between category and category type
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_category_type),
-            items = listOf("Expense", "Income"),
-            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
-            initialIndex = 0
-        )
-
-        DatePickerField(
-            label = stringResource(id = R.string.entry_transaction_date),
-            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) }
-        )
     }
 }

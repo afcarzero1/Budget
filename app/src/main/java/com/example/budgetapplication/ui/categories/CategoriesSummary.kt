@@ -12,9 +12,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.example.budgetapplication.data.categories.CategoryWithTransactions
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.VerticalBar
+import com.example.budgetapplication.ui.navigation.AccountDetails
+import com.example.budgetapplication.ui.navigation.CategoryDetails
 import com.example.budgetapplication.ui.navigation.CategoryEntry
 
 @Composable
@@ -41,41 +45,33 @@ fun CategoriesSummary(
     viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    InitialScreen(
-        navController = navController,
-        destination = Categories,
-        screenBody = {
-            val categoriesState by viewModel.categoriesUiState.collectAsState()
+    InitialScreen(navController = navController, destination = Categories, screenBody = {
+        val categoriesState by viewModel.categoriesUiState.collectAsState()
 
-            if (categoriesState.categoriesList.isEmpty()){
-                EmptyCategoryScreen()
-            }else{
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    CategoriesSummaryBody(
-                        categories = categoriesState.categoriesList,
-                        navController = navController
-                    )
-                }
-            }
-
-        },
-        floatingButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate(CategoryEntry.route)
-                },
-                modifier = Modifier.padding(16.dp)
+        if (categoriesState.categoriesList.isEmpty()) {
+            EmptyCategoryScreen()
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add Category"
+                CategoriesSummaryBody(
+                    categories = categoriesState.categoriesList, navController = navController
                 )
             }
         }
-    )
+
+    }, floatingButton = {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate(CategoryEntry.route)
+            }, modifier = Modifier.padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add, contentDescription = "Add Category"
+            )
+        }
+    })
 }
 
 
@@ -88,7 +84,9 @@ fun CategoriesSummaryBody(
         Card {
             Column(modifier = Modifier.padding(16.dp)) {
                 categories.forEach { category ->
-                    CategoryRow(category = category)
+                    CategoryRow(category = category, onItemSelected = {
+                        navController.navigate("${CategoryDetails.route}/${it.category.id}")
+                    })
                 }
             }
         }
@@ -96,7 +94,10 @@ fun CategoriesSummaryBody(
 }
 
 @Composable
-fun CategoryRow(category: CategoryWithTransactions) {
+fun CategoryRow(
+    category: CategoryWithTransactions,
+    onItemSelected: (CategoryWithTransactions) -> Unit = {},
+) {
     Row(
         modifier = Modifier
             .height(68.dp)
@@ -122,20 +123,27 @@ fun CategoryRow(category: CategoryWithTransactions) {
         // Parent Category
         Column(Modifier) {
             //TODO: Update here when parent category is ready
-            Text(text = "Depends on:", style = MaterialTheme.typography.headlineSmall)
-            Text(text = category.category.name, style = MaterialTheme.typography.titleMedium)
+            Text(text = "Depends on", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "None", style = MaterialTheme.typography.titleMedium)
+        }
+
+        Spacer(modifier = Modifier.width(18.dp))
+
+        IconButton(onClick = { onItemSelected(category) }) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+            )
         }
     }
     ListDivider()
 }
 
 
-
 @Composable
-fun EmptyCategoryScreen(){
+fun EmptyCategoryScreen() {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "No categories yet. Create one by clicking the + button",

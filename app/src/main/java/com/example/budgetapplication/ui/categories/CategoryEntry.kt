@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryEntryScreen(
     navigateBack: () -> Unit,
@@ -96,13 +95,12 @@ fun CategoryEntryBody(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.entry_account_save))
+            Text(text = stringResource(R.string.entry_category_save))
         }
     }
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryForm(
     category: Category,

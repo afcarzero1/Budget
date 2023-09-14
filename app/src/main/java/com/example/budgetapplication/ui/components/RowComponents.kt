@@ -56,7 +56,7 @@ fun <T>BaseRow(
         Column(Modifier) {
             Text(text = title, style = MaterialTheme.typography.headlineSmall)
             if (subtitle.isNotEmpty()){
-                Text(text = subtitle, style = MaterialTheme.typography.titleMedium)
+                Text(text = subtitle, style = MaterialTheme.typography.titleSmall)
             }
         }
 

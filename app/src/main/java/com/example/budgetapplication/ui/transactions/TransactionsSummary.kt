@@ -26,6 +26,8 @@ import com.example.budgetapplication.ui.navigation.Accounts
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
 import com.example.budgetapplication.ui.theme.InitialScreen
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun TransactionsSummary(
@@ -33,41 +35,33 @@ fun TransactionsSummary(
     modifier: Modifier = Modifier,
     viewModel: TransactionsSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    InitialScreen(
-        navController = navController,
-        destination = Transactions,
-        screenBody = {
-            val transactionsState by viewModel.transactionsUiState.collectAsState()
+    InitialScreen(navController = navController, destination = Transactions, screenBody = {
+        val transactionsState by viewModel.transactionsUiState.collectAsState()
 
-            if (transactionsState.transactionsList.isEmpty()) {
-                EmptyTransactionScreen()
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TransactionsSummaryBody(
-                        transactions = transactionsState.transactionsList,
-                        navController = navController
-                    )
-                }
-            }
-
-        },
-        floatingButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate(TransactionEntry.route)
-                },
-                modifier = Modifier.padding(16.dp)
+        if (transactionsState.transactionsList.isEmpty()) {
+            EmptyTransactionScreen()
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add Account"
+                TransactionsSummaryBody(
+                    transactions = transactionsState.transactionsList,
+                    navController = navController
                 )
             }
         }
-    )
+    }, floatingButton = {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate(TransactionEntry.route)
+            }, modifier = Modifier.padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add, contentDescription = "Add Account"
+            )
+        }
+    })
 
 
 }
@@ -86,7 +80,7 @@ fun TransactionsSummaryBody(
             TransactionRow(
                 transaction = transaction,
                 onItemSelected = {
-                    TODO("Not yet implemented")
+                //TODO: implement onItemSelected
                 }
             )
             ListDivider()
@@ -97,8 +91,7 @@ fun TransactionsSummaryBody(
 @Composable
 fun EmptyTransactionScreen() {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "No transactions yet. Create one by clicking the + button",
@@ -112,15 +105,22 @@ private fun TransactionRow(
     transaction: FullTransactionRecord,
     onItemSelected: (FullTransactionRecord) -> Unit = {},
 ) {
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+
+    val isExpense = transaction.transactionRecord.type == "Expense"
+    val color = if (isExpense) expenseColor else incomeColor
+
     BaseRow(
-        color = Color(0xFFE0E0E0),
-        title = transaction.transactionRecord.name,
-        subtitle = transaction.category.name,
+        color = color,
+        title = transaction.category.name,
+        subtitle = formatter.format(transaction.transactionRecord.date),
         amount = transaction.transactionRecord.amount,
         currency = transaction.account.currency,
-        negative = transaction.transactionRecord.type == "Expense",
+        negative = isExpense,
         holdedItem = transaction,
         onItemSelected = onItemSelected
     )
 }
 
+private val expenseColor = Color(0xFFCD5C5C)
+private val incomeColor = Color(0xFF196F3D)

@@ -50,7 +50,7 @@ class TransactionEntryViewModel(
 
     private fun validateInput(transaction: TransactionRecord): Boolean {
         return with(transaction) {
-            name.isNotBlank() && type.isNotBlank()
+            type.isNotBlank() && amount > 0 && accountId >= 0 && categoryId >= 0
         }
     }
 
