@@ -17,6 +17,7 @@ import com.example.budgetapplication.ui.categories.CategoryDetailsScreen
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.example.budgetapplication.ui.transactions.TransactionDetailsScreen
 import com.example.budgetapplication.ui.transactions.TransactionEntryScreen
 import com.example.budgetapplication.ui.transactions.TransactionsSummary
 
@@ -149,7 +150,6 @@ object CategoryDetails : BudgetDestination {
         {
             CategoryDetailsScreen(navigateBack = { it.popBackStack() })
         }
-
 }
 
 
@@ -179,7 +179,26 @@ object TransactionEntry: BudgetDestination{
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         TransactionEntryScreen(navigateBack = { it.popBackStack() })
     }
+}
 
+object TransactionDetails: BudgetDestination{
+    override val icon = @Composable { tint: Color ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null,
+            tint = tint
+        )
+    }
+    override val route: String = "transactionDetails"
+
+    const val transactionIdArg = "transactionId"
+
+    val routeWithArgs = "$route/{$transactionIdArg}"
+
+    override val screen: @Composable (navController: NavHostController) -> Unit =
+        {
+            TransactionDetailsScreen(navigateBack = { it.popBackStack() })
+        }
 }
 
 

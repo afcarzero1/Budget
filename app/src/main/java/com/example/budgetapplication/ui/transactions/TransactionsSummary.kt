@@ -23,6 +23,7 @@ import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.navigation.AccountEntry
 import com.example.budgetapplication.ui.navigation.Accounts
+import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
 import com.example.budgetapplication.ui.theme.InitialScreen
@@ -80,7 +81,9 @@ fun TransactionsSummaryBody(
             TransactionRow(
                 transaction = transaction,
                 onItemSelected = {
-                //TODO: implement onItemSelected
+                    navController.navigate(
+                        TransactionDetails.route + "/${it.transactionRecord.id}"
+                    )
                 }
             )
             ListDivider()

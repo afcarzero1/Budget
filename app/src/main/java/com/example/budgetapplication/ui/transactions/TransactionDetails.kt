@@ -1,4 +1,4 @@
-package com.example.budgetapplication.ui.categories
+package com.example.budgetapplication.ui.transactions
 
 import android.util.Log
 import android.widget.Toast
@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -27,24 +26,21 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
-import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.accounts.AccountsViewModel
+import com.example.budgetapplication.ui.categories.CategoriesSummaryViewModel
 import kotlinx.coroutines.launch
 
+
 @Composable
-fun CategoryDetailsScreen(
+fun TransactionDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: CategoryDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
-) {
-
-    val categoryState by viewModel.categoryState.collectAsState()
-    var useUpdatedUiState by remember { mutableStateOf(false) }
+    viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+){
+    val transactionState by viewModel.transactionState.collectAsState()
     val context = LocalContext.current
-
     val coroutineScope = rememberCoroutineScope()
-
-    Log.d("CategoryDetailsScreen", "Loading category with ID : ${viewModel.categoryId}")
-    Log.d("CategoryDetailsScreen", "CategoryDetails: $categoryState")
 
     Scaffold(
         topBar = {
@@ -54,68 +50,74 @@ fun CategoryDetailsScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(R.string.entry_account_title),
+                    text = stringResource(R.string.entry_transaction_title),
                     modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
                 )
             }
         }
     ) { innerPadding ->
-        CategoryDetailsBody(
-            categoryDetailsUiState = if (useUpdatedUiState) viewModel.categoryUiState else categoryState,
+        TransactionDetailsBody(
+            transactionDetailsUiState = transactionState,
             navigateBack = navigateBack,
-            onCategoryDetailsChanged = {
-                useUpdatedUiState = true
+            onTransactionDetailsChanged = {
                 viewModel.updateUiState(it)
             },
-            onCategoryDetailsSaved = {
+            onTransactionDetailsSaved = {
                 coroutineScope.launch {
-                    viewModel.updateCategory()
+                    viewModel.updateTransaction()
                 }
             },
-            onCategoryDetailsDeleted = {
+            onTransactionDetailsDeleted = {
                 coroutineScope.launch {
                     try {
-                        viewModel.deleteCategory()
+                        Log.d("TransactionDetailsScreen", "Deleting transaction ${transactionState.transaction.id}")
+                        viewModel.deleteTransaction()
                     } catch (e: Exception) {
                         // Show message to user
-                        Toast.makeText(context, "Error deleting category", Toast.LENGTH_SHORT).show()
-                        Log.e("CategoryDetailsScreen", "Error deleting category", e)
+                        Toast.makeText(context, "Error deleting transaction", Toast.LENGTH_SHORT).show()
+                        Log.e("TransactionDetailsScreen", "Error deleting transaction", e)
                     }
                 }
             },
             modifier = Modifier.padding(innerPadding)
         )
     }
+
 }
 
 @Composable
-fun CategoryDetailsBody(
-    categoryDetailsUiState: CategoryDetailsUiState,
+fun TransactionDetailsBody(
+    transactionDetailsUiState: TransactionDetailsUiState,
     navigateBack: () -> Unit,
-    onCategoryDetailsChanged: (Category) -> Unit,
-    onCategoryDetailsSaved: () -> Unit,
-    onCategoryDetailsDeleted: () -> Unit,
+    onTransactionDetailsChanged: (TransactionRecord) -> Unit,
+    onTransactionDetailsSaved: () -> Unit,
+    onTransactionDetailsDeleted: () -> Unit,
     modifier: Modifier = Modifier,
-    categoriesSummaryViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) {
+    categoriesViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+
+){
     var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
-    val availableCategories by categoriesSummaryViewModel.categoriesUiState.collectAsState()
+
+    val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()
+    val availableAccounts by accountsViewModel.accountsUiState.collectAsState()
 
     Column(modifier = modifier.fillMaxWidth()) {
-        CategoryForm(
-            category = categoryDetailsUiState.category,
+        TransactionForm(
+            transactionRecord = transactionDetailsUiState.transaction,
+            onValueChange = { onTransactionDetailsChanged(it) },
+            availableAccounts = availableAccounts.accountsList.map { it.account },
             availableCategories = availableCategories.categoriesList.map { it.category },
-            onValueChange = { onCategoryDetailsChanged(it) }
         )
 
         OutlinedButton(
             onClick = {
-                onCategoryDetailsSaved()
+                onTransactionDetailsSaved()
                 navigateBack()
             },
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth(),
-            enabled = categoryDetailsUiState.isValid
+            enabled = transactionDetailsUiState.isValid
         ) {
             Text(stringResource(R.string.save))
         }
@@ -132,7 +134,7 @@ fun CategoryDetailsBody(
             DeleteConfirmationDialog(
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
-                    onCategoryDetailsDeleted()
+                    onTransactionDetailsDeleted()
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
@@ -140,8 +142,8 @@ fun CategoryDetailsBody(
             )
         }
     }
-}
 
+}
 
 @Composable
 private fun DeleteConfirmationDialog(
@@ -151,7 +153,7 @@ private fun DeleteConfirmationDialog(
 ) {
     AlertDialog(onDismissRequest = { /* Do nothing */ },
         title = { Text(stringResource(R.string.attention)) },
-        text = { Text(stringResource(R.string.delete_category)) },
+        text = { Text(stringResource(R.string.delete_transaction)) },
         modifier = modifier,
         dismissButton = {
             TextButton(onClick = onDeleteCancel) {

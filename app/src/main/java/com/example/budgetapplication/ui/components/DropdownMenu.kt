@@ -59,7 +59,12 @@ fun <T> LargeDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
+    // Case in which the initial index is out of bounds (probably items has not received data yet)
+    if (initialIndex > items.size){
+        selectedIndex = -1
+    }
     val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
+
 
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(

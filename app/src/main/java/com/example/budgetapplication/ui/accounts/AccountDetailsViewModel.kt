@@ -34,7 +34,7 @@ class AccountDetailsViewModel(
                 AccountDetailsUiState(it, true)
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(AccountDetailsViewModel.TIMEOUT_MILLIS),
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = AccountDetailsUiState()
             )
 

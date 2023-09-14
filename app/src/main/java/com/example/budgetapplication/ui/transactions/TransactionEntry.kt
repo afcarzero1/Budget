@@ -37,7 +37,6 @@ import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionEntryScreen(
     navigateBack: () -> Unit,
@@ -146,9 +145,12 @@ fun TransactionForm(
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
 
-        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_account),
+        LargeDropdownMenu(
+            label = stringResource(id = R.string.entry_transaction_account),
             items = availableAccounts.map { it.name },
-            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) })
+            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) },
+            initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId }
+        )
 
         LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
             items = availableCategories.map { it.name },
@@ -158,18 +160,23 @@ fun TransactionForm(
                         categoryId = availableCategories[index].id,
                     )
                 )
-            })
+            },
+            initialIndex = availableCategories.indexOfFirst { it.id == transactionRecord.categoryId }
+        )
 
         //TODO : make this radio button for adding transfers
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_type),
             items = listOf("Expense", "Income"),
             onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
-            initialIndex = 0
+            initialIndex = if (transactionRecord.type == "Expense") 0 else 1
         )
 
-        DatePickerField(label = stringResource(id = R.string.entry_transaction_date),
-            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) })
+        DatePickerField(
+            label = stringResource(id = R.string.entry_transaction_date),
+            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
+            initialDate = transactionRecord.date
+        )
 
         OutlinedTextField(
             value = transactionRecord.name,

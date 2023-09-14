@@ -122,7 +122,7 @@ fun CategoryForm(
             label = stringResource(id = R.string.entry_category_type),
             items = listOf("Expense", "Income"),
             onItemSelected = { index, item -> onValueChange(category.copy(defaultType = item)) },
-            initialIndex = 0
+            initialIndex = if (category.defaultType == "Expense") 0 else 1
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_parent),

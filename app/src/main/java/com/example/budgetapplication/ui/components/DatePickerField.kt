@@ -39,19 +39,19 @@ fun DatePickerField(
     label: String,
     onDateChanged: (date: LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
+    initialDate: LocalDateTime = LocalDateTime.now()
 ) {
     val calendar = Calendar.getInstance()
-    val currentDateTime = LocalDateTime.now()
 
-    calendar.set(Calendar.YEAR, currentDateTime.year)
-    calendar.set(Calendar.MONTH, currentDateTime.monthValue - 1) // Calendar months are zero-based
-    calendar.set(Calendar.DAY_OF_MONTH, currentDateTime.dayOfMonth)
-    calendar.set(Calendar.HOUR_OF_DAY, currentDateTime.hour)
-    calendar.set(Calendar.MINUTE, currentDateTime.minute)
-    calendar.set(Calendar.SECOND, currentDateTime.second)
+    calendar.set(Calendar.YEAR, initialDate.year)
+    calendar.set(Calendar.MONTH, initialDate.monthValue - 1) // Calendar months are zero-based
+    calendar.set(Calendar.DAY_OF_MONTH, initialDate.dayOfMonth)
+    calendar.set(Calendar.HOUR_OF_DAY, initialDate.hour)
+    calendar.set(Calendar.MINUTE, initialDate.minute)
+    calendar.set(Calendar.SECOND, initialDate.second)
     calendar.set(
         Calendar.MILLISECOND,
-        currentDateTime.nano / 1_000_000
+        initialDate.nano / 1_000_000
     ) // Convert nanoseconds to milliseconds
 
     var showDatePicker by remember { mutableStateOf(false) }
