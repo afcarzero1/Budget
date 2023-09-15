@@ -22,7 +22,7 @@ data class AccountWithTransactions(
             for (transactionRecord in transactionRecords) {
                 if (transactionRecord.type == "Expense") {
                     balance -= transactionRecord.amount
-                } else {
+                } else if (transactionRecord.type == "Income") {
                     balance += transactionRecord.amount
                 }
             }

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -25,9 +26,11 @@ interface TransactionDao {
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
 
+    @Transaction
     @Query("SELECT * from transactions WHERE id = :id")
     fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord>
 
+    @Transaction
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllFullTransactionsStream(): Flow<List<FullTransactionRecord>>
 }

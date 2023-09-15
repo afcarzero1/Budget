@@ -11,6 +11,8 @@ import com.example.budgetapplication.data.currencies.CurrenciesApiService
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.MockCurrenciesRepository
 import com.example.budgetapplication.data.currencies.OnlineCurrenciesRepository
+import com.example.budgetapplication.data.future_transactions.FutureTransactionsRepository
+import com.example.budgetapplication.data.future_transactions.OfflineFutureTransactionsRepository
 import com.example.budgetapplication.data.transactions.OfflineTransactionsRepository
 import com.example.budgetapplication.data.transactions.TransactionsRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -27,6 +29,8 @@ interface AppContainer {
     val transactionsRepository: TransactionsRepository
 
     val categoriesRepository: CategoriesRepository
+
+    val futureTransactionsRepository: FutureTransactionsRepository
 }
 
 class AppDataContainer(private val context: Context) : AppContainer{
@@ -61,5 +65,9 @@ class AppDataContainer(private val context: Context) : AppContainer{
 
     override val transactionsRepository: TransactionsRepository by lazy {
         OfflineTransactionsRepository(BudgetDatabase.getDatabase(context).transactionDao())
+    }
+
+    override val futureTransactionsRepository: FutureTransactionsRepository by lazy {
+        OfflineFutureTransactionsRepository(BudgetDatabase.getDatabase(context).futureTransactionDao())
     }
 }

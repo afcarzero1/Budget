@@ -11,7 +11,7 @@ data class FullTransactionRecord(
             parentColumn = "accountId",
             entityColumn = "id"
     )
-    val account: Account,
+    val account: Account,//TODO : Add here AccountWithCurrency
     @Relation(
             parentColumn = "categoryId",
             entityColumn = "id"

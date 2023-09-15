@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.future_transactions
 
+import androidx.room.Transaction
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import kotlinx.coroutines.flow.Flow
@@ -15,5 +16,11 @@ interface FutureTransactionsRepository {
     fun getFutureTransactionStream(id: Int): Flow<FutureTransaction>
 
     fun getAllFutureTransactionsStream(): Flow<List<FutureTransaction>>
+
+    @Transaction
+    fun getFutureFullTransactionStream(id: Int): Flow<FullFutureTransaction>
+
+    @Transaction
+    fun getAllFutureFullTransactionsStream(): Flow<List<FullFutureTransaction>>
 
 }
