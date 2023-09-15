@@ -3,13 +3,19 @@ package com.example.budgetapplication.ui.transactions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,6 +34,8 @@ import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
+import com.example.budgetapplication.ui.components.VerticalBar
+import com.example.budgetapplication.ui.components.formatCurrencyAmount
 import com.example.budgetapplication.ui.navigation.FutureTransactionEntry
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
@@ -110,8 +119,7 @@ fun TransactionsSummary(
                 } else {
                     navController.navigate(TransactionEntry.route)
                 }
-            },
-            modifier = Modifier.padding(16.dp)
+            }, modifier = Modifier.padding(16.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.Add, contentDescription = "Add Transaction"
@@ -152,12 +160,9 @@ fun FutureTransactionsSummaryBody(
         modifier = modifier
     ) {
         futureTransactions.forEach { transaction ->
-            FutureTransactionRow(
-                futureTransaction = transaction,
-                onItemSelected = {
-                    TODO("Navigate to future transaction detail")
-                }
-            )
+            FutureTransactionRow(futureTransaction = transaction, onItemSelected = {
+                TODO("Navigate to future transaction detail")
+            })
             ListDivider()
         }
     }
@@ -208,6 +213,74 @@ private fun FutureTransactionRow(
     val isExpense = futureTransaction.futureTransaction.type == "Expense"
     val color = if (isExpense) expenseColor else incomeColor
     //TODO: Assign global formatter using dependency injection
+    // TODO : Create a base row that accepts different objects for title/subtitle, so it is more
+    // flexible
+
+    Row(
+        modifier = Modifier
+            .height(90.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // Color bar in the left side
+        VerticalBar(
+            color = color, modifier = Modifier.width(2.dp)
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        // Title and subtitle
+        Column(Modifier) {
+            Text(
+                text = futureTransaction.category.name,
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            val formattedInitialDate =
+                formatter.format(futureTransaction.futureTransaction.startDate)
+            val formattedFinalDate = formatter.format(futureTransaction.futureTransaction.endDate)
+
+            Text(text = "From $formattedInitialDate", style = MaterialTheme.typography.titleSmall)
+            Text(text = "To $formattedFinalDate", style = MaterialTheme.typography.titleSmall)
+            
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        // Amount
+        Column() {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = if (isExpense) "-${futureTransaction.currency.name}" else futureTransaction.currency.name,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = formatCurrencyAmount(futureTransaction.futureTransaction.amount),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(onClick = { onItemSelected(futureTransaction) }) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                }
+            }
+            Text(
+                text = "Repeted ${futureTransaction.futureTransaction.recurrenceType} every ${futureTransaction.futureTransaction.recurrenceValue}",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+        
+        Spacer(Modifier.width(16.dp))
+    }
+    ListDivider()
 
 }
 

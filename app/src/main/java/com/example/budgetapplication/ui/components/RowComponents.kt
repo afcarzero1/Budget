@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import java.text.DecimalFormat
 
 
@@ -36,7 +35,7 @@ fun <T>BaseRow(
     holdedItem : T,
     onItemSelected : (T) -> Unit = {}
 ) {
-    val formattedAmount = formatAmount(amount)
+    val formattedAmount = formatCurrencyAmount(amount)
     Row(
         modifier = Modifier
             .height(68.dp)
@@ -104,7 +103,7 @@ fun ListDivider(modifier: Modifier = Modifier) {
     Divider(color = MaterialTheme.colorScheme.background, thickness = 1.dp, modifier = modifier)
 }
 
-fun formatAmount(amount: Float): String {
+fun formatCurrencyAmount(amount: Float): String {
     return AmountDecimalFormat.format(amount)
 }
 
