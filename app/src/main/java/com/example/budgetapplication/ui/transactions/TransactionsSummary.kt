@@ -27,6 +27,7 @@ import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
+import com.example.budgetapplication.ui.navigation.FutureTransactionEntry
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
@@ -103,7 +104,7 @@ fun TransactionsSummary(
         FloatingActionButton(
             onClick = {
                 if (showFutureTransactions) {
-                    //TODO: Navigate to future transaction entry
+                    navController.navigate(FutureTransactionEntry.route)
                 } else {
                     navController.navigate(TransactionEntry.route)
                 }

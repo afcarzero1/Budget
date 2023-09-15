@@ -80,5 +80,10 @@ fun BudgetNavHost(
             TransactionDetails.screen(navController)
         }
 
+        composable(
+            route = FutureTransactionEntry.route
+        ) {
+            FutureTransactionEntry.screen(navController)
+        }
     }
 }
