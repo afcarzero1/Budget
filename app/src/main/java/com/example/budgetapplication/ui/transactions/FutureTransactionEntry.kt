@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
@@ -35,10 +36,12 @@ fun FutureTransactionEntryScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val availableCategories by viewModel.categoriesListState.collectAsState()
+    val availableCurrencies by viewModel.currenciesListState.collectAsState()
 
-    FutureTransactionEntryBody(
-        futureTransactionUiState = viewModel.transactionUiState,
+
+    FutureTransactionEntryBody(futureTransactionUiState = viewModel.transactionUiState,
         availableCategories = availableCategories,
+        availableCurrencies = availableCurrencies,
         onFutureTransactionValueChanged = {
             viewModel.updateUiState(it)
         },
@@ -47,14 +50,14 @@ fun FutureTransactionEntryScreen(
                 viewModel.saveTransaction()
                 navigateBack()
             }
-        }
-    )
+        })
 }
 
 @Composable
 fun FutureTransactionEntryBody(
     futureTransactionUiState: FutureTransactionUiState,
     availableCategories: List<Category>,
+    availableCurrencies: List<Currency>,
     onFutureTransactionValueChanged: (FutureTransaction) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -66,6 +69,7 @@ fun FutureTransactionEntryBody(
         FutureTransactionForm(
             futureTransaction = futureTransactionUiState.futureTransaction,
             availableCategories = availableCategories,
+            availableCurrencies = availableCurrencies,
             onValueChange = onFutureTransactionValueChanged
         )
         Button(
@@ -85,15 +89,17 @@ fun FutureTransactionEntryBody(
 fun FutureTransactionForm(
     futureTransaction: FutureTransaction,
     availableCategories: List<Category>,
+    availableCurrencies: List<Currency>,
     onValueChange: (FutureTransaction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val recurrenceTypes = listOf("None", "Weekly", "Monthly", "Yearly")
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        OutlinedTextField(
-            value = futureTransaction.amount.toString(),
+        OutlinedTextField(value = futureTransaction.amount.toString(),
             onValueChange = {
                 onValueChange(futureTransaction.copy(amount = it.toFloat()))
             },
@@ -119,6 +125,18 @@ fun FutureTransactionForm(
             initialIndex = availableCategories.indexOfFirst { it.id == futureTransaction.categoryId }
         )
 
+        LargeDropdownMenu(label = stringResource(id = R.string.entry_future_transaction_currency),
+            items = availableCurrencies.map { it.name },
+            onItemSelected = { index, item ->
+                onValueChange(
+                    futureTransaction.copy(
+                        currency = availableCurrencies[index].name,
+                    )
+                )
+            },
+            initialIndex = availableCategories.indexOfFirst { it.name == futureTransaction.currency }
+        )
+
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_type),
             items = listOf("Expense", "Income"),
@@ -140,16 +158,23 @@ fun FutureTransactionForm(
 
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
-            items = listOf("None", "Weekly", "Monthly", "Yearly"),
+            items = recurrenceTypes,
             onItemSelected = { index, item -> onValueChange(futureTransaction.copy(recurrenceType = item)) },
+            initialIndex = recurrenceTypes.indexOfFirst { it == futureTransaction.recurrenceType }
         )
 
-        // Integers dropwdown menu
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_future_transaction_recurrence_value),
-            items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
-            onItemSelected = { index, item -> onValueChange(futureTransaction.copy(recurrenceValue = item.toInt())) },
-        )
-
+        if (futureTransaction.recurrenceType != "None") {
+            LargeDropdownMenu(
+                label = stringResource(id = R.string.entry_future_transaction_recurrence_value),
+                items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                onItemSelected = { index, item ->
+                    onValueChange(
+                        futureTransaction.copy(
+                            recurrenceValue = item.toInt()
+                        )
+                    )
+                },
+            )
+        }
     }
 }

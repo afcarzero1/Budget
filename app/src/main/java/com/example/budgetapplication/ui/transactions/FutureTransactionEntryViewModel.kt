@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.categories.CategoriesRepository
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.currencies.CurrenciesRepository
+import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.FutureTransactionsRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,10 +19,19 @@ import java.time.LocalDateTime
 
 class FutureTransactionEntryViewModel(
     private val futureTransactionsRepository: FutureTransactionsRepository,
-    private val categoriesRepository: CategoriesRepository
+    private val categoriesRepository: CategoriesRepository,
+    private val currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
     val categoriesListState: StateFlow<List<Category>> = categoriesRepository
         .getAllCategoriesStream()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = listOf()
+        )
+
+    val currenciesListState: StateFlow<List<Currency>> = currenciesRepository
+        .getAllCurrenciesStream()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),
@@ -39,7 +50,7 @@ class FutureTransactionEntryViewModel(
 
     private fun validateInput(futureTransaction: FutureTransaction): Boolean {
         return with(futureTransaction){
-            type.isNotBlank() && amount > 0 && categoryId >= 0
+            type.isNotBlank() && amount > 0 && categoryId >= 0 && endDate > startDate
         }
     }
 
@@ -53,14 +64,15 @@ class FutureTransactionEntryViewModel(
 data class FutureTransactionUiState(
     val futureTransaction: FutureTransaction = FutureTransaction(
         id = -1,
-        type = "",
+        type = "Expense",
         name = "",
         amount = 0f,
         categoryId = -1,
+        currency = "USD",
         startDate = LocalDateTime.now(),
         endDate = LocalDateTime.now(),
-        recurrenceType = "",
-        recurrenceValue = 0
+        recurrenceType = "None",
+        recurrenceValue = 1
     ),
     val isValid: Boolean = false
 )

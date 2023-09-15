@@ -87,7 +87,8 @@ object AppViewModelProvider {
         initializer {
             FutureTransactionEntryViewModel(
                 budgetApplication().container.futureTransactionsRepository,
-                budgetApplication().container.categoriesRepository
+                budgetApplication().container.categoriesRepository,
+                budgetApplication().container.currenciesRepository
             )
         }
 

@@ -50,53 +50,55 @@ fun TransactionsSummary(
         val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
 
         // Selector for showing future transactions
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Button(
-                onClick = { showFutureTransactions = false },
-                enabled = showFutureTransactions,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .weight(1f)
-            ) {
-                Text(text = "Present")
-            }
-            Button(
-                onClick = { showFutureTransactions = true },
-                enabled = !showFutureTransactions,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .weight(1f)
-            ) {
-                Text(text = "Future")
-            }
-        }
-
-        if (showFutureTransactions) {
-            if (futureTransactionsState.futureTransactionsList.isEmpty()) {
-                EmptyTransactionScreen()
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Button(
+                    onClick = { showFutureTransactions = false },
+                    enabled = showFutureTransactions,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .weight(1f)
                 ) {
-                    FutureTransactionsSummaryBody(
-                        futureTransactions = futureTransactionsState.futureTransactionsList,
-                        navController = navController
-                    )
+                    Text(text = "Present")
+                }
+                Button(
+                    onClick = { showFutureTransactions = true },
+                    enabled = !showFutureTransactions,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .weight(1f)
+                ) {
+                    Text(text = "Future")
                 }
             }
-        } else {
-            if (transactionsState.transactionsList.isEmpty()) {
-                EmptyTransactionScreen()
+
+            if (showFutureTransactions) {
+                if (futureTransactionsState.futureTransactionsList.isEmpty()) {
+                    EmptyTransactionScreen()
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        FutureTransactionsSummaryBody(
+                            futureTransactions = futureTransactionsState.futureTransactionsList,
+                            navController = navController
+                        )
+                    }
+                }
             } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TransactionsSummaryBody(
-                        transactions = transactionsState.transactionsList,
-                        navController = navController
-                    )
+                if (transactionsState.transactionsList.isEmpty()) {
+                    EmptyTransactionScreen()
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        TransactionsSummaryBody(
+                            transactions = transactionsState.transactionsList,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
@@ -150,9 +152,12 @@ fun FutureTransactionsSummaryBody(
         modifier = modifier
     ) {
         futureTransactions.forEach { transaction ->
-            FutureTransactionRow(futureTransaction = transaction, onItemSelected = {
-                TODO("Navigate to future transaction detail")
-            })
+            FutureTransactionRow(
+                futureTransaction = transaction,
+                onItemSelected = {
+                    TODO("Navigate to future transaction detail")
+                }
+            )
             ListDivider()
         }
     }
@@ -197,6 +202,12 @@ private fun FutureTransactionRow(
     futureTransaction: FullFutureTransaction,
     onItemSelected: (FullFutureTransaction) -> Unit = {},
 ) {
+
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+
+    val isExpense = futureTransaction.futureTransaction.type == "Expense"
+    val color = if (isExpense) expenseColor else incomeColor
+    //TODO: Assign global formatter using dependency injection
 
 }
 
