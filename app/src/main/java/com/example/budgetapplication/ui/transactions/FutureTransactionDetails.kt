@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -39,6 +40,7 @@ fun FutureTransactionDetailsScreen(
     viewModel: FutureTransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ){
     val transactionState by viewModel.transactionState.collectAsState()
+    var useUpdatedUiState by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -57,9 +59,10 @@ fun FutureTransactionDetailsScreen(
         }
     ) { innerPadding ->
         FutureTransactionDetailsBody(
-            futureTransactionDetailsUiState = transactionState,
+            futureTransactionDetailsUiState = if (useUpdatedUiState) viewModel.transactionUiState else transactionState,
             navigateBack = navigateBack,
             onTransactionDetailsChanged = {
+                useUpdatedUiState = true
                 viewModel.updateUiState(it)
             },
             onTransactionDetailsSaved = {

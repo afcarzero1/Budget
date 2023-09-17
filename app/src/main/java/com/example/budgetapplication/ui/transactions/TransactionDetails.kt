@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -38,7 +39,10 @@ fun TransactionDetailsScreen(
     navigateBack: () -> Unit,
     viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ){
-    val transactionState by viewModel.transactionState.collectAsState()
+    val transactionDBState by viewModel.transactionState.collectAsState()
+    var useUpdatedUiState by remember { mutableStateOf(false) }
+    val transactionUiState = viewModel.transactionUiState
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -57,9 +61,10 @@ fun TransactionDetailsScreen(
         }
     ) { innerPadding ->
         TransactionDetailsBody(
-            transactionDetailsUiState = transactionState,
+            transactionDetailsUiState = if (useUpdatedUiState) viewModel.transactionUiState else transactionDBState,
             navigateBack = navigateBack,
             onTransactionDetailsChanged = {
+                useUpdatedUiState = true
                 viewModel.updateUiState(it)
             },
             onTransactionDetailsSaved = {
@@ -70,7 +75,7 @@ fun TransactionDetailsScreen(
             onTransactionDetailsDeleted = {
                 coroutineScope.launch {
                     try {
-                        Log.d("TransactionDetailsScreen", "Deleting transaction ${transactionState.transaction.id}")
+                        Log.d("TransactionDetailsScreen", "Deleting transaction ${transactionDBState.transaction.id}")
                         viewModel.deleteTransaction()
                     } catch (e: Exception) {
                         // Show message to user

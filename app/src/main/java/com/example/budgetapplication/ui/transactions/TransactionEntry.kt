@@ -126,7 +126,6 @@ fun TransactionForm(
     onValueChange: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
@@ -144,14 +143,12 @@ fun TransactionForm(
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
-
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_account),
             items = availableAccounts.map { it.name },
             onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) },
             initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId }
         )
-
         LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
             items = availableCategories.map { it.name },
             onItemSelected = { index, item ->
