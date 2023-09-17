@@ -134,7 +134,7 @@ fun FutureTransactionForm(
                     )
                 )
             },
-            initialIndex = availableCategories.indexOfFirst { it.name == futureTransaction.currency }
+            initialIndex = availableCurrencies.indexOfFirst { it.name == futureTransaction.currency }
         )
 
         LargeDropdownMenu(
@@ -174,6 +174,7 @@ fun FutureTransactionForm(
                         )
                     )
                 },
+                initialIndex = futureTransaction.recurrenceValue - 1
             )
         }
     }

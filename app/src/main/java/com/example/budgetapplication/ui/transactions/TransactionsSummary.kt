@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.transactions
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.VerticalBar
 import com.example.budgetapplication.ui.components.formatCurrencyAmount
+import com.example.budgetapplication.ui.navigation.FutureTransactionDetails
 import com.example.budgetapplication.ui.navigation.FutureTransactionEntry
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
@@ -160,9 +162,16 @@ fun FutureTransactionsSummaryBody(
         modifier = modifier
     ) {
         futureTransactions.forEach { transaction ->
-            FutureTransactionRow(futureTransaction = transaction, onItemSelected = {
-                TODO("Navigate to future transaction detail")
-            })
+            Log.d("TransactionSummary", "Future Transaction: ${transaction.futureTransaction.id}")
+            FutureTransactionRow(
+                futureTransaction = transaction,
+                onItemSelected = {
+                    Log.d("TransactionSummary", "Details of Future Transaction ID: ${it.futureTransaction.id}")
+                    navController.navigate(
+                        FutureTransactionDetails.route + "/${transaction.futureTransaction.id}"
+                    )
+                }
+            )
             ListDivider()
         }
     }
@@ -243,7 +252,7 @@ private fun FutureTransactionRow(
 
             Text(text = "From $formattedInitialDate", style = MaterialTheme.typography.titleSmall)
             Text(text = "To $formattedFinalDate", style = MaterialTheme.typography.titleSmall)
-            
+
         }
 
         Spacer(Modifier.weight(1f))
@@ -277,7 +286,7 @@ private fun FutureTransactionRow(
                 style = MaterialTheme.typography.labelSmall
             )
         }
-        
+
         Spacer(Modifier.width(16.dp))
     }
     ListDivider()

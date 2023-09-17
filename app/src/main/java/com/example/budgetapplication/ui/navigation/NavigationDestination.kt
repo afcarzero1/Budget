@@ -17,6 +17,7 @@ import com.example.budgetapplication.ui.categories.CategoryDetailsScreen
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.example.budgetapplication.ui.transactions.FutureTransactionDetailsScreen
 import com.example.budgetapplication.ui.transactions.FutureTransactionEntryScreen
 import com.example.budgetapplication.ui.transactions.TransactionDetailsScreen
 import com.example.budgetapplication.ui.transactions.TransactionEntryScreen
@@ -215,6 +216,27 @@ object FutureTransactionEntry: BudgetDestination{
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         FutureTransactionEntryScreen(navigateBack = { it.popBackStack() })
     }
+}
+
+
+object FutureTransactionDetails: BudgetDestination{
+    override val icon = @Composable { tint: Color ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null,
+            tint = tint
+        )
+    }
+    override val route: String = "futureTransactionDetails"
+
+    const val futureTransactionIdArg = "futureTransactionId"
+
+    val routeWithArgs = "$route/{$futureTransactionIdArg}"
+
+    override val screen: @Composable (navController: NavHostController) -> Unit =
+        {
+            FutureTransactionDetailsScreen(navigateBack = { it.popBackStack() })
+        }
 }
 
 

@@ -63,7 +63,7 @@ class FutureTransactionEntryViewModel(
 
 data class FutureTransactionUiState(
     val futureTransaction: FutureTransaction = FutureTransaction(
-        id = -1,
+        id = 0,
         type = "Expense",
         name = "",
         amount = 0f,

@@ -1,6 +1,5 @@
 package com.example.budgetapplication.ui.navigation
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -84,6 +83,17 @@ fun BudgetNavHost(
             route = FutureTransactionEntry.route
         ) {
             FutureTransactionEntry.screen(navController)
+        }
+
+        composable(
+            route = FutureTransactionDetails.routeWithArgs,
+            arguments = listOf(
+                navArgument(FutureTransactionDetails.futureTransactionIdArg){
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            FutureTransactionDetails.screen(navController)
         }
     }
 }

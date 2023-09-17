@@ -13,6 +13,7 @@ import com.example.budgetapplication.ui.categories.CategoriesSummaryViewModel
 import com.example.budgetapplication.ui.categories.CategoryDetailsViewModel
 import com.example.budgetapplication.ui.categories.CategoryEntryViewModel
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
+import com.example.budgetapplication.ui.transactions.FutureTransactionDetailsViewModel
 import com.example.budgetapplication.ui.transactions.FutureTransactionEntryViewModel
 import com.example.budgetapplication.ui.transactions.FutureTransactionsSummaryViewModel
 import com.example.budgetapplication.ui.transactions.TransactionDetailsViewModel
@@ -89,6 +90,13 @@ object AppViewModelProvider {
                 budgetApplication().container.futureTransactionsRepository,
                 budgetApplication().container.categoriesRepository,
                 budgetApplication().container.currenciesRepository
+            )
+        }
+
+        initializer {
+            FutureTransactionDetailsViewModel(
+                this.createSavedStateHandle(),
+                budgetApplication().container.futureTransactionsRepository
             )
         }
 
