@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.accounts
 
+import com.example.budgetapplication.data.currencies.Currency
 import kotlinx.coroutines.flow.Flow
 
 interface AccountsRepository {
@@ -17,4 +18,10 @@ interface AccountsRepository {
     fun getAccountWithTransactionsStream(id: Int): Flow<AccountWithTransactions>
 
     fun getAllAccountsWithTransactionsStream(): Flow<List<AccountWithTransactions>>
+
+    fun getFullAccountStream(id: Int): Flow<FullAccount>
+
+    fun getAllFullAccountsStream(): Flow<List<FullAccount>>
+
+    fun totalBalance(): Flow<Pair<Currency, Float>>
 }

@@ -16,6 +16,7 @@ import com.example.budgetapplication.ui.categories.CategoriesSummary
 import com.example.budgetapplication.ui.categories.CategoryDetailsScreen
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
+import com.example.budgetapplication.ui.overall.OverallScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
 import com.example.budgetapplication.ui.transactions.FutureTransactionDetailsScreen
 import com.example.budgetapplication.ui.transactions.FutureTransactionEntryScreen
@@ -35,13 +36,7 @@ object Overview : BudgetDestination {
     }
     override val route = "overview"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
-        InitialScreen(
-            navController = it,
-            destination = Overview,
-            screenBody = {
-                Text(text = "Under development")
-            }
-        )
+        OverallScreen(navController = it)
     }
 }
 

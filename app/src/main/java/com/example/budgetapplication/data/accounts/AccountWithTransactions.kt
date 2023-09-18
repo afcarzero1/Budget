@@ -17,16 +17,6 @@ data class AccountWithTransactions(
 ){
     @get:Ignore val balance: Float
         get() {
-            var balance = account.initialBalance
-
-            for (transactionRecord in transactionRecords) {
-                if (transactionRecord.type == "Expense") {
-                    balance -= transactionRecord.amount
-                } else if (transactionRecord.type == "Income") {
-                    balance += transactionRecord.amount
-                }
-            }
-
-            return balance
+            return account.computeBalance(transactionRecords)
         }
 }

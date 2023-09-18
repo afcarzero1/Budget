@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -26,9 +27,19 @@ interface AccountDao {
     @Query("SELECT * from accounts ORDER BY name ASC")
     fun getAllAccounts(): Flow<List<Account>>
 
+    @Transaction
     @Query("SELECT * from accounts WHERE id = :id")
     fun getAccountWithTransactions(id: Int): Flow<AccountWithTransactions>
 
+    @Transaction
     @Query("SELECT * from accounts ORDER BY name ASC")
     fun getAllAccountsWithTransactions(): Flow<List<AccountWithTransactions>>
+
+    @Transaction
+    @Query("SELECT * from accounts WHERE id = :id")
+    fun getFullAccount(id: Int): Flow<FullAccount>
+
+    @Transaction
+    @Query("SELECT * from accounts ORDER BY name ASC")
+    fun getAllFullAccounts(): Flow<List<FullAccount>>
 }

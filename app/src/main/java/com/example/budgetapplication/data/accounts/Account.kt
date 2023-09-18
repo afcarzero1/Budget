@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transactions.TransactionRecord
 
 
 @Entity(tableName = "accounts",
@@ -22,4 +23,20 @@ data class Account (
     val initialBalance: Float,
     val currency: String,
     val color: Long = 0x000000
-)
+){
+
+    fun computeBalance(transactionRecords: List<TransactionRecord>): Float {
+        var balance = initialBalance
+
+        for (transactionRecord in transactionRecords) {
+            if (transactionRecord.type == "Expense") {
+                balance -= transactionRecord.amount
+            } else if (transactionRecord.type == "Income") {
+                balance += transactionRecord.amount
+            }
+        }
+
+        return balance
+    }
+
+}

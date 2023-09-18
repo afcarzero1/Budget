@@ -40,7 +40,8 @@ fun TransactionDetailsScreen(
     viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ){
     val transactionDBState by viewModel.transactionState.collectAsState()
-    var useUpdatedUiState by remember { mutableStateOf(false) }
+    var useUpdatedUiState by remember { mutableStateOf(false) } //TODO: This is a hack to get around the fact that the UI state is not updated when the transaction is updated
+    //TODO : Do it properly by using a single state object for the UI and DB states
     val transactionUiState = viewModel.transactionUiState
 
     val context = LocalContext.current
