@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.data.future_transactions.FullFutureTransaction
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
@@ -196,7 +197,7 @@ private fun TransactionRow(
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
 
-    val isExpense = transaction.transactionRecord.type == "Expense"
+    val isExpense = transaction.transactionRecord.type == TransactionType.EXPENSE
     val color = if (isExpense) expenseColor else incomeColor
 
     BaseRow(
@@ -204,7 +205,7 @@ private fun TransactionRow(
         title = transaction.category.name,
         subtitle = formatter.format(transaction.transactionRecord.date),
         amount = transaction.transactionRecord.amount,
-        currency = transaction.account.currency,
+        currency = transaction.account.currency.name,
         negative = isExpense,
         holdedItem = transaction,
         onItemSelected = onItemSelected
@@ -219,7 +220,7 @@ private fun FutureTransactionRow(
 
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
 
-    val isExpense = futureTransaction.futureTransaction.type == "Expense"
+    val isExpense = futureTransaction.futureTransaction.type == TransactionType.EXPENSE
     val color = if (isExpense) expenseColor else incomeColor
     //TODO: Assign global formatter using dependency injection
     // TODO : Create a base row that accepts different objects for title/subtitle, so it is more

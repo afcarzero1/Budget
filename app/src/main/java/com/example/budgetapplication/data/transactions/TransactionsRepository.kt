@@ -1,9 +1,9 @@
 package com.example.budgetapplication.data.transactions
 
 import kotlinx.coroutines.flow.Flow
+import java.time.YearMonth
 
 interface TransactionsRepository {
-
     suspend fun insert(transactionRecord: TransactionRecord)
 
     suspend fun update(transactionRecord: TransactionRecord)
@@ -17,4 +17,9 @@ interface TransactionsRepository {
     fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord>
 
     fun getAllFullTransactionsStream(): Flow<List<FullTransactionRecord>>
+
+    fun getFullTransactionsByMonthsStream(
+        fromDate: YearMonth,
+        toDate: YearMonth,
+    ): Flow<List<FullTransactionRecord>>
 }

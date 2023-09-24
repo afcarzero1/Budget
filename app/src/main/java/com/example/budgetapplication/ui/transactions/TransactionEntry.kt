@@ -31,6 +31,7 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.accounts.AccountEntryBody
 import com.example.budgetapplication.ui.accounts.AccountForm
 import com.example.budgetapplication.ui.components.DatePickerField
@@ -164,9 +165,9 @@ fun TransactionForm(
         //TODO : make this radio button for adding transfers
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_type),
-            items = listOf("Expense", "Income"),
+            items = enumValues<TransactionType>().toList(),
             onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
-            initialIndex = if (transactionRecord.type == "Expense") 0 else 1
+            initialIndex = if (transactionRecord.type == TransactionType.EXPENSE) 0 else 1
         )
 
         DatePickerField(

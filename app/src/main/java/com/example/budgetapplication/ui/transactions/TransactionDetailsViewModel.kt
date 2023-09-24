@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.data.transactions.TransactionsRepository
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +52,7 @@ class TransactionDetailsViewModel(
 
     private fun validateInput(transaction: TransactionRecord): Boolean {
         return with(transaction) {
-            type.isNotBlank() && amount > 0 && accountId >= 0 && categoryId >= 0
+            amount > 0 && accountId >= 0 && categoryId >= 0
         }
     }
 
@@ -74,7 +75,7 @@ data class TransactionDetailsUiState(
         amount = 0f,
         date = LocalDateTime.now(),
         name = "",
-        type = ""
+        type = TransactionType.EXPENSE
     ),
     val isValid: Boolean = false
 )

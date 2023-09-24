@@ -24,6 +24,8 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
+import com.example.budgetapplication.data.future_transactions.RecurrenceType
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
@@ -93,7 +95,6 @@ fun FutureTransactionForm(
     onValueChange: (FutureTransaction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val recurrenceTypes = listOf("None", "Weekly", "Monthly", "Yearly")
 
     Column(
         modifier = modifier,
@@ -139,9 +140,9 @@ fun FutureTransactionForm(
 
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_type),
-            items = listOf("Expense", "Income"),
+            items = listOf(TransactionType.EXPENSE, TransactionType.INCOME),
             onItemSelected = { index, item -> onValueChange(futureTransaction.copy(type = item)) },
-            initialIndex = if (futureTransaction.type == "Expense") 0 else 1
+            initialIndex = if (futureTransaction.type == TransactionType.EXPENSE) 0 else 1
         )
 
         DatePickerField(
@@ -158,12 +159,12 @@ fun FutureTransactionForm(
 
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
-            items = recurrenceTypes,
+            items = enumValues<RecurrenceType>().toList(),
             onItemSelected = { index, item -> onValueChange(futureTransaction.copy(recurrenceType = item)) },
-            initialIndex = recurrenceTypes.indexOfFirst { it == futureTransaction.recurrenceType }
+            initialIndex = enumValues<RecurrenceType>().toList().indexOfFirst { it == futureTransaction.recurrenceType }
         )
 
-        if (futureTransaction.recurrenceType != "None") {
+        if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
             LargeDropdownMenu(
                 label = stringResource(id = R.string.entry_future_transaction_recurrence_value),
                 items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),

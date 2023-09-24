@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface TransactionDao {
@@ -33,4 +34,10 @@ interface TransactionDao {
     @Transaction
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllFullTransactionsStream(): Flow<List<FullTransactionRecord>>
+
+    @Transaction
+    @Query("SELECT * from transactions " +
+            "WHERE date >= :startDateTime AND date <= :endDateTime " +
+            "ORDER BY date DESC")
+    fun getFullTransactionsByDateStream(startDateTime: LocalDateTime, endDateTime: LocalDateTime): Flow<List<FullTransactionRecord>>
 }

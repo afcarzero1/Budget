@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 
 
 @Entity(tableName = "accounts",
@@ -29,9 +30,9 @@ data class Account (
         var balance = initialBalance
 
         for (transactionRecord in transactionRecords) {
-            if (transactionRecord.type == "Expense") {
+            if (transactionRecord.type == TransactionType.EXPENSE) {
                 balance -= transactionRecord.amount
-            } else if (transactionRecord.type == "Income") {
+            } else if (transactionRecord.type == TransactionType.INCOME) {
                 balance += transactionRecord.amount
             }
         }

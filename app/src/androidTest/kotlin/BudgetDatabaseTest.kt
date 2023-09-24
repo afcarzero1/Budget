@@ -9,8 +9,10 @@ import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryDao
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.currencies.CurrencyDao
+import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionDao
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -105,7 +107,7 @@ class BudgetDatabaseTest {
         TransactionRecord(
             id = 1,
             name = "Burger King",
-            type = "Expense",
+            type = TransactionType.EXPENSE,
             accountId = 1,
             categoryId = 1,
             amount = 10.0f,
@@ -114,7 +116,7 @@ class BudgetDatabaseTest {
         TransactionRecord(
             id = 2,
             name = "Uber",
-            type = "Expense",
+            type = TransactionType.EXPENSE,
             accountId = 1,
             categoryId = 2,
             amount = 20.0f,
@@ -123,7 +125,7 @@ class BudgetDatabaseTest {
         TransactionRecord(
             id = 3,
             name = "Rent",
-            type = "Expense",
+            type = TransactionType.EXPENSE,
             accountId = 1,
             categoryId = 3,
             amount = 1000.0f,
@@ -132,7 +134,7 @@ class BudgetDatabaseTest {
         TransactionRecord(
             id = 4,
             name = "Salary",
-            type = "Income",
+            type = TransactionType.INCOME,
             accountId = 1,
             categoryId = 4,
             amount = 10000.0f,
@@ -141,7 +143,7 @@ class BudgetDatabaseTest {
         TransactionRecord(
             id = 5,
             name = "Burger King",
-            type = "Expense",
+            type = TransactionType.EXPENSE,
             accountId = 2,
             categoryId = 1,
             amount = 15.0f,
@@ -256,11 +258,22 @@ class BudgetDatabaseTest {
 
                     assertTrue(account.balance == (100f + 10000f - 10f - 20f - 1000f))
                 }
-
             }
+        }
+    }
 
-
-
+    @Test
+    @Throws(Exception::class)
+    fun getAllFullTransactionsTest(){
+        runBlocking {
+            addAllItemsToDb()
+            val allTransactions: List<FullTransactionRecord> = transactionDao.getAllFullTransactionsStream().first()
+            for(transaction in allTransactions) {
+                assertTrue(transactions.contains(transaction.transactionRecord))
+                assertTrue(accounts.contains(transaction.account.account))
+                assertTrue(currencies.contains(transaction.account.currency))
+                assertTrue(categories.contains(transaction.category))
+            }
         }
     }
 

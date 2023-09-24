@@ -31,7 +31,7 @@ data class TransactionRecord (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
-    val type: String,
+    val type: TransactionType,
     val accountId: Int,
     val categoryId: Int,
     val amount: Float,

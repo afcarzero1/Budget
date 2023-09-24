@@ -11,6 +11,8 @@ import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.FutureTransactionsRepository
+import com.example.budgetapplication.data.future_transactions.RecurrenceType
+import com.example.budgetapplication.data.transactions.TransactionType
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -50,7 +52,7 @@ class FutureTransactionEntryViewModel(
 
     private fun validateInput(futureTransaction: FutureTransaction): Boolean {
         return with(futureTransaction){
-            type.isNotBlank() && amount > 0 && categoryId >= 0 && endDate > startDate
+            amount > 0 && categoryId >= 0 && endDate > startDate
         }
     }
 
@@ -64,14 +66,14 @@ class FutureTransactionEntryViewModel(
 data class FutureTransactionUiState(
     val futureTransaction: FutureTransaction = FutureTransaction(
         id = 0,
-        type = "Expense",
+        type = TransactionType.EXPENSE,
         name = "",
         amount = 0f,
         categoryId = -1,
         currency = "USD",
         startDate = LocalDateTime.now(),
         endDate = LocalDateTime.now(),
-        recurrenceType = "None",
+        recurrenceType = RecurrenceType.MONTHLY,
         recurrenceValue = 1
     ),
     val isValid: Boolean = false

@@ -18,26 +18,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.theme.InitialScreen
 import java.lang.Math.abs
+import java.time.YearMonth
 
 @Composable
 fun OverallScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    accountsViewModel: OverallViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    overallViewModel: OverallViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    val accounts by accountsViewModel.accountsUiState.collectAsState()
-    val accountsTotalBalance by accountsViewModel.accountsTotalBalance.collectAsState()
+    val accounts by overallViewModel.accountsUiState.collectAsState()
+    val accountsTotalBalance by overallViewModel.accountsTotalBalance.collectAsState()
+
+    val lastExpenses by overallViewModel.lastExpenses.collectAsState()
 
     InitialScreen(navController = navController, destination = Overview, screenBody = {
         OverallScreenBody(
             currenctBalance = accountsTotalBalance,
-            accounts = accounts.accountsList
+            accounts = accounts.accountsList,
+            lastExpenses = lastExpenses
         )
     })
 }
@@ -46,14 +51,16 @@ fun OverallScreen(
 fun OverallScreenBody(
     currenctBalance: Pair<Currency, Float>,
     accounts: List<FullAccount>,
-
+    lastExpenses: Map<YearMonth, Float>
     ) {
 
-    Column() {
+    Column {
         OverallAccountsCard(
             accounts = accounts,
-            currenctBalance = currenctBalance
+            currentBalance = currenctBalance
         )
+
+        OverallExpensesCard(lastMonthExpenses = lastExpenses)
 
 
     }
@@ -64,7 +71,7 @@ fun OverallScreenBody(
 @Composable
 fun OverallAccountsCard(
     accounts: List<FullAccount>,
-    currenctBalance: Pair<Currency, Float>
+    currentBalance: Pair<Currency, Float>
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -78,12 +85,9 @@ fun OverallAccountsCard(
             .padding(16.dp)
     ) {
         Column {
-            Text(
-                text = "${currenctBalance.first.name} ${currenctBalance.second}"
-            )
-
             PieChart(
-                data = accounts ,
+                data = accounts,
+                middleText = "${currentBalance.first.name} ${currentBalance.second}",
                 itemToWeight = {it.balance * (1 / it.currency.value)},
                 itemDetails = {
                         Column(modifier = Modifier.fillMaxWidth()) {
@@ -108,6 +112,31 @@ fun OverallAccountsCard(
             )
         }
     }
+}
+
+@Composable
+fun OverallExpensesCard(
+    lastMonthExpenses : Map<YearMonth, Float>
+){
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp) //TODO: make this card a template in components
+    ){
+
+
+
+
+
+    }
+
+
 }
 
 // Function to generate a color based on the hash of the name

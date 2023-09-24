@@ -5,6 +5,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.accounts.AccountDao
 import com.example.budgetapplication.data.categories.Category
@@ -28,6 +29,7 @@ import java.util.Locale
     version = 2,
     exportSchema = false,
 )
+@TypeConverters(DateConverter::class)
 abstract class BudgetDatabase : RoomDatabase() {
 
     abstract fun currencyDao(): CurrencyDao

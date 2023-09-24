@@ -10,6 +10,7 @@ import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.categories.CategoriesRepository
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.data.transactions.TransactionsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +51,7 @@ class TransactionEntryViewModel(
 
     private fun validateInput(transaction: TransactionRecord): Boolean {
         return with(transaction) {
-            type.isNotBlank() && amount > 0 && accountId >= 0 && categoryId >= 0
+             amount > 0 && accountId >= 0 && categoryId >= 0
         }
     }
 
@@ -65,7 +66,7 @@ data class TransactionUiState(
     val transaction: TransactionRecord = TransactionRecord(
         id = 0,
         name = "",
-        type = "Expense",
+        type = TransactionType.EXPENSE,
         accountId = 0,
         categoryId = 0,
         amount = 0f,

@@ -7,6 +7,7 @@ import androidx.room.TypeConverters
 import com.example.budgetapplication.data.DateConverter
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transactions.TransactionType
 import java.time.LocalDateTime
 
 @Entity(
@@ -30,7 +31,7 @@ data class FutureTransaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
-    val type: String,
+    val type: TransactionType,
     val categoryId: Int,
     val amount: Float,
     val currency: String,
@@ -38,6 +39,6 @@ data class FutureTransaction(
     val startDate: LocalDateTime,
     @TypeConverters(DateConverter::class)
     val endDate: LocalDateTime,
-    val recurrenceType: String,
+    val recurrenceType: RecurrenceType,
     val recurrenceValue: Int
 )

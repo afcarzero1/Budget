@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.FutureTransactionsRepository
+import com.example.budgetapplication.data.future_transactions.RecurrenceType
+import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.navigation.FutureTransactionDetails
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +54,7 @@ class FutureTransactionDetailsViewModel(
 
     private fun validateInput(futureTransaction: FutureTransaction): Boolean {
         return with(futureTransaction){
-            type.isNotBlank() && amount > 0 && categoryId >= 0 && endDate > startDate
+            amount > 0 && categoryId >= 0 && endDate > startDate
         }
     }
 
@@ -71,14 +73,14 @@ data class FutureTransactionDetailsUiState(
     val transaction: FutureTransaction = FutureTransaction(
         id = 0,
         name = "",
-        type = "Expense",
+        type = TransactionType.EXPENSE,
         categoryId = -1,
         amount = 0f,
         currency = "USD",
         startDate = LocalDateTime.now(),
         endDate = LocalDateTime.now(),
         recurrenceValue = 0,
-        recurrenceType = "None"
+        recurrenceType = RecurrenceType.NONE
     ),
     val isValid: Boolean = false
 )

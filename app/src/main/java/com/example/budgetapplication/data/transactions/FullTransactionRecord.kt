@@ -3,15 +3,17 @@ package com.example.budgetapplication.data.transactions
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountWithCurrency
 import com.example.budgetapplication.data.categories.Category
 
 data class FullTransactionRecord(
     @Embedded val transactionRecord: TransactionRecord,
     @Relation(
+            entity = Account::class,
             parentColumn = "accountId",
             entityColumn = "id"
     )
-    val account: Account,//TODO : Add here AccountWithCurrency
+    val account: AccountWithCurrency,//TODO : Add here AccountWithCurrency
     @Relation(
             parentColumn = "categoryId",
             entityColumn = "id"

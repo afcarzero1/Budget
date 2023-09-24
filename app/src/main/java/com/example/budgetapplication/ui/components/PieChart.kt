@@ -12,12 +12,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
+//https://github.com/developerchunk/Custom-Bar-Chart-Jetpack-Compose/tree/main/app
 
 @Composable
 fun <T>PieChart(
@@ -28,6 +37,7 @@ fun <T>PieChart(
     radiusOuter: Dp = 90.dp,
     chartBarWidth: Dp = 20.dp,
     animDuration: Int = 1000,
+    middleText: String = "",
 ){
     val totalSum = data.map { itemToWeight(it) }.sum()
     val floatValue = mutableListOf<Float>()
@@ -51,7 +61,7 @@ fun <T>PieChart(
     )
 
     val animateRotation by animateFloatAsState(
-        targetValue = if (animationPlayed) 90f * 11f else 0f,
+        targetValue = if (animationPlayed) 90f * 12f else 0f,
         animationSpec = tween(
             durationMillis = animDuration,
             delayMillis = 0,
@@ -64,8 +74,13 @@ fun <T>PieChart(
         animationPlayed = true
     }
 
+    val textMeasurer = rememberTextMeasurer()
+
+
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -88,6 +103,25 @@ fun <T>PieChart(
                     )
                     lastValue += value
                 }
+
+                // draw the text in the middle of the pie chart
+                val text = middleText
+
+                val canvasWidth = size.width
+                val canvasHeight = size.height
+
+                val textLayoutResult: TextLayoutResult =
+                    textMeasurer.measure(text = AnnotatedString(text))
+                val textSize = textLayoutResult.size
+
+                drawText(
+                    textMeasurer = textMeasurer,
+                    text = text,
+                    topLeft = Offset(
+                        (canvasWidth - textSize.width) / 2f,
+                        (canvasHeight - textSize.height) / 2f
+                    )
+                )
             }
         }
 
@@ -110,7 +144,7 @@ fun <T>DetailsPieChart(
 ){
     Column(
         modifier = Modifier
-            .padding(top = 80.dp)
+            .padding(top = 36.dp)
             .fillMaxWidth(),
     ){
 

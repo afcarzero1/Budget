@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
 
 
 data class CategoryWithTransactions(
@@ -19,9 +20,9 @@ data class CategoryWithTransactions(
             var balance = 0f
 
             for (transactionRecord in transactions) {
-                if (transactionRecord.type == "Expense") {
+                if (transactionRecord.type == TransactionType.EXPENSE) {
                     balance -= transactionRecord.amount
-                } else {
+                } else if (transactionRecord.type == TransactionType.INCOME){
                     balance += transactionRecord.amount
                 }
             }
