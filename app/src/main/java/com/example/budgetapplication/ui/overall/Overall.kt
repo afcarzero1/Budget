@@ -1,8 +1,11 @@
 package com.example.budgetapplication.ui.overall
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.data.accounts.FullAccount
+import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
@@ -51,7 +55,7 @@ fun OverallScreen(
 fun OverallScreenBody(
     currenctBalance: Pair<Currency, Float>,
     accounts: List<FullAccount>,
-    lastExpenses: Map<YearMonth, Float>
+    lastExpenses: Map<YearMonth, Map<Category,Float>>
     ) {
 
     Column {
@@ -116,7 +120,7 @@ fun OverallAccountsCard(
 
 @Composable
 fun OverallExpensesCard(
-    lastMonthExpenses : Map<YearMonth, Float>
+    lastMonthExpenses : Map<YearMonth, Map<Category,Float>>
 ){
     Card(
         colors = CardDefaults.cardColors(
@@ -130,13 +134,24 @@ fun OverallExpensesCard(
             .padding(16.dp) //TODO: make this card a template in components
     ){
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            lastMonthExpenses.forEach { (yearMonth, expensesMap) ->
+                val totalExpenses = expensesMap.values.sum()
 
-
-
-
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Year-Month: ${yearMonth.year}-${yearMonth.monthValue}")
+                    Text(text = "$totalExpenses")
+                }
+            }
+        }
     }
-
-
 }
 
 // Function to generate a color based on the hash of the name

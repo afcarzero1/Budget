@@ -5,6 +5,8 @@ import android.os.Build
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.accounts.OfflineAccountsRepository
+import com.example.budgetapplication.data.balances.BalancesRepository
+import com.example.budgetapplication.data.balances.OfflineBalancesRepository
 import com.example.budgetapplication.data.categories.CategoriesRepository
 import com.example.budgetapplication.data.categories.OfflineCategoriesRepository
 import com.example.budgetapplication.data.currencies.CurrenciesApiService
@@ -31,6 +33,8 @@ interface AppContainer {
     val categoriesRepository: CategoriesRepository
 
     val futureTransactionsRepository: FutureTransactionsRepository
+
+    val balancesRepository: BalancesRepository
 }
 
 class AppDataContainer(private val context: Context) : AppContainer{
@@ -69,5 +73,12 @@ class AppDataContainer(private val context: Context) : AppContainer{
 
     override val futureTransactionsRepository: FutureTransactionsRepository by lazy {
         OfflineFutureTransactionsRepository(BudgetDatabase.getDatabase(context).futureTransactionDao())
+    }
+
+    override val balancesRepository: BalancesRepository by lazy {
+        OfflineBalancesRepository(
+            transactionsRepository = transactionsRepository,
+            futureTransactionsRepository = futureTransactionsRepository
+        )
     }
 }
