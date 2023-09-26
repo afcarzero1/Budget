@@ -3,6 +3,7 @@ package com.example.budgetapplication.data.balances
 import com.example.budgetapplication.data.categories.Category
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.time.LocalDate
 import java.time.YearMonth
 
 class MockBalancesRepository(
@@ -25,5 +26,13 @@ class MockBalancesRepository(
         // Replace this with your logic to filter and return expected balances within the specified date range
         val filteredExpectedBalances = expectedBalances.filterKeys { it in fromDate..toDate }
         return flowOf(filteredExpectedBalances)
+    }
+
+    override fun getBalanceByDay(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        realityDate: LocalDate
+    ): Flow<Map<LocalDate, Float>> {
+        TODO("Not yet implemented")
     }
 }

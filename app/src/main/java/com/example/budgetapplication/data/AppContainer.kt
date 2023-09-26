@@ -77,6 +77,7 @@ class AppDataContainer(private val context: Context) : AppContainer{
 
     override val balancesRepository: BalancesRepository by lazy {
         OfflineBalancesRepository(
+            accountsRepository = accountsRepository,
             transactionsRepository = transactionsRepository,
             futureTransactionsRepository = futureTransactionsRepository
         )

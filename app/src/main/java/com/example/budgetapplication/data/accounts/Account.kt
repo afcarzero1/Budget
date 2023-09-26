@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
+import java.time.LocalDate
 
 
 @Entity(tableName = "accounts",
@@ -26,10 +27,21 @@ data class Account (
     val color: Long = 0x000000
 ){
 
-    fun computeBalance(transactionRecords: List<TransactionRecord>): Float {
+    /**
+     * Compute the balance of the account at the start of the day (not considering transactions
+     * that happened the "atDate").
+     * @param transactionRecords the list of transactions to consider
+     * @param atDate the date to consider
+     */
+    fun computeBalance(
+        transactionRecords: List<TransactionRecord>,
+        atDate: LocalDate = LocalDate.now()
+    ): Float {
         var balance = initialBalance
 
         for (transactionRecord in transactionRecords) {
+            if(transactionRecord.date.toLocalDate() > atDate){continue}
+
             if (transactionRecord.type == TransactionType.EXPENSE) {
                 balance -= transactionRecord.amount
             } else if (transactionRecord.type == TransactionType.INCOME) {

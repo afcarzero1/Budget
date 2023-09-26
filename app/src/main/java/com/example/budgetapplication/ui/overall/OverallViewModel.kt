@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
@@ -154,6 +155,16 @@ class OverallViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = mapOf()
         )
+
+
+    val balancesByDay = balancesRepository.getBalanceByDay(
+        fromDate = LocalDate.now().minusMonths(5),
+        toDate = LocalDate.now().plusMonths(5)
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = mapOf()
+    )
 
 }
 
