@@ -1,6 +1,7 @@
 package com.example.budgetapplication.ui.overall
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.accounts.AccountsRepository
@@ -10,6 +11,7 @@ import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.data.transactions.TransactionsRepository
+import com.example.budgetapplication.ui.components.ColorAssigner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +34,16 @@ class OverallViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
+    val accountsColorAssigner: ColorAssigner = ColorAssigner(
+        listOf(
+            Color(0xFFBB86FC),
+            Color(0xFF6200EE),
+            Color(0xFF3700B3),
+            Color(0xFF03DAC5),
+            Color(0xFF007BFF)
+        )
+    )
 
     val accountsUiState: StateFlow<OverallAccountsUiState> = accountsRepository
         .getAllFullAccountsStream()

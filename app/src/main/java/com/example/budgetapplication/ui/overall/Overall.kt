@@ -31,6 +31,7 @@ import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.theme.InitialScreen
@@ -57,6 +58,7 @@ fun OverallScreen(
         OverallScreenBody(
             currenctBalance = accountsTotalBalance,
             accounts = accounts.accountsList,
+            accountsColorAssigner = overallViewModel.accountsColorAssigner,
             lastExpenses = lastExpenses,
             expectedExpenses = expectedExpenses,
             balances = balances
@@ -69,6 +71,7 @@ fun OverallScreen(
 fun OverallScreenBody(
     currenctBalance: Pair<Currency, Float>,
     accounts: List<FullAccount>,
+    accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
     balances: Map<LocalDate, Float>
@@ -81,6 +84,7 @@ fun OverallScreenBody(
     ) {
         OverallAccountsCard(
             accounts = accounts,
+            accountColorAssigner = accountsColorAssigner,
             currentBalance = currenctBalance
         )
 
@@ -97,6 +101,7 @@ fun OverallScreenBody(
 @Composable
 fun OverallAccountsCard(
     accounts: List<FullAccount>,
+    accountColorAssigner: ColorAssigner,
     currentBalance: Pair<Currency, Float>
 ) {
     Card(
@@ -133,7 +138,7 @@ fun OverallAccountsCard(
                     }
                 },
                 itemToColor = {
-                    colorFromNameHash(it.account.name)
+                    accountColorAssigner.assignColor(it.account.name)
                 }
             )
         }
@@ -280,19 +285,4 @@ fun OverallBalancesCard(
             }
         }
     }
-}
-
-// Function to generate a color based on the hash of the name
-fun colorFromNameHash(name: String): Color {
-    val colors = listOf(
-        Color(0xFFBB86FC),
-        Color(0xFF6200EE),
-        Color(0xFF3700B3),
-        Color(0xFF03DAC5),
-        Color(0xFF007BFF)
-    )
-    // Use a hash of the name to generate a color
-    val hash = name.hashCode()
-    val index = abs(hash) % colors.size
-    return colors[index]
 }
