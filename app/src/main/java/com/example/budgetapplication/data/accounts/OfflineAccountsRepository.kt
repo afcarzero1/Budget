@@ -1,12 +1,15 @@
 package com.example.budgetapplication.data.accounts
 
+import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
 class OfflineAccountsRepository(
-    private val accountDao: AccountDao
+    private val accountDao: AccountDao,
+    private val currenciesRepository: CurrenciesRepository
 ) : AccountsRepository {
     override suspend fun insertAccount(account: Account) = accountDao.insert(account)
 
@@ -30,30 +33,36 @@ class OfflineAccountsRepository(
         accountDao.getAllFullAccounts()
 
     override fun totalBalance(): Flow<Pair<Currency, Float>> {
-        return getAllFullAccountsStream()
-            .map { fullAccounts ->
-                val currencyToBalanceMap = mutableMapOf<Currency, Float>()
+        return combine(
+            this.getAllFullAccountsStream(),
+            currenciesRepository.getDefaultCurrencyStream()
+        ){ fullAccounts, baseCurrency ->
+            val currencyToBalanceMap = mutableMapOf<Currency, Float>()
 
-                for (fullAccount in fullAccounts) {
-                    val currency = fullAccount.currency
-                    val balance = fullAccount.balance
+            for (fullAccount in fullAccounts) {
+                val currency = fullAccount.currency
+                val balance = fullAccount.balance
 
-                    // Update the total balance for the currency
-                    currencyToBalanceMap[currency] =
-                        currencyToBalanceMap.getOrDefault(currency, 0f) + balance
-                }
-
-                var totalBalance: Float = 0f
-                for ((currency, balance) in currencyToBalanceMap) {
-                    totalBalance += balance * (1/currency.value)
-                }
-
-                //TODO: Use default currency. Add currency repository and use the actual object for the
-                // default currency
-                Pair(
-                    Currency("USD", 1.0f, LocalDateTime.now()),
-                    totalBalance
-                )
+                // Update the total balance for the currency
+                currencyToBalanceMap[currency] =
+                    currencyToBalanceMap.getOrDefault(currency, 0f) + balance
             }
+
+            var totalBalance = 0f
+            for ((currency, balance) in currencyToBalanceMap) {
+                totalBalance += balance * (1/currency.value)
+            }
+
+
+
+            //TODO: Use default currency. Add currency repository and use the actual object for the
+            // default currency
+            Pair(
+                Currency(baseCurrency, 1.0f, LocalDateTime.now()),
+                totalBalance
+            )
+
+
+        }
     }
 }

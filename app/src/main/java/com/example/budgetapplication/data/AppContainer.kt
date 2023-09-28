@@ -2,6 +2,10 @@ package com.example.budgetapplication.data
 
 import android.content.Context
 import android.os.Build
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.accounts.OfflineAccountsRepository
@@ -22,6 +26,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 interface AppContainer {
     val currenciesRepository: CurrenciesRepository
@@ -55,12 +61,16 @@ class AppDataContainer(private val context: Context) : AppContainer{
         OnlineCurrenciesRepository(
             BudgetDatabase.getDatabase(context).currencyDao(),
             currenciesApiService,
-            currenciesApiKey
+            currenciesApiKey,
+            context.dataStore
         )
     }
 
     override val accountsRepository: AccountsRepository by lazy {
-        OfflineAccountsRepository(BudgetDatabase.getDatabase(context).accountDao())
+        OfflineAccountsRepository(
+            BudgetDatabase.getDatabase(context).accountDao(),
+            currenciesRepository
+        )
     }
 
     override val categoriesRepository: CategoriesRepository by lazy {

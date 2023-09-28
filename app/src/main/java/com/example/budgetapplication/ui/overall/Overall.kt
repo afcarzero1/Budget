@@ -53,6 +53,7 @@ fun OverallScreen(
     val expectedExpenses by overallViewModel.expectedExpenses.collectAsState()
 
     val balances by overallViewModel.balancesByDay.collectAsState()
+    val baseCurrency: String by overallViewModel.baseCurrency.collectAsState()
 
     InitialScreen(navController = navController, destination = Overview, screenBody = {
         OverallScreenBody(
@@ -74,7 +75,7 @@ fun OverallScreenBody(
     accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
-    balances: Map<LocalDate, Float>
+    balances: Map<LocalDate, Float>,
 ) {
 
     Column(
@@ -85,7 +86,7 @@ fun OverallScreenBody(
         OverallAccountsCard(
             accounts = accounts,
             accountColorAssigner = accountsColorAssigner,
-            currentBalance = currenctBalance
+            currentBalance = currenctBalance,
         )
 
         OverallExpensesCard(lastMonthExpenses = lastExpenses)
@@ -102,7 +103,7 @@ fun OverallScreenBody(
 fun OverallAccountsCard(
     accounts: List<FullAccount>,
     accountColorAssigner: ColorAssigner,
-    currentBalance: Pair<Currency, Float>
+    currentBalance: Pair<Currency, Float>,
 ) {
     Card(
         colors = CardDefaults.cardColors(

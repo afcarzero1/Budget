@@ -8,6 +8,7 @@ import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.balances.BalancesRepository
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.data.transactions.TransactionsRepository
@@ -28,12 +29,20 @@ import java.time.YearMonth
 @OptIn(ExperimentalCoroutinesApi::class)
 class OverallViewModel(
     accountsRepository: AccountsRepository,
-    balancesRepository: BalancesRepository
+    balancesRepository: BalancesRepository,
+    currenciesRepository: CurrenciesRepository
 ) : ViewModel(){
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
+    val baseCurrency: StateFlow<String> = currenciesRepository.getDefaultCurrencyStream()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = "USD"
+        )
 
     val accountsColorAssigner: ColorAssigner = ColorAssigner(
         listOf(

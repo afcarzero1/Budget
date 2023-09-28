@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,8 +35,10 @@ import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import com.example.budgetapplication.ui.navigation.Currencies
 import com.example.budgetapplication.ui.theme.InitialScreen
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -60,10 +63,30 @@ fun CurrenciesSummary(
 ) {
     Log.d("CurrenciesSummary", "Currencies summary composable")
     val currenciesState by viewModel.currenciesUiState.collectAsState()
-    CurrenciesSummaryBody(
-        currenciesList = currenciesState.currenciesList,
-        modifier = modifier
-    )
+    val coroutineScore = rememberCoroutineScope()
+
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        LargeDropdownMenu(
+            label = "Base Currency",
+            items = currenciesState.currenciesList.map { it.name },
+            onItemSelected = { index, item ->
+                coroutineScore.launch {
+                    viewModel.updateBaseCurrency(item)
+                }
+            },
+            initialIndex = currenciesState.currenciesList.indexOfFirst {
+                it.name == currenciesState.baseCurrency
+            }
+        )
+
+        CurrenciesSummaryBody(
+            currenciesList = currenciesState.currenciesList,
+            baseCurrency = currenciesState.baseCurrency,
+            modifier = modifier
+        )
+    }
+
 
 }
 
@@ -71,11 +94,13 @@ fun CurrenciesSummary(
 @Composable
 fun CurrenciesSummaryBody(
     currenciesList: List<Currency>,
+    baseCurrency: String,
     modifier: Modifier = Modifier,
 ) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         CurrenciesList(
             currenciesList = currenciesList,
+            baseCurrency = baseCurrency,
             modifier = modifier
         )
     }
@@ -85,6 +110,7 @@ fun CurrenciesSummaryBody(
 @Composable
 fun CurrenciesList(
     currenciesList: List<Currency>,
+    baseCurrency: String,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -95,6 +121,7 @@ fun CurrenciesList(
             itemContent = { currency ->
                 CurrencyItem(
                     currency = currency,
+                    baseCurrency = baseCurrency,
                     modifier = modifier
                 )
             }
@@ -107,7 +134,8 @@ fun CurrenciesList(
 @Composable
 fun CurrencyItem(
     currency: Currency,
-    modifier: Modifier = Modifier,
+    baseCurrency: String,
+    modifier: Modifier = Modifier
 ) {
     var referenceCurrencyFirst by remember { mutableStateOf(false) }
 
@@ -130,8 +158,8 @@ fun CurrencyItem(
             Column() {
                 Text(
                     text = if (referenceCurrencyFirst)
-                        "USD/" + currency.name else
-                        currency.name + "/USD",
+                        "${baseCurrency}/${currency.name}" else
+                        "${currency.name}/${baseCurrency}",
                     modifier = Modifier.padding(
                         start = 20.dp,
                         end = 20.dp
@@ -190,6 +218,7 @@ fun CurrencyItem(
 fun CurrenciesItemPreview() {
     CurrencyItem(
         currency = currencies[0],
+        baseCurrency = "USD",
         modifier = Modifier.fillMaxSize()
     )
 }
@@ -200,6 +229,7 @@ fun CurrenciesItemPreview() {
 fun CurrenciesListPreview() {
     CurrenciesList(
         currenciesList = currencies,
+        baseCurrency = "USD",
         modifier = Modifier.fillMaxSize()
     )
 
@@ -210,6 +240,7 @@ fun CurrenciesListPreview() {
 fun CurrenciesSummaryPreview() {
     CurrenciesSummaryBody(
         currenciesList = listOf(currencies[0]),
+        baseCurrency = "USD"
     )
 }
 

@@ -1,22 +1,33 @@
 package com.example.budgetapplication.data.currencies
 
+
 import android.util.Log
+
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.first
+
 
 class OnlineCurrenciesRepository(
     private val currencyDao: CurrencyDao,
     private val currenciesApiService: CurrenciesApiService,
-    private val apiKey: String
+    private val apiKey: String,
+    private val dataStore: DataStore<Preferences>
 ) : CurrenciesRepository {
 
-    private val TAG = "OnlineCurrenciesRepo"
-
     companion object {
-        private val dateString = "2023-03-21 12:43:00+00"
+        // Offline currencies supported when first opening the app
+        private const val dateString = "2023-03-21 12:43:00+00"
 
         private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
         private val localDateTime = LocalDateTime.parse(dateString, formatter)
@@ -38,6 +49,10 @@ class OnlineCurrenciesRepository(
                 updatedTime = localDateTime
             )
         )
+
+        val DEFAULT_CURRENCY_KEY = stringPreferencesKey("DEFAULT_CURRENCY")
+        const val TAG = "OnlineCurrenciesRepo"
+
     }
     private var isEmpty: Boolean = false
 
@@ -66,6 +81,38 @@ class OnlineCurrenciesRepository(
         }
     }
 
+    override fun getDefaultCurrencyStream(): Flow<String> {
+        return dataStore.data
+            .catch {
+                    if (it is IOException) {
+                        Log.e(TAG, "Error reading preferences.", it)
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+            .map {preferences ->
+                preferences[DEFAULT_CURRENCY_KEY] ?: "USD"
+            }
+    }
+
+    override suspend fun setDefaultCurrency(newBaseCurrency: String) {
+        dataStore.edit {mutablePreferences ->
+            val currentCurrencies = currencyDao.getAllCurrencies().first()
+            val newBaseCurrencyValue = currentCurrencies.first { it.name == newBaseCurrency }.value
+
+            for (currency in currentCurrencies){
+                val updatedCurrency = currency.copy(
+                    value = currency.value / newBaseCurrencyValue
+                )
+                currencyDao.update(updatedCurrency)
+            }
+
+            mutablePreferences[DEFAULT_CURRENCY_KEY] = newBaseCurrency
+        }
+
+    }
+
     private suspend fun fetchApi() {
         Log.d(TAG, "Fetching data from API...")
 
@@ -84,13 +131,22 @@ class OnlineCurrenciesRepository(
             return
         }
 
+        val currentBaseCurrency: String = getDefaultCurrencyStream().first()
+        val currentBaseCurrencyRate = responses.rates[currentBaseCurrency]?.toFloat()
+
+        if (currentBaseCurrencyRate == null){
+            Log.e(TAG, "Error fetching data from API.")
+            return
+        }
+
 
         // Insert all currencies into the database
         // TODO: figure out why dates are saved with 00:00 time
         for (rate in responses.rates) {
+
             val currency = Currency(
                 name = rate.key,
-                value = rate.value.toFloat(),
+                value = rate.value.toFloat() / currentBaseCurrencyRate,
                 updatedTime = LocalDateTime.parse(
                     responses.date,
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")

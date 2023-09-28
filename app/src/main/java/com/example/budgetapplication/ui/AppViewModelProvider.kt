@@ -104,7 +104,8 @@ object AppViewModelProvider {
         initializer {
             OverallViewModel(
                 budgetApplication().container.accountsRepository,
-                budgetApplication().container.balancesRepository
+                budgetApplication().container.balancesRepository,
+                budgetApplication().container.currenciesRepository
             )
         }
 

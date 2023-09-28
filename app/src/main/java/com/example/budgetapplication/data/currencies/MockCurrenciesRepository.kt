@@ -28,6 +28,16 @@ class MockCurrenciesRepository : CurrenciesRepository {
             emit(mockCurrencies)
         }
     }
+
+    override fun getDefaultCurrencyStream(): Flow<String> {
+        return flow {
+            emit("USD")
+        }
+    }
+
+    override suspend fun setDefaultCurrency(newBaseCurrency: String) {
+        TODO("Not yet implemented")
+    }
 }
 
 
