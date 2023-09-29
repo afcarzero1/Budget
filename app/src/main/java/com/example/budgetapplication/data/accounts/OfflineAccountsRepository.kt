@@ -53,16 +53,12 @@ class OfflineAccountsRepository(
                 totalBalance += balance * (1/currency.value)
             }
 
-
-
             //TODO: Use default currency. Add currency repository and use the actual object for the
             // default currency
             Pair(
                 Currency(baseCurrency, 1.0f, LocalDateTime.now()),
                 totalBalance
             )
-
-
         }
     }
 }

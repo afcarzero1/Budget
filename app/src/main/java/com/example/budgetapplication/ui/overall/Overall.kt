@@ -1,41 +1,43 @@
 package com.example.budgetapplication.ui.overall
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
-import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.ColorAssigner
+import com.example.budgetapplication.ui.components.DateRangeSelector
 import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.theme.InitialScreen
-import java.lang.Math.abs
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -50,10 +52,12 @@ fun OverallScreen(
     val accountsTotalBalance by overallViewModel.accountsTotalBalance.collectAsState()
 
     val lastExpenses by overallViewModel.lastExpenses.collectAsState()
+
+
     val expectedExpenses by overallViewModel.expectedExpenses.collectAsState()
+    val expectedExpensesInterval by overallViewModel.expectedDateRange.collectAsState()
 
     val balances by overallViewModel.balancesByDay.collectAsState()
-    val baseCurrency: String by overallViewModel.baseCurrency.collectAsState()
 
     InitialScreen(navController = navController, destination = Overview, screenBody = {
         OverallScreenBody(
@@ -62,7 +66,11 @@ fun OverallScreen(
             accountsColorAssigner = overallViewModel.accountsColorAssigner,
             lastExpenses = lastExpenses,
             expectedExpenses = expectedExpenses,
-            balances = balances
+            expectedExpensesInterval = expectedExpensesInterval,
+            balances = balances,
+            onExpectedDateRangeChanged = {fromDate, toDate ->
+                overallViewModel.setExpectedRangeFlow(fromDate, toDate)
+            }
         )
     }
     )
@@ -75,7 +83,9 @@ fun OverallScreenBody(
     accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
+    expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
+    onExpectedDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = {_ , _ ->},
 ) {
 
     Column(
@@ -91,7 +101,11 @@ fun OverallScreenBody(
 
         OverallExpensesCard(lastMonthExpenses = lastExpenses)
 
-        OverallExpectedExpensesCard(expenses = expectedExpenses)
+        OverallExpectedCard(
+            expenses = expectedExpenses,
+            expensesInterval = expectedExpensesInterval,
+            onDateChanged = onExpectedDateRangeChanged
+        )
 
         OverallBalancesCard(balances = balances)
     }
@@ -148,8 +162,12 @@ fun OverallAccountsCard(
 
 @Composable
 fun OverallExpensesCard(
-    lastMonthExpenses: Map<YearMonth, Map<Category, Float>>
+    lastMonthExpenses: Map<YearMonth, Map<Category, Float>>,
+    onDateChanged: (fromDate: LocalDate, toDate: LocalDate) -> Unit = { _, _ ->}
 ) {
+
+
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -167,6 +185,10 @@ fun OverallExpensesCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            Text(
+                text = stringResource(R.string.expenses_title),
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize
+            )
             lastMonthExpenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
 
@@ -191,8 +213,10 @@ fun OverallIncomesCard(
 }
 
 @Composable
-fun OverallExpectedExpensesCard(
-    expenses: Map<YearMonth, Map<Category, Float>>
+fun OverallExpectedCard(
+    expenses: Map<YearMonth, Map<Category, Float>>,
+    expensesInterval : Pair<YearMonth, YearMonth>,
+    onDateChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ ->}
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -209,12 +233,22 @@ fun OverallExpectedExpensesCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
-                text = "Expected Expenses",
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                text = stringResource(R.string.expected_expenses_title),
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            DateRangeSelector(
+                startDate = expensesInterval.first,
+                endDate = expensesInterval.second,
+                onRangeChanged = onDateChanged,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             expenses.forEach { (yearMonth, expensesMap) ->
@@ -242,14 +276,6 @@ fun OverallExpectedExpensesCard(
 
 
 }
-
-@Composable
-fun OverallExpectedIncomesCard(
-
-) {
-
-}
-
 
 @Composable
 fun OverallBalancesCard(

@@ -1,6 +1,5 @@
 package com.example.budgetapplication.ui.overall
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +9,6 @@ import com.example.budgetapplication.data.balances.BalancesRepository
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
-import com.example.budgetapplication.data.transactions.TransactionType
-import com.example.budgetapplication.data.transactions.TransactionsRepository
 import com.example.budgetapplication.ui.components.ColorAssigner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -72,14 +69,6 @@ class OverallViewModel(
         )
 
 
-    private val fromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(5))
-    private val toDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
-
-
-    val dateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(fromDateFlow, toDateFlow) { fromDate, toDate ->
-        Pair(fromDate, toDate)
-    }
-
     val lastExpenses: StateFlow<Map<YearMonth,Map<Category,Float>>> = balancesRepository
         .getCurrentBalancesByMonthStream(
             fromDate = YearMonth.now().minusMonths(5),
@@ -130,7 +119,21 @@ class OverallViewModel(
         )
 
 
-    val expectedExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = dateRangeFlow
+    private val expectedFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(5))
+    private val expectedToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
+
+    private val expectedDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(expectedFromDateFlow, expectedToDateFlow) { fromDate, toDate ->
+        Pair(fromDate, toDate)
+    }
+    val expectedDateRange: StateFlow<Pair<YearMonth, YearMonth>> = expectedDateRangeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = Pair(YearMonth.now().minusMonths(5), YearMonth.now())
+        )
+
+
+    val expectedExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateRangeFlow
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
         }
@@ -154,7 +157,7 @@ class OverallViewModel(
         )
 
 
-    val expectedIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = dateRangeFlow
+    val expectedIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateRangeFlow
         .flatMapLatest {(fromDate, toDate) ->
             balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
         }
@@ -177,7 +180,14 @@ class OverallViewModel(
             initialValue = mapOf()
         )
 
+    fun setExpectedRangeFlow(fromDate: YearMonth, toDate: YearMonth){
+        if(fromDate < toDate){
+            expectedFromDateFlow.value = fromDate
+            expectedToDateFlow.value = toDate
+        }
+    }
 
+    //TODO: Use here also the date flow
     val balancesByDay = balancesRepository.getBalanceByDay(
         fromDate = LocalDate.now().minusMonths(5),
         toDate = LocalDate.now().plusMonths(5)
