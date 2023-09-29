@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -69,11 +70,30 @@ class OverallViewModel(
         )
 
 
-    val lastExpenses: StateFlow<Map<YearMonth,Map<Category,Float>>> = balancesRepository
-        .getCurrentBalancesByMonthStream(
-            fromDate = YearMonth.now().minusMonths(5),
-            toDate = YearMonth.now()
+    private val currentFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(5))
+    private val currentToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
+
+    private val currentDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(currentFromDateFlow, currentToDateFlow) { fromDate, toDate ->
+        Pair(fromDate, toDate)
+    }
+    val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateRangeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = Pair(YearMonth.now().minusMonths(5), YearMonth.now())
         )
+
+    fun setCurrentRangeFlow(fromDate: YearMonth, toDate: YearMonth) {
+        if (fromDate.isBefore(toDate)) {
+            currentFromDateFlow.value = fromDate
+            currentToDateFlow.value = toDate
+        }
+    }
+
+    val lastExpenses: StateFlow<Map<YearMonth,Map<Category,Float>>> = currentDateRangeFlow
+        .flatMapLatest { (fromDate, toDate) ->
+            balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+        }
         .map{monthMap ->
             //TODO: Improve this code
             val newMap: MutableMap<YearMonth,Map<Category,Float>> = mutableMapOf()
@@ -187,11 +207,52 @@ class OverallViewModel(
         }
     }
 
-    //TODO: Use here also the date flow
-    val balancesByDay = balancesRepository.getBalanceByDay(
-        fromDate = LocalDate.now().minusMonths(5),
-        toDate = LocalDate.now().plusMonths(5)
-    ).stateIn(
+
+
+    private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(3))
+    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(3))
+
+    private val balanceDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(
+        balanceFromDateFlow, balanceToDateFlow
+    ) { fromDate, toDate ->
+        Pair(fromDate, toDate)
+    }
+    val balanceDateRange: StateFlow<Pair<YearMonth,YearMonth>> = balanceDateRangeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = Pair(YearMonth.now().minusMonths(3), YearMonth.now().plusMonths(3))
+        )
+
+    fun setBalanceRangeFlow(fromDate: YearMonth, toDate: YearMonth){
+        if(fromDate < toDate){
+            balanceFromDateFlow.value = fromDate
+            balanceToDateFlow.value = toDate
+        }
+    }
+
+    val balancesByDay: StateFlow<Map<LocalDate, Float>> = balanceDateRangeFlow.flatMapLatest { (fromDate, toDate) ->
+
+        val sundays = generateSequence(fromDate.atDay(1)) { it.plusMonths(1) }
+            .takeWhile { it <= toDate.atEndOfMonth() }
+            .flatMap { monthStart ->
+                generateSequence(monthStart) { it.plusDays(1) }
+                    .takeWhile { it.month == monthStart.month }
+            }
+            .filter { it.dayOfWeek == DayOfWeek.SUNDAY }
+
+        balancesRepository.getBalanceByDay(
+            fromDate = fromDate.atDay(1),
+            toDate = toDate.atEndOfMonth()
+        ).map {
+            val newMap: MutableMap<LocalDate, Float> = mutableMapOf()
+            for (day in sundays) {
+                newMap[day] = it[day] ?: 0f // This will NEVER be null
+            }
+            newMap
+        }
+    }
+    .stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = mapOf()

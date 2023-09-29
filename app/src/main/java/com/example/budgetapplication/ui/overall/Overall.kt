@@ -8,13 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,12 +47,13 @@ fun OverallScreen(
     val accountsTotalBalance by overallViewModel.accountsTotalBalance.collectAsState()
 
     val lastExpenses by overallViewModel.lastExpenses.collectAsState()
-
+    val currentTransactionsInterval by overallViewModel.currentDateRange.collectAsState()
 
     val expectedExpenses by overallViewModel.expectedExpenses.collectAsState()
     val expectedExpensesInterval by overallViewModel.expectedDateRange.collectAsState()
 
     val balances by overallViewModel.balancesByDay.collectAsState()
+    val balancesInterval by overallViewModel.balanceDateRange.collectAsState()
 
     InitialScreen(navController = navController, destination = Overview, screenBody = {
         OverallScreenBody(
@@ -65,11 +61,19 @@ fun OverallScreen(
             accounts = accounts.accountsList,
             accountsColorAssigner = overallViewModel.accountsColorAssigner,
             lastExpenses = lastExpenses,
+            currentTransactionsInterval = currentTransactionsInterval,
             expectedExpenses = expectedExpenses,
             expectedExpensesInterval = expectedExpensesInterval,
             balances = balances,
-            onExpectedDateRangeChanged = {fromDate, toDate ->
+            balancesInterval = balancesInterval,
+            onExpectedDateRangeChanged = { fromDate, toDate ->
                 overallViewModel.setExpectedRangeFlow(fromDate, toDate)
+            },
+            onCurrentDateRangeChanged = { fromDate, toDate ->
+                overallViewModel.setCurrentRangeFlow(fromDate, toDate)
+            },
+            onBalancesDateRangeChanged = { fromDate, toDate ->
+                overallViewModel.setBalanceRangeFlow(fromDate, toDate)
             }
         )
     }
@@ -82,10 +86,14 @@ fun OverallScreenBody(
     accounts: List<FullAccount>,
     accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
+    currentTransactionsInterval: Pair<YearMonth, YearMonth>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
     expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
-    onExpectedDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = {_ , _ ->},
+    balancesInterval: Pair<YearMonth, YearMonth>,
+    onCurrentDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
+    onExpectedDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
+    onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
 
     Column(
@@ -99,15 +107,23 @@ fun OverallScreenBody(
             currentBalance = currenctBalance,
         )
 
-        OverallExpensesCard(lastMonthExpenses = lastExpenses)
+        OverallTransactionsCard(
+            expenses = lastExpenses,
+            transactionsInterval = currentTransactionsInterval,
+            onRangeChanged = onCurrentDateRangeChanged
+        )
 
         OverallExpectedCard(
             expenses = expectedExpenses,
             expensesInterval = expectedExpensesInterval,
-            onDateChanged = onExpectedDateRangeChanged
+            onRangeChanged = onExpectedDateRangeChanged
         )
 
-        OverallBalancesCard(balances = balances)
+        OverallBalancesCard(
+            balances = balances,
+            balancesDateRange = balancesInterval,
+            onRangeChanged = onBalancesDateRangeChanged
+        )
     }
 
 }
@@ -161,12 +177,11 @@ fun OverallAccountsCard(
 }
 
 @Composable
-fun OverallExpensesCard(
-    lastMonthExpenses: Map<YearMonth, Map<Category, Float>>,
-    onDateChanged: (fromDate: LocalDate, toDate: LocalDate) -> Unit = { _, _ ->}
+fun OverallTransactionsCard(
+    expenses: Map<YearMonth, Map<Category, Float>>,
+    transactionsInterval: Pair<YearMonth, YearMonth>,
+    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
-
-
 
     Card(
         colors = CardDefaults.cardColors(
@@ -183,13 +198,23 @@ fun OverallExpensesCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = stringResource(R.string.expenses_title),
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
-            lastMonthExpenses.forEach { (yearMonth, expensesMap) ->
+
+            DateRangeSelector(
+                startDate = transactionsInterval.first,
+                endDate = transactionsInterval.second,
+                onRangeChanged = onRangeChanged,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            expenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
 
                 Row(
@@ -205,18 +230,10 @@ fun OverallExpensesCard(
 }
 
 @Composable
-fun OverallIncomesCard(
-    incomes: Map<YearMonth, Map<Category, Float>>
-) {
-
-
-}
-
-@Composable
 fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
-    expensesInterval : Pair<YearMonth, YearMonth>,
-    onDateChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ ->}
+    expensesInterval: Pair<YearMonth, YearMonth>,
+    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -247,7 +264,7 @@ fun OverallExpectedCard(
             DateRangeSelector(
                 startDate = expensesInterval.first,
                 endDate = expensesInterval.second,
-                onRangeChanged = onDateChanged,
+                onRangeChanged = onRangeChanged,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -279,7 +296,9 @@ fun OverallExpectedCard(
 
 @Composable
 fun OverallBalancesCard(
-    balances: Map<LocalDate, Float>
+    balances: Map<LocalDate, Float>,
+    balancesDateRange: Pair<YearMonth, YearMonth>,
+    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
 
     val sortedBalances = balances.entries.sortedBy { it.key }
@@ -292,13 +311,25 @@ fun OverallBalancesCard(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp) //TODO: make this card a template in components
+            .padding(16.dp)
     ) {
 
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
-                text = "Balances",
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                text = stringResource(R.string.balances_title),
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            DateRangeSelector(
+                startDate = balancesDateRange.first,
+                endDate = balancesDateRange.second,
+                onRangeChanged = onRangeChanged,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             sortedBalances.forEach { (date, balance) ->

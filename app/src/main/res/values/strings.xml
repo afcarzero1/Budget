@@ -6,6 +6,8 @@
   <string name="save">Save</string>
   <string name="delete">Delete</string>
   <string name="delete_account">Deleting Account</string>
+  <string name="delete_category">Deleting Category</string>
+  <string name="delete_transaction">Deleting Transaction</string>
   <string name="attention">Attention!</string>
 
   <string name="entry_account_save">Save Account</string>
@@ -25,4 +27,15 @@
   <string name="entry_transaction_account">Account</string>
   <string name="entry_transaction_category">Category</string>
   <string name="entry_transaction_amount">Amount</string>
+  <string name="entry_transaction_name">Description</string>
+  <string name="entry_transaction_date">Date</string>
+
+  <string name="entry_future_transaction_initial_date">Initial Date</string>
+  <string name="entry_future_transaction_final_date">Final Date</string>
+  <string name="entry_future_transaction_recurrence_type">Recurrence</string>
+  <string name="entry_future_transaction_recurrence_value">Recurrence Value</string>
+  <string name="entry_future_transaction_currency">Currency</string>
+  <string name="expenses_title">Expenses</string>
+  <string name="expected_expenses_title">Expected Expenses</string>
+  <string name="balances_title">Balances</string>
 </resources>
