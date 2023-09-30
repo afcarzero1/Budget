@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,13 +40,13 @@ import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.VerticalBar
-import com.example.budgetapplication.ui.components.formatCurrencyAmount
 import com.example.budgetapplication.ui.navigation.FutureTransactionDetails
 import com.example.budgetapplication.ui.navigation.FutureTransactionEntry
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
 import com.example.budgetapplication.ui.theme.InitialScreen
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -138,16 +141,64 @@ fun TransactionsSummaryBody(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
+    val groupedByDate = transactions.groupBy { it.transactionRecord.date.toLocalDate() }
+
+    // Remember the scroll state
+    val scrollState = rememberLazyListState()
+
+    LazyColumn(
+        modifier = modifier,
+        state = scrollState
     ) {
-        transactions.forEach { transaction ->
-            TransactionRow(transaction = transaction, onItemSelected = {
-                navController.navigate(
-                    TransactionDetails.route + "/${it.transactionRecord.id}"
+        groupedByDate.entries.forEach { entry ->
+            val date = entry.key
+            val transactionsForDate = entry.value
+
+            item {
+                DayTransactionsGroup(
+                    transactions = transactionsForDate,
+                    date = date,
+                    onItemSelected = { selectedTransaction ->
+                        navController.navigate(
+                            TransactionDetails.route + "/${selectedTransaction.transactionRecord.id}"
+                        )
+                    }
                 )
-            })
-            ListDivider()
+            }
+        }
+    }
+}
+
+
+@Composable
+fun DayTransactionsGroup(
+    transactions: List<FullTransactionRecord>,
+    date: LocalDate,
+    onItemSelected: (FullTransactionRecord) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+
+        // Add date as a title here
+        Text(
+            text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), // or any other format you prefer
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(4.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                transactions.forEach { transaction ->
+                    TransactionRow(
+                        transaction = transaction, onItemSelected = onItemSelected
+                    )
+                    ListDivider()
+                }
+            }
         }
     }
 }
@@ -167,7 +218,10 @@ fun FutureTransactionsSummaryBody(
             FutureTransactionRow(
                 futureTransaction = transaction,
                 onItemSelected = {
-                    Log.d("TransactionSummary", "Details of Future Transaction ID: ${it.futureTransaction.id}")
+                    Log.d(
+                        "TransactionSummary",
+                        "Details of Future Transaction ID: ${it.futureTransaction.id}"
+                    )
                     navController.navigate(
                         FutureTransactionDetails.route + "/${transaction.futureTransaction.id}"
                     )
@@ -177,6 +231,7 @@ fun FutureTransactionsSummaryBody(
         }
     }
 }
+
 
 @Composable
 fun EmptyTransactionScreen() {
@@ -270,7 +325,7 @@ private fun FutureTransactionRow(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = formatCurrencyAmount(futureTransaction.futureTransaction.amount),
+                    text = futureTransaction.currency.formatAmount(futureTransaction.futureTransaction.amount),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )

@@ -149,7 +149,7 @@ fun OverallAccountsCard(
         Column {
             PieChart(
                 data = accounts,
-                middleText = "${currentBalance.first.name} ${currentBalance.second}",
+                middleText = currentBalance.first.formatAmount(currentBalance.second),
                 itemToWeight = { it.balance * (1 / it.currency.value) },
                 itemDetails = {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -161,7 +161,7 @@ fun OverallAccountsCard(
                         )
                         Text(
                             modifier = Modifier.padding(start = 15.dp),
-                            text = "${it.balance} ${it.currency.name}",
+                            text = it.currency.formatAmount(it.balance),
                             fontWeight = MaterialTheme.typography.bodySmall.fontWeight,
                             fontSize = MaterialTheme.typography.bodySmall.fontSize,
                             color = Color.Gray

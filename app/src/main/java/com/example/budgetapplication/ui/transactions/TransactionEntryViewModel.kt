@@ -67,8 +67,8 @@ data class TransactionUiState(
         id = 0,
         name = "",
         type = TransactionType.EXPENSE,
-        accountId = 0,
-        categoryId = 0,
+        accountId = -1,
+        categoryId = -1,
         amount = 0f,
         date = LocalDateTime.now()
     ),

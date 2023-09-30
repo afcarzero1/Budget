@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.budgetapplication.data.currencies.Currency
 import java.text.DecimalFormat
 
 
@@ -35,7 +36,8 @@ fun <T>BaseRow(
     holdedItem : T,
     onItemSelected : (T) -> Unit = {}
 ) {
-    val formattedAmount = formatCurrencyAmount(amount)
+    val formattedAmount = Currency.formatAmountStatic(currency, amount)
+
     Row(
         modifier = Modifier
             .height(68.dp)
@@ -66,7 +68,7 @@ fun <T>BaseRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = if (negative) "-$currency" else currency,
+                text = if (negative) "-" else " ",
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
@@ -102,10 +104,3 @@ fun VerticalBar(color: Color, modifier: Modifier = Modifier) {
 fun ListDivider(modifier: Modifier = Modifier) {
     Divider(color = MaterialTheme.colorScheme.background, thickness = 1.dp, modifier = modifier)
 }
-
-fun formatCurrencyAmount(amount: Float): String {
-    return AmountDecimalFormat.format(amount)
-}
-
-private val AmountDecimalFormat = DecimalFormat("###,###.##")
-
