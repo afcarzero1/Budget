@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FullFutureTransaction
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
@@ -58,6 +60,7 @@ fun TransactionsSummary(
     futureTransactionsViewModel: FutureTransactionsSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var showFutureTransactions by remember { mutableStateOf(false) }
+    val baseCurrency by transactionsViewModel.baseCurrency.collectAsState()
 
 
     InitialScreen(navController = navController, destination = Transactions, screenBody = {
@@ -111,6 +114,7 @@ fun TransactionsSummary(
                     ) {
                         TransactionsSummaryBody(
                             transactions = transactionsState.transactionsList,
+                            baseCurrency = baseCurrency,
                             navController = navController
                         )
                     }
@@ -138,6 +142,7 @@ fun TransactionsSummary(
 @Composable
 fun TransactionsSummaryBody(
     transactions: List<FullTransactionRecord>,
+    baseCurrency: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -157,6 +162,7 @@ fun TransactionsSummaryBody(
             item {
                 DayTransactionsGroup(
                     transactions = transactionsForDate,
+                    baseCurrency = baseCurrency,
                     date = date,
                     onItemSelected = { selectedTransaction ->
                         navController.navigate(
@@ -173,21 +179,46 @@ fun TransactionsSummaryBody(
 @Composable
 fun DayTransactionsGroup(
     transactions: List<FullTransactionRecord>,
+    baseCurrency: String,
     date: LocalDate,
     onItemSelected: (FullTransactionRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val totalAmount = transactions.sumOf {
+        it.transactionRecord.amount.toDouble() / it.account.currency.value.toDouble()
+    }
+
+    val formattedAmount = Currency.formatAmountStatic(baseCurrency, totalAmount.toFloat())
+
     Column(modifier = modifier.fillMaxWidth()) {
 
+
         // Add date as a title here
-        Text(
-            text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), // or any other format you prefer
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), // or any other format you prefer
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f) // Allocates all available space to the left
+            )
+
+            // Add formatted amount here
+            Text(
+                text = formattedAmount,
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalContentColor.current.copy(alpha = 0.6f), // 0.6f is for 60% opacity, adjust as needed
+            )
+        }
 
         Card(
-            modifier = Modifier.fillMaxWidth().padding(4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()

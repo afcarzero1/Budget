@@ -62,7 +62,10 @@ object AppViewModelProvider {
         }
 
         initializer {
-            TransactionsSummaryViewModel(budgetApplication().container.transactionsRepository)
+            TransactionsSummaryViewModel(
+                budgetApplication().container.transactionsRepository,
+                budgetApplication().container.currenciesRepository
+            )
         }
 
         initializer {
