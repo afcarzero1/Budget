@@ -2,14 +2,18 @@ package com.example.budgetapplication.data.accounts
 
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionType
+import com.example.budgetapplication.data.transactions.TransactionsRepository
+import com.example.budgetapplication.data.transfers.Transfer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
 class OfflineAccountsRepository(
     private val accountDao: AccountDao,
-    private val currenciesRepository: CurrenciesRepository
+    private val currenciesRepository: CurrenciesRepository,
+    private val transactionsRepository: TransactionsRepository
 ) : AccountsRepository {
     override suspend fun insertAccount(account: Account) = accountDao.insert(account)
 
@@ -60,5 +64,33 @@ class OfflineAccountsRepository(
                 totalBalance
             )
         }
+    }
+
+    override suspend fun registerTransfer(transfer: Transfer) {
+        val sourceTransaction = TransactionRecord(
+            id = 0,
+            name = "",
+            type = TransactionType.EXPENSE_TRANSFER,
+            accountId = transfer.sourceAccount.id,
+            categoryId = null,
+            amount = transfer.amountSource,
+            date = transfer.date
+        )
+
+        val destinationTransaction = TransactionRecord(
+            id = 0,  // Auto-generate the ID
+            name = "",  // Provide a suitable name or description if necessary
+            type = TransactionType.INCOME_TRANSFER,
+            accountId = transfer.destinationAccount.id,
+            categoryId = null,  // Assuming categoryId should be null for INCOME_TRANSFER type
+            amount = transfer.amountDestination,
+            date = transfer.date
+        )
+
+        // Insert the destination transaction into the database
+        transactionsRepository.insertMany(
+            destinationTransaction, sourceTransaction
+        )
+
     }
 }

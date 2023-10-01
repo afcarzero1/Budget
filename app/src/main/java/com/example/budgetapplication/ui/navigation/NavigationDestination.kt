@@ -12,6 +12,7 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.ui.accounts.AccountDetailsScreen
 import com.example.budgetapplication.ui.accounts.AccountEntryScreen
 import com.example.budgetapplication.ui.accounts.AccountsSummary
+import com.example.budgetapplication.ui.accounts.TransferEntryScreen
 import com.example.budgetapplication.ui.categories.CategoriesSummary
 import com.example.budgetapplication.ui.categories.CategoryDetailsScreen
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
@@ -69,6 +70,23 @@ object AccountEntry : BudgetDestination {
         )
     }
 }
+
+object AccountTransferEntry : BudgetDestination {
+    override val icon = @Composable { tint: Color ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null,
+            tint = tint
+        )
+    }
+    override val route = "transferEntry"
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        TransferEntryScreen(
+            navigateBack = { it.popBackStack() }
+        )
+    }
+}
+
 
 object AccountDetails : BudgetDestination {
     override val icon = @Composable { tint: Color ->

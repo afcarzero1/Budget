@@ -42,10 +42,12 @@ data class Account (
         for (transactionRecord in transactionRecords) {
             if(transactionRecord.date.toLocalDate() > atDate){continue}
 
-            if (transactionRecord.type == TransactionType.EXPENSE) {
-                balance -= transactionRecord.amount
-            } else if (transactionRecord.type == TransactionType.INCOME) {
-                balance += transactionRecord.amount
+            when(transactionRecord.type){
+                TransactionType.EXPENSE -> balance-=transactionRecord.amount
+                TransactionType.INCOME -> balance+=transactionRecord.amount
+                TransactionType.INCOME_TRANSFER -> balance += transactionRecord.amount
+                TransactionType.EXPENSE_TRANSFER -> balance -= transactionRecord.amount
+
             }
         }
 

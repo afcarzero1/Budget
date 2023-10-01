@@ -1,6 +1,5 @@
 package com.example.budgetapplication.data.transactions
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -33,8 +32,17 @@ data class TransactionRecord (
     val name: String,
     val type: TransactionType,
     val accountId: Int,
-    val categoryId: Int,
+    val categoryId: Int?,
     val amount: Float,
     @TypeConverters(DateConverter::class)
     val date: LocalDateTime,
-)
+){
+    // I prefer to throw errors than to have incosistent data
+    init {
+        if (type in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) && categoryId != null) {
+            throw IllegalArgumentException("categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions")
+        } else if (type !in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) && categoryId == null) {
+            throw IllegalArgumentException("categoryId cannot be null for EXPENSE or INCOME transactions")
+        }
+    }
+}

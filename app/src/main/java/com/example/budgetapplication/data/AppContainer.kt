@@ -69,7 +69,8 @@ class AppDataContainer(private val context: Context) : AppContainer{
     override val accountsRepository: AccountsRepository by lazy {
         OfflineAccountsRepository(
             BudgetDatabase.getDatabase(context).accountDao(),
-            currenciesRepository
+            currenciesRepository,
+            transactionsRepository
         )
     }
 

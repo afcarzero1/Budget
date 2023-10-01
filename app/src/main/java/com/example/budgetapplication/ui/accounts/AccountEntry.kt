@@ -35,7 +35,6 @@ import androidx.compose.runtime.getValue
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountEntryScreen(
     navigateBack: () -> Unit,

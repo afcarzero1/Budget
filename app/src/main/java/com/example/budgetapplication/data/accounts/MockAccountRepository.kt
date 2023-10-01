@@ -1,6 +1,7 @@
 package com.example.budgetapplication.data.accounts
 
 import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transfers.Transfer
 import kotlinx.coroutines.flow.Flow
 
 class MockAccountRepository(
@@ -43,6 +44,10 @@ class MockAccountRepository(
     }
 
     override fun totalBalance(): Flow<Pair<Currency, Float>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun registerTransfer(transfer: Transfer) {
         TODO("Not yet implemented")
     }
 }

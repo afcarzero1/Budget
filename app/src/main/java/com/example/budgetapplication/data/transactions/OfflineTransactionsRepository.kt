@@ -10,6 +10,10 @@ class OfflineTransactionsRepository(
     override suspend fun insert(transactionRecord: TransactionRecord) =
         transactionDao.insert(transactionRecord)
 
+    override suspend fun insertMany(vararg transactionRecord: TransactionRecord) {
+        transactionDao.insertMany(*transactionRecord)
+    }
+
     override suspend fun update(transactionRecord: TransactionRecord) =
         transactionDao.update(transactionRecord)
 

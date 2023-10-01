@@ -6,6 +6,8 @@ import java.time.YearMonth
 interface TransactionsRepository {
     suspend fun insert(transactionRecord: TransactionRecord)
 
+    suspend fun insertMany(vararg transactionRecord: TransactionRecord)
+
     suspend fun update(transactionRecord: TransactionRecord)
 
     suspend fun delete(transactionRecord: TransactionRecord)

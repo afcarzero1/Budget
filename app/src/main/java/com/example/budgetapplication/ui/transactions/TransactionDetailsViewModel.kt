@@ -52,7 +52,7 @@ class TransactionDetailsViewModel(
 
     private fun validateInput(transaction: TransactionRecord): Boolean {
         return with(transaction) {
-            amount > 0 && accountId >= 0 && categoryId >= 0
+            amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
         }
     }
 

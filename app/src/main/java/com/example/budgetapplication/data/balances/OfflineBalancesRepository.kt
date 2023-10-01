@@ -104,6 +104,8 @@ class OfflineBalancesRepository(
                         val value = when(it.transactionRecord.type){
                             TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
                             TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                            TransactionType.EXPENSE_TRANSFER -> 0f.toDouble()
+                            TransactionType.INCOME_TRANSFER -> 0f.toDouble()
                         }
                         value / it.account.currency.value.toDouble()
                     }.toFloat()
@@ -120,6 +122,8 @@ class OfflineBalancesRepository(
                         val value = when(it.transactionRecord.type){
                             TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
                             TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                            TransactionType.EXPENSE_TRANSFER -> 0F.toDouble()
+                            TransactionType.INCOME_TRANSFER -> 0f.toDouble()
                         }
                         value / it.account.currency.value.toDouble()
                     }.toFloat()
@@ -303,6 +307,8 @@ class OfflineBalancesRepository(
             val transactionValue: Float = when (transaction.transactionRecord.type) {
                 TransactionType.INCOME -> transactionAbsoluteValue
                 TransactionType.EXPENSE -> -transactionAbsoluteValue
+                TransactionType.EXPENSE_TRANSFER -> 0f
+                TransactionType.INCOME_TRANSFER -> 0f
             }
             if (categoryMonthBalance != null) {
                 monthBalances[transactionCategory] =
