@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> LargeDropdownMenu(
     modifier: Modifier = Modifier,
@@ -98,7 +97,7 @@ fun <T> LargeDropdownMenu(
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(all = 16.dp),
             ) {
                 val listState = rememberLazyListState()
                 if (uiIndex > -1) {
@@ -107,7 +106,10 @@ fun <T> LargeDropdownMenu(
                     }
                 }
 
-                LazyColumn(modifier = Modifier.fillMaxWidth(), state = listState) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    state = listState
+                ) {
                     if (notSetLabel != null) {
                         item {
                             LargeDropdownMenuItem(

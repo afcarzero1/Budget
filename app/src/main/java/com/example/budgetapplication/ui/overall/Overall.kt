@@ -1,20 +1,33 @@
 package com.example.budgetapplication.ui.overall
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
@@ -47,9 +60,12 @@ fun OverallScreen(
     val accountsTotalBalance by overallViewModel.accountsTotalBalance.collectAsState()
 
     val lastExpenses by overallViewModel.lastExpenses.collectAsState()
+    val lastIncomes by overallViewModel.lastIncomes.collectAsState()
     val currentTransactionsInterval by overallViewModel.currentDateRange.collectAsState()
 
+
     val expectedExpenses by overallViewModel.expectedExpenses.collectAsState()
+    val expectedIncomes by overallViewModel.expectedIncomes.collectAsState()
     val expectedExpensesInterval by overallViewModel.expectedDateRange.collectAsState()
 
     val balances by overallViewModel.balancesByDay.collectAsState()
@@ -61,8 +77,10 @@ fun OverallScreen(
             accounts = accounts.accountsList,
             accountsColorAssigner = overallViewModel.accountsColorAssigner,
             lastExpenses = lastExpenses,
+            lastIncomes = lastIncomes,
             currentTransactionsInterval = currentTransactionsInterval,
             expectedExpenses = expectedExpenses,
+            expectedIncomes = expectedIncomes,
             expectedExpensesInterval = expectedExpensesInterval,
             balances = balances,
             balancesInterval = balancesInterval,
@@ -86,8 +104,10 @@ fun OverallScreenBody(
     accounts: List<FullAccount>,
     accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
+    lastIncomes: Map<YearMonth, Map<Category, Float>>,
     currentTransactionsInterval: Pair<YearMonth, YearMonth>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
+    expectedIncomes: Map<YearMonth, Map<Category, Float>>,
     expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
@@ -109,19 +129,24 @@ fun OverallScreenBody(
 
         OverallTransactionsCard(
             expenses = lastExpenses,
+            incomes = lastIncomes,
             transactionsInterval = currentTransactionsInterval,
+            baseCurrency = currenctBalance.first,
             onRangeChanged = onCurrentDateRangeChanged
         )
 
         OverallExpectedCard(
             expenses = expectedExpenses,
+            incomes = expectedIncomes,
             expensesInterval = expectedExpensesInterval,
+            baseCurrency = currenctBalance.first,
             onRangeChanged = onExpectedDateRangeChanged
         )
 
         OverallBalancesCard(
             balances = balances,
             balancesDateRange = balancesInterval,
+            baseCurrency = currenctBalance.first,
             onRangeChanged = onBalancesDateRangeChanged
         )
     }
@@ -179,9 +204,15 @@ fun OverallAccountsCard(
 @Composable
 fun OverallTransactionsCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
+    incomes: Map<YearMonth, Map<Category, Float>>,
     transactionsInterval: Pair<YearMonth, YearMonth>,
+    baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
+
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedCategoryMap by remember { mutableStateOf<Map<Category, Float>>(mapOf()) }
+
 
     Card(
         colors = CardDefaults.cardColors(
@@ -202,7 +233,7 @@ fun OverallTransactionsCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.expenses_title),
+                text = stringResource(R.string.transactions_title),
                 fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -214,27 +245,84 @@ fun OverallTransactionsCard(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Date", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Expenses", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Incomes", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.size(24.dp)) // Spacer to align with the icon below
+            }
+
+
             expenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
+                val incomesMap = incomes[yearMonth] ?: mapOf()
+                val totalIncomes = incomesMap.values.sum()
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "${yearMonth.year}-${yearMonth.monthValue}")
-                    Text(text = "$totalExpenses")
+                    // Date
+                    Text(
+                        text = "${yearMonth.year}-${yearMonth.monthValue}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    // Total Expenses
+                    Text(
+                        text = baseCurrency.formatAmount(totalExpenses),
+                        color = Color(0xFFCF3B2A),  // Color indicating expense
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Total Incomes
+                    Text(
+                        text = baseCurrency.formatAmount(totalIncomes),
+                        color = Color(0xFF68A462),  // Color indicating income
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Icon for details
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,  // You can choose any other appropriate icon.
+                        contentDescription = "Details",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                selectedCategoryMap =
+                                    expensesMap + incomesMap
+                                showDialog = true
+                            }
+                    )
                 }
             }
         }
     }
+
+    CategoryDialog(
+        isOpen = showDialog,
+        onClose = { showDialog = false },
+        categoryMap = selectedCategoryMap
+    )
 }
 
 @Composable
 fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
+    incomes: Map<YearMonth, Map<Category,Float>>,
     expensesInterval: Pair<YearMonth, YearMonth>,
+    baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
+
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedCategoryMap by remember { mutableStateOf<Map<Category, Float>>(mapOf()) }
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -268,29 +356,68 @@ fun OverallExpectedCard(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Date", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Expenses", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Incomes", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.size(24.dp)) // Spacer to align with the icon below
+            }
+
             expenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
+                val incomesMap = incomes[yearMonth] ?: mapOf()
+                val totalIncomes = incomesMap.values.sum()
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "${yearMonth.year}-${yearMonth.monthValue}")
-                    expensesMap.forEach { (category, value) ->
-                        Column() {
-                            Text(text = category.name)
-                            Text(text = value.toString())
-                        }
-                    }
-                    Text(text = "$totalExpenses")
+                    // Date
+                    Text(
+                        text = "${yearMonth.year}-${yearMonth.monthValue}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
+                    // Total Expenses
+                    Text(
+                        text = baseCurrency.formatAmount(totalExpenses),
+                        color = Color(0xFFCF3B2A),  // Color indicating expense
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Total Incomes
+                    Text(
+                        text = baseCurrency.formatAmount(totalIncomes),
+                        color = Color(0xFF68A462),  // Color indicating income
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Icon for details
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,  // You can choose any other appropriate icon.
+                        contentDescription = "Details",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                selectedCategoryMap =
+                                    expensesMap + incomesMap
+                                showDialog = true
+                            }
+                    )
                 }
             }
         }
     }
-
+    CategoryDialog(
+        isOpen = showDialog,
+        onClose = { showDialog = false },
+        categoryMap = selectedCategoryMap
+    )
 
 }
 
@@ -298,6 +425,7 @@ fun OverallExpectedCard(
 fun OverallBalancesCard(
     balances: Map<LocalDate, Float>,
     balancesDateRange: Pair<YearMonth, YearMonth>,
+    baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
 
@@ -315,7 +443,9 @@ fun OverallBalancesCard(
     ) {
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -338,9 +468,54 @@ fun OverallBalancesCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = date.toString())
-                    Text(text = balance.toString())
+                    Text(text = baseCurrency.formatAmount(balance))
                 }
             }
         }
     }
 }
+
+@Composable
+fun CategoryDialog(
+    isOpen: Boolean,
+    onClose: () -> Unit,
+    categoryMap: Map<Category, Float>
+) {
+    if (isOpen) {
+        AlertDialog(
+            onDismissRequest = onClose,
+            title = { Text(text = "Category Details") },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    categoryMap.forEach { (category, value) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = category.name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = value.toString(),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = onClose) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+}
+
+
+
+
+

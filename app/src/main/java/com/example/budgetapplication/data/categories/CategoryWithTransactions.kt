@@ -29,7 +29,4 @@ data class CategoryWithTransactions(
 
             return balance
         }
-
-
-
 }

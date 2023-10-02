@@ -114,19 +114,18 @@ class OverallViewModel(
             initialValue = mapOf()
         )
 
-    val lastIncomes: StateFlow<Map<YearMonth,Map<Category,Float>>> = balancesRepository
-        .getCurrentBalancesByMonthStream(
-            fromDate = YearMonth.now().minusMonths(5),
-            toDate = YearMonth.now()
-        )
-        .map{monthMap ->
+    val lastIncomes: StateFlow<Map<YearMonth,Map<Category,Float>>> = currentDateRangeFlow
+        .flatMapLatest { (fromDate, toDate) ->
+            balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+        }
+        .map { monthMap ->
             val newMap: MutableMap<YearMonth,Map<Category,Float>> = mutableMapOf()
             for ((yearMonth, categoryMap) in monthMap) {
-                // Filter categories with negative float values
+                // Filter categories with positive float values
                 val filteredCategoryMap = categoryMap.filter { (_, value) -> value > 0 }
                 if (filteredCategoryMap.isNotEmpty()) {
                     newMap[yearMonth] = filteredCategoryMap
-                }else{
+                } else {
                     newMap[yearMonth] = mapOf()
                 }
             }
