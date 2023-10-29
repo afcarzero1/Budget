@@ -241,10 +241,15 @@ fun FutureTransactionsSummaryBody(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
+
+    val scrollState = rememberLazyListState()
+
+    LazyColumn(
+        modifier = modifier,
+        state = scrollState
     ) {
-        futureTransactions.forEach { transaction ->
+        items(futureTransactions.size) { index ->
+            val transaction = futureTransactions[index]
             Log.d("TransactionSummary", "Future Transaction: ${transaction.futureTransaction.id}")
             FutureTransactionRow(
                 futureTransaction = transaction,

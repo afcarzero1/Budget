@@ -1,4 +1,7 @@
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,6 +20,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
 import java.io.IOException
+
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @RunWith(AndroidJUnit4::class)
 class onlineCurrenciesRepositoryTest {
@@ -51,7 +57,8 @@ class onlineCurrenciesRepositoryTest {
         onlineCurrenciesRepository = OnlineCurrenciesRepository(
             BudgetDatabase.getDatabase(context).currencyDao(),
             currenciesApiService,
-            apiKey
+            apiKey,
+            context.dataStore
         )
     }
 

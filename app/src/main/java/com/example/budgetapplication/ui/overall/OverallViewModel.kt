@@ -46,9 +46,13 @@ class OverallViewModel(
         listOf(
             Color(0xFFBB86FC),
             Color(0xFF6200EE),
-            Color(0xFF3700B3),
             Color(0xFF03DAC5),
-            Color(0xFF007BFF)
+            Color(0xFF007BFF),
+            Color(0xFF5C6BC0),
+            Color(0xFFE91E63),
+            Color(0xFF9C27B0),
+            Color(0xFF2196F3),
+            Color(0xFF4CAF50),
         )
     )
 

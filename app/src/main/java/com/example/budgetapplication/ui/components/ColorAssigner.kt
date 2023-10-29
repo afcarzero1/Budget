@@ -35,7 +35,7 @@ class ColorAssigner(
             throw IllegalStateException("No colors available.")
         }
 
-        var index = hashCode % availableColors.size
+        var index = (hashCode % availableColors.size + availableColors.size) % availableColors.size
         while (temporarilyExcludedColors.contains(index)) {
             index = (index + 1) % availableColors.size
         }

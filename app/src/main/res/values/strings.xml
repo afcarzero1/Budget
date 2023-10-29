@@ -35,7 +35,11 @@
   <string name="entry_future_transaction_recurrence_type">Recurrence</string>
   <string name="entry_future_transaction_recurrence_value">Recurrence Value</string>
   <string name="entry_future_transaction_currency">Currency</string>
-  <string name="expenses_title">Expenses</string>
+  <string name="transactions_title">Transactions</string>
   <string name="expected_expenses_title">Expected Expenses</string>
-  <string name="balances_title">Balances</string>
+  <string name="balances_title">Balance Evolution</string>
+  <string name="transfer_entry_source_account">Source Account</string>
+  <string name="transfer_entry_destination_account">Destination account</string>
+  <string name="transfer_entry_save_transfer">Save transfer</string>
+  <string name="entry_transfer_title">Transfer</string>
 </resources>

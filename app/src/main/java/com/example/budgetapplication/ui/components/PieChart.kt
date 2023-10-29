@@ -61,7 +61,7 @@ fun <T>PieChart(
     )
 
     val animateRotation by animateFloatAsState(
-        targetValue = if (animationPlayed) 90f * 12f else 0f,
+        targetValue = if (animationPlayed) 90f * 4f else 0f,
         animationSpec = tween(
             durationMillis = animDuration,
             delayMillis = 0,
