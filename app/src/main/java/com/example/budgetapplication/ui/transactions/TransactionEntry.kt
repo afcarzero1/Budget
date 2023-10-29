@@ -19,21 +19,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.budgetapplication.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
-import com.example.budgetapplication.ui.accounts.AccountEntryBody
-import com.example.budgetapplication.ui.accounts.AccountForm
+import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import kotlinx.coroutines.launch
@@ -131,18 +133,43 @@ fun TransactionForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        OutlinedTextField(value = transactionRecord.amount.toString(),
-            onValueChange = {
-                onValueChange(transactionRecord.copy(amount = it.toFloat()))
+        var text by remember { mutableStateOf(transactionRecord.amount.toString()) }
+        var tempAmount by remember { mutableStateOf(transactionRecord.amount) }
+        var isError by remember { mutableStateOf(false) }
+
+        OutlinedTextField(
+            value = text,
+            onValueChange = { input ->
+                text = input // Update the text as the user types
             },
             label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused) {
+                        // When the user is done editing (loses focus), try to update the amount
+                        try {
+                            tempAmount = text.toFloat() // Parse the temporary amount
+                            onValueChange(transactionRecord.copy(amount = tempAmount))
+                        } catch (e: NumberFormatException) {
+                            // If parsing fails, reset the text field with the original amount
+                            text = transactionRecord.amount.toString()
+                            isError = true
+                        }
+                    }
+                },
+            isError = isError,
+            supportingText = {
+                if (isError) {
+                    Text(text = "Invalid amount", style = MaterialTheme.typography.bodySmall)
+                }
+            },
             enabled = true,
             singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal)
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_account),
