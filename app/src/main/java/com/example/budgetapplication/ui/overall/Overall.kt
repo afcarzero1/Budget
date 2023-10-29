@@ -41,6 +41,7 @@ import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.BudgetSummary
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.DateRangeSelector
 import com.example.budgetapplication.ui.components.PieChart
@@ -127,6 +128,12 @@ fun OverallScreenBody(
             currentBalance = currenctBalance,
         )
 
+        BudgetsCard(
+            expenses = lastExpenses,
+            expectedExpenses = expectedExpenses,
+            baseCurrency = currenctBalance.first,
+        )
+
         OverallTransactionsCard(
             expenses = lastExpenses,
             incomes = lastIncomes,
@@ -175,7 +182,7 @@ fun OverallAccountsCard(
             PieChart(
                 data = accounts,
                 middleText = currentBalance.first.formatAmount(currentBalance.second),
-                itemToWeight = { it.balance * (1 / it.currency.value) },
+                itemToWeight = { if (it.balance > 0) it.balance * (1 / it.currency.value) else 0f },
                 itemDetails = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
@@ -198,6 +205,58 @@ fun OverallAccountsCard(
                 }
             )
         }
+    }
+}
+
+
+@Composable
+fun BudgetsCard(
+    expenses: Map<YearMonth, Map<Category, Float>>,
+    expectedExpenses: Map<YearMonth, Map<Category, Float>>,
+    baseCurrency: Currency
+) {
+    // Determine the last month available in the data
+    val lastMonth = (expectedExpenses.keys).maxOrNull()
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        lastMonth?.let {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Budgets",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                val lastMonthExpenses = expenses[lastMonth] ?: emptyMap()
+                if (lastMonthExpenses.isNotEmpty()) {
+                    BudgetSummary(
+                        expenses = lastMonthExpenses,
+                        expectedExpenses = expectedExpenses[lastMonth] ?: emptyMap(),
+                        baseCurrency = baseCurrency
+                    )
+                } else {
+                    Text(
+                        text = "No data available for the last month.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+        } ?: Text(
+            text = "No data available for the last month.",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
@@ -314,7 +373,7 @@ fun OverallTransactionsCard(
 @Composable
 fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
-    incomes: Map<YearMonth, Map<Category,Float>>,
+    incomes: Map<YearMonth, Map<Category, Float>>,
     expensesInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
