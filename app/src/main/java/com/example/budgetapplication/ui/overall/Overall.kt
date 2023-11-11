@@ -52,6 +52,7 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
+import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
@@ -497,7 +498,7 @@ fun OverallBalancesCard(
         val y = balance
         entryOf(index, y)
     }
-    val entryModel = entryModelOf(4f, 12f, 8f, 16f)
+    val chartEntryModelProducer = ChartEntryModelProducer(graphEntries)
 
     Card(
         colors = CardDefaults.cardColors(
@@ -532,8 +533,8 @@ fun OverallBalancesCard(
             )
 
             Chart(
-                chart = columnChart(),
-                model = entryModel,
+                chart = lineChart(),
+                chartModelProducer = chartEntryModelProducer,
                 startAxis = rememberStartAxis(),
                 bottomAxis = rememberBottomAxis(),
             )
