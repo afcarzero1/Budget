@@ -53,11 +53,17 @@ import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.compose.m3.style.m3ChartStyle
+import com.patrykandpatrick.vico.compose.style.ChartStyle
+import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
+import com.patrykandpatrick.vico.core.axis.AxisPosition
+import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun OverallScreen(
@@ -491,14 +497,31 @@ fun OverallBalancesCard(
     baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
-
     val sortedBalances = balances.entries.sortedBy { it.key }
-    val graphEntries = List(sortedBalances.size) { index ->
-        val (_, balance) = sortedBalances[index]
-        val y = balance
-        entryOf(index, y)
+
+    val transformedData = sortedBalances.associate {
+        it.key.toEpochDay().toFloat() to it.value
     }
-    val chartEntryModelProducer = ChartEntryModelProducer(graphEntries)
+    val chartEntryModel = entryModelOf(transformedData.keys.zip(transformedData.values, ::entryOf))
+
+// List of epoch days (Float values)
+    val epochDaysList = transformedData.keys.toList()
+
+    val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM")
+
+    val horizontalAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+            // Find the index of this value in the list
+            val index = epochDaysList.indexOf(value)
+
+            // Only format every 4th date
+            if (index != -1) {
+                dateTimeFormatter.format(LocalDate.ofEpochDay(value.toLong()))
+            } else {
+                ""
+            }
+        }
+
 
     Card(
         colors = CardDefaults.cardColors(
@@ -531,13 +554,18 @@ fun OverallBalancesCard(
                 onRangeChanged = onRangeChanged,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+            ProvideChartStyle(chartStyle = m3ChartStyle()) {
+                Chart(
+                    chart = lineChart(),
+                    model = chartEntryModel,
+                    startAxis = rememberStartAxis(),
+                    bottomAxis = rememberBottomAxis(
+                        valueFormatter = horizontalAxisValueFormatter,
+                        labelRotationDegrees = 5f
+                    ),
+                )
+            }
 
-            Chart(
-                chart = lineChart(),
-                chartModelProducer = chartEntryModelProducer,
-                startAxis = rememberStartAxis(),
-                bottomAxis = rememberBottomAxis(),
-            )
 
 
             sortedBalances.forEach { (date, balance) ->
