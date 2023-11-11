@@ -11,12 +11,12 @@ import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.data.transactions.TransactionsRepository
 import com.example.budgetapplication.ui.navigation.TransactionDetails
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class TransactionDetailsViewModel(
@@ -27,9 +27,11 @@ class TransactionDetailsViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
+
+
     val transactionId: Int = checkNotNull(savedStateHandle[TransactionDetails.transactionIdArg])
 
-    var transactionState: StateFlow<TransactionDetailsUiState> =
+    var transactionDBState: StateFlow<TransactionDetailsUiState> =
         transactionsRepository.getTransactionStream(transactionId)
             .filterNotNull()
             .map {
@@ -42,6 +44,14 @@ class TransactionDetailsViewModel(
 
     var transactionUiState by mutableStateOf(TransactionDetailsUiState())
         private set
+
+    init {
+        viewModelScope.launch {
+            transactionDBState.collect { dbState ->
+                updateUiState(dbState.transaction)
+            }
+        }
+    }
 
     fun updateUiState(transaction: TransactionRecord) {
         this.transactionUiState = TransactionDetailsUiState(
@@ -63,7 +73,7 @@ class TransactionDetailsViewModel(
     }
 
     suspend fun deleteTransaction() {
-        transactionsRepository.delete(transactionState.value.transaction)
+        transactionsRepository.delete(transactionDBState.value.transaction)
     }
 }
 

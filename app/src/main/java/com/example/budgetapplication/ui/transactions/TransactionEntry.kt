@@ -23,7 +23,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -127,22 +131,42 @@ fun TransactionForm(
     onValueChange: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Log.d("TransactionForm", "TransactionForm: ${transactionRecord.id}")
+    var text by remember(transactionRecord.amount) { mutableStateOf(transactionRecord.amount.toString()) }
+    var supportText by remember { mutableStateOf("") }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        OutlinedTextField(value = transactionRecord.amount.toString(),
+
+        OutlinedTextField(
+            value = transactionRecord.amount.toString(),
             onValueChange = {
-                onValueChange(transactionRecord.copy(amount = it.toFloat()))
+                text = it
             },
             label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused) {
+                        try {
+                            val parsedFloat = text.toFloat()
+                            onValueChange(transactionRecord.copy(amount = parsedFloat))
+                            supportText = "" // Clear any previous error message
+                        } catch (e: NumberFormatException) {
+                            // Handle the error case
+                            text = transactionRecord.amount.toString() // Revert to the previous valid value
+                            supportText = "Please enter a valid number."
+                        }
+                    }
+                },
             enabled = true,
             singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            isError = supportText.isNotEmpty() // Show error styling when there's an error message
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_account),
