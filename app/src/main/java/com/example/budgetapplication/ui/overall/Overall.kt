@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.overall
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,13 @@ import com.example.budgetapplication.ui.components.DateRangeSelector
 import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
+import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.column.columnChart
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
+import com.patrykandpatrick.vico.core.entry.entryModelOf
+import com.patrykandpatrick.vico.core.entry.entryOf
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -217,6 +225,7 @@ fun BudgetsCard(
 ) {
     // Determine the last month available in the data
     val lastMonth = (expectedExpenses.keys).maxOrNull()
+    Log.d("OverallScreen", "Attempting to show budgets of: $lastMonth")
 
     Card(
         colors = CardDefaults.cardColors(
@@ -238,22 +247,16 @@ fun BudgetsCard(
                 )
 
                 val lastMonthExpenses = expenses[lastMonth] ?: emptyMap()
-                if (lastMonthExpenses.isNotEmpty()) {
-                    BudgetSummary(
-                        expenses = lastMonthExpenses,
-                        expectedExpenses = expectedExpenses[lastMonth] ?: emptyMap(),
-                        baseCurrency = baseCurrency
-                    )
-                } else {
-                    Text(
-                        text = "No data available for the last month.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+
+                BudgetSummary(
+                    expenses = lastMonthExpenses,
+                    expectedExpenses = expectedExpenses[lastMonth] ?: emptyMap(),
+                    baseCurrency = baseCurrency
+                )
+
             }
         } ?: Text(
-            text = "No data available for the last month.",
+            text = "No data available.",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(16.dp)
         )
@@ -489,6 +492,13 @@ fun OverallBalancesCard(
 ) {
 
     val sortedBalances = balances.entries.sortedBy { it.key }
+    val graphEntries = List(sortedBalances.size) { index ->
+        val (_, balance) = sortedBalances[index]
+        val y = balance
+        entryOf(index, y)
+    }
+    val entryModel = entryModelOf(4f, 12f, 8f, 16f)
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -520,6 +530,14 @@ fun OverallBalancesCard(
                 onRangeChanged = onRangeChanged,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+
+            Chart(
+                chart = columnChart(),
+                model = entryModel,
+                startAxis = rememberStartAxis(),
+                bottomAxis = rememberBottomAxis(),
+            )
+
 
             sortedBalances.forEach { (date, balance) ->
                 Row(

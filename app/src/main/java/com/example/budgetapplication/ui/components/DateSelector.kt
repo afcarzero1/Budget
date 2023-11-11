@@ -2,14 +2,13 @@ package com.example.budgetapplication.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +50,7 @@ fun DateRangeSelector(
 
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Previous month",
                         tint = Color.Black, // You can change the icon color here
                         modifier = Modifier.size(16.dp)
@@ -91,7 +90,7 @@ fun DateRangeSelector(
                     )
                 }) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        imageVector = Icons.Filled.ArrowForward,
                         contentDescription = "Next month",
                         tint = Color.Black, // You can change the icon color here
                         modifier = Modifier.size(16.dp)

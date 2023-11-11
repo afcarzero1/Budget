@@ -224,7 +224,7 @@ class OverallViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = Pair(YearMonth.now().minusMonths(3), YearMonth.now().plusMonths(3))
+            initialValue = Pair(YearMonth.now(), YearMonth.now().plusMonths(2))
         )
 
     fun setBalanceRangeFlow(fromDate: YearMonth, toDate: YearMonth){
