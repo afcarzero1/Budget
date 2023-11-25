@@ -5,7 +5,7 @@ BudgetApp is a budget management application written in Kotlin that follows the 
 
 
 <p align="center">
-  <img src="./images/your-image-name.png" alt="Overall View">
+  <img src="./images/overall.png" alt="Overall View">
 </p>
 
 The key features of BudgetApp include:
