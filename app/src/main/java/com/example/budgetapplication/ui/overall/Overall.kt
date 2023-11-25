@@ -1,40 +1,55 @@
 package com.example.budgetapplication.ui.overall
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
@@ -46,23 +61,23 @@ import com.example.budgetapplication.ui.components.BudgetSummary
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.DateRangeSelector
 import com.example.budgetapplication.ui.components.PieChart
+import com.example.budgetapplication.ui.components.graphics.rememberMarker
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.theme.InitialScreen
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
-import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.m3.style.m3ChartStyle
-import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
-import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -490,6 +505,7 @@ fun OverallExpectedCard(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverallBalancesCard(
     balances: Map<LocalDate, Float>,
@@ -498,17 +514,12 @@ fun OverallBalancesCard(
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
     val sortedBalances = balances.entries.sortedBy { it.key }
-
     val transformedData = sortedBalances.associate {
         it.key.toEpochDay().toFloat() to it.value
     }
     val chartEntryModel = entryModelOf(transformedData.keys.zip(transformedData.values, ::entryOf))
-
-// List of epoch days (Float values)
     val epochDaysList = transformedData.keys.toList()
-
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM")
-
     val horizontalAxisValueFormatter =
         AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
             // Find the index of this value in the list
@@ -522,6 +533,7 @@ fun OverallBalancesCard(
             }
         }
 
+    var showRangeDialog by remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -539,21 +551,36 @@ fun OverallBalancesCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = stringResource(R.string.balances_title),
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
 
-            DateRangeSelector(
-                startDate = balancesDateRange.first,
-                endDate = balancesDateRange.second,
-                onRangeChanged = onRangeChanged,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.balances_title),
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                    fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                //calendar icon to the right
+                IconButton(
+                    onClick = {
+                        showRangeDialog = true
+                    },
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Calendar",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                }
+            }
+
             ProvideChartStyle(chartStyle = m3ChartStyle()) {
                 Chart(
                     chart = lineChart(),
@@ -563,19 +590,56 @@ fun OverallBalancesCard(
                         valueFormatter = horizontalAxisValueFormatter,
                         labelRotationDegrees = 90f
                     ),
+                    marker = rememberMarker(),
                 )
             }
-
-            sortedBalances.forEach { (date, balance) ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = date.toString())
-                    Text(text = baseCurrency.formatAmount(balance))
-                }
-            }
         }
+    }
+
+    if(showRangeDialog){
+        DateRangeDialog(
+            isOpen = showRangeDialog,
+            currentSelection = balancesDateRange ,
+            onClose = {
+                onRangeChanged(it.first, it.second)
+                showRangeDialog = false
+            }
+        )
+    }
+}
+
+
+@Composable
+fun DateRangeDialog(
+    isOpen: Boolean,
+    currentSelection: Pair<YearMonth, YearMonth>,
+    onClose: (Pair<YearMonth, YearMonth>) -> Unit,
+){
+    var startDate by remember { mutableStateOf(currentSelection.first) }
+    var endDate by remember { mutableStateOf(currentSelection.second) }
+
+    if (isOpen){
+        AlertDialog(
+            onDismissRequest = {onClose(currentSelection)},
+            title = { Text(text = "Select Date Range") },
+            text = {
+                DateRangeSelector(
+                    startDate = startDate,
+                    endDate = endDate ,
+                    onRangeChanged = { start, end ->
+                        startDate = start
+                        endDate = end
+                    }
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onClose(Pair(startDate, endDate))
+                }) {
+                    Text("Close")
+                }
+            },
+        )
     }
 }
 

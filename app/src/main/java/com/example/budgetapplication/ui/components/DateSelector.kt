@@ -52,7 +52,7 @@ fun DateRangeSelector(
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Previous month",
-                        tint = Color.Black, // You can change the icon color here
+                        tint = Color.Black,
                         modifier = Modifier.size(16.dp)
                     )
                 }

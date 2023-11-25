@@ -235,9 +235,6 @@ class OverallViewModel(
     }
 
     val balancesByDay: StateFlow<Map<LocalDate, Float>> = balanceDateRangeFlow.flatMapLatest { (fromDate, toDate) ->
-
-        var sundayCounter = 0
-
         val sundays = generateSequence(fromDate.atDay(1)) { it.plusMonths(1) }
             .takeWhile { it <= toDate.atEndOfMonth() }
             .flatMap { monthStart ->
@@ -245,10 +242,6 @@ class OverallViewModel(
                     .takeWhile { it.month == monthStart.month }
             }
             .filter { it.dayOfWeek == DayOfWeek.SUNDAY }
-            .filter {
-                sundayCounter++
-                sundayCounter % 2 == 0
-            }
 
         balancesRepository.getBalanceByDay(
             fromDate = fromDate.atDay(1),
