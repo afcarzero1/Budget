@@ -326,16 +326,9 @@ fun OverallTransactionsCard(
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Date", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Expenses", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Incomes", style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.size(24.dp)) // Spacer to align with the icon below
-            }
+            MonthExpensesChart(expenses = expenses, incomes = incomes)
 
+            Spacer(modifier = Modifier.height(16.dp))
 
             expenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
@@ -400,7 +393,7 @@ fun OverallTransactionsCard(
         categoryMap = selectedCategoryMap
     )
 }
-fun getRandomEntries(slope: Int) = List(4) { entryOf(it, it * slope) }
+
 @Composable
 fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
@@ -432,49 +425,6 @@ fun OverallExpectedCard(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val sortedExpenses = expenses.entries.sortedBy { it.key }
-            val sortedIncomes = incomes.entries.sortedBy { it.key }
-
-            val transformedExpenses = sortedExpenses.mapIndexed { index, it ->
-                index to abs(it.value.values.sum())
-            }
-            val transformedIncomes = sortedIncomes.mapIndexed { index, it ->
-                index to abs(it.value.values.sum())
-            }
-
-            val indexToDate = sortedExpenses.mapIndexed() { index, it ->
-                index to it.key
-            }.toMap()
-
-            val chartEntryModelProducer = ChartEntryModelProducer(
-                transformedExpenses.map { (k,v) -> entryOf(k,v) },
-                transformedIncomes.map { (k,v) -> entryOf(k,v) },
-            )
-
-            val dateTimeFormatter = DateTimeFormatter.ofPattern("MM y")
-
-            val horizontalAxisValueFormatter =
-                AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-                    // Find the index of this value in the list
-                    val date = indexToDate[value.toInt()]
-
-                    date?.let { dateTimeFormatter.format(it) } ?: ""
-                }
-
-            val columnChart = columnChart(
-                columns = listOf(
-                    LineComponent(
-                        color = Color(0xFFCC3333).toArgb(),
-                        thicknessDp = 3f
-                    ),
-                    LineComponent(
-                        color = Color(0xFF33CC33).toArgb(),
-                        thicknessDp = 3f
-                    )
-                ),
-                mergeMode = ColumnChart.MergeMode.Grouped,
-            )
-
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
@@ -499,17 +449,7 @@ fun OverallExpectedCard(
                 }
             }
 
-            ProvideChartStyle(chartStyle = m3ChartStyle()) {
-                Chart(
-                    chart = columnChart,
-                    chartModelProducer = chartEntryModelProducer,
-                    startAxis = rememberStartAxis(),
-                    bottomAxis = rememberBottomAxis(
-                        valueFormatter = horizontalAxisValueFormatter,
-                        labelRotationDegrees = 90f
-                    ),
-                )
-            }
+            MonthExpensesChart(expenses = expenses, incomes = incomes)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -677,6 +617,68 @@ fun OverallBalancesCard(
             }
         )
     }
+}
+
+@Composable
+fun MonthExpensesChart(
+    expenses: Map<YearMonth, Map<Category, Float>>,
+    incomes: Map<YearMonth, Map<Category, Float>>
+){
+    val sortedExpenses = expenses.entries.sortedBy { it.key }
+    val sortedIncomes = incomes.entries.sortedBy { it.key }
+
+    val transformedExpenses = sortedExpenses.mapIndexed { index, it ->
+        index to abs(it.value.values.sum())
+    }
+    val transformedIncomes = sortedIncomes.mapIndexed { index, it ->
+        index to abs(it.value.values.sum())
+    }
+
+    val indexToDate = sortedExpenses.mapIndexed() { index, it ->
+        index to it.key
+    }.toMap()
+
+    val chartEntryModelProducer = ChartEntryModelProducer(
+        transformedExpenses.map { (k,v) -> entryOf(k,v) },
+        transformedIncomes.map { (k,v) -> entryOf(k,v) },
+    )
+
+    val dateTimeFormatter = DateTimeFormatter.ofPattern("MM y")
+
+    val horizontalAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+            // Find the index of this value in the list
+            val date = indexToDate[value.toInt()]
+
+            date?.let { dateTimeFormatter.format(it) } ?: ""
+        }
+
+    val columnChart = columnChart(
+        columns = listOf(
+            LineComponent(
+                color = Color(0xFFCC3333).toArgb(),
+                thicknessDp = 3f
+            ),
+            LineComponent(
+                color = Color(0xFF33CC33).toArgb(),
+                thicknessDp = 3f
+            )
+        ),
+        mergeMode = ColumnChart.MergeMode.Grouped,
+    )
+
+    ProvideChartStyle(chartStyle = m3ChartStyle()) {
+        Chart(
+            chart = columnChart,
+            chartModelProducer = chartEntryModelProducer,
+            startAxis = rememberStartAxis(),
+            bottomAxis = rememberBottomAxis(
+                valueFormatter = horizontalAxisValueFormatter,
+                labelRotationDegrees = 90f
+            ),
+        )
+    }
+
 }
 
 
