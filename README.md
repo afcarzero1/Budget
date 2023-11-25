@@ -4,7 +4,9 @@
 BudgetApp is a budget management application written in Kotlin that follows the Model-View-Architecture (MVA) design pattern. This application is designed to help users efficiently manage their finances by registering transactions, categorizing them, specifying the currency, and tracking their accounts. Additionally, BudgetApp allows users to register expected transactions in the future, providing insights into the projected balance over time and helping users assess their financial viability.
 
 
-![Alt text](/images/overall.png)
+<p align="center">
+  <img src="./images/your-image-name.png" alt="Overall View">
+</p>
 
 The key features of BudgetApp include:
 - **Transaction Management**: Easily record your income and expenses by specifying the amount, category, currency, and account for each transaction.
@@ -12,6 +14,32 @@ The key features of BudgetApp include:
 - **Multi-Currency Support**: BudgetApp automatically fetches currency exchange rates from the CurrencyFreaks API and updates them daily, ensuring accurate currency conversion for your transactions.
 - **Account Management**: Manage multiple financial accounts, such as checking accounts, savings accounts, and credit cards.
 - **Future Transaction Planning**: Register expected future transactions to analyze how your overall balance will evolve over time. Detect potential issues of insufficient funds before they become a problem.
+
+
+## How does it look?
+
+The app supports balance projection with a neat interface that displays the balance over time
+along with the expected transactions.
+<p align="center">
+  <img src="./images/balance_projection.png" alt="Balance Projection">
+  <img src="./images/expected_transactions.png" alt="Expected Transactions">
+</p>
+
+It is possible to see organizedly the past transactions and to add new ones.
+<p align="center">
+  <img src="./images/transaction_view.png" alt="Transactions">
+</p>
+
+The app supports also automatic fetching of currencies and their exchange rates. And it allows
+the user to select their preferred currency.
+
+<p align="center">
+  <img src="./images/multi_currency.png" alt="Currency Selection">
+</p>
+
+
+
+
 
 ## Installation
 1. Clone or download the BudgetApp repository from [GitHub](https://github.com/afcarzero1/Budget).
@@ -46,12 +74,6 @@ We welcome contributions to BudgetApp. If you have ideas for improvements, bug f
 
 ## License
 BudgetApp is open-source software licensed under the [MIT License](LICENSE.md).
-
-
-
-## License
-
-The full project is licensed under the MIT license.
 
 The switch icon is taken from [here](https://www.veryicon.com/icons/miscellaneous/fs-icon/switch-38.html)
 The categories icon is taken from [here](https://freeicons.io/line-icons-2/category-icon-30673)
