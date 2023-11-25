@@ -1,55 +1,40 @@
 package com.example.budgetapplication.ui.overall
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
@@ -67,18 +52,22 @@ import com.example.budgetapplication.ui.theme.InitialScreen
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.m3.style.m3ChartStyle
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
+import com.patrykandpatrick.vico.core.chart.column.ColumnChart
+import com.patrykandpatrick.vico.core.component.shape.LineComponent
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
+import com.patrykandpatrick.vico.core.entry.entriesOf
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 @Composable
 fun OverallScreen(
@@ -293,10 +282,9 @@ fun OverallTransactionsCard(
     baseCurrency: Currency,
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
-
     var showDialog by remember { mutableStateOf(false) }
+    var showDateDialog by remember { mutableStateOf(false) }
     var selectedCategoryMap by remember { mutableStateOf<Map<Category, Float>>(mapOf()) }
-
 
     Card(
         colors = CardDefaults.cardColors(
@@ -316,18 +304,27 @@ fun OverallTransactionsCard(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = stringResource(R.string.transactions_title),
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            DateRangeSelector(
-                startDate = transactionsInterval.first,
-                endDate = transactionsInterval.second,
-                onRangeChanged = onRangeChanged,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.transactions_title),
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                IconButton(
+                    onClick = { showDateDialog = true },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Calendar",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -388,13 +385,22 @@ fun OverallTransactionsCard(
         }
     }
 
+    DateRangeDialog(
+        isOpen = showDateDialog,
+        currentSelection = transactionsInterval,
+        onClose = {
+            showDateDialog = false
+            onRangeChanged(it.first, it.second)
+                  },
+    )
+
     CategoryDialog(
         isOpen = showDialog,
         onClose = { showDialog = false },
         categoryMap = selectedCategoryMap
     )
 }
-
+fun getRandomEntries(slope: Int) = List(4) { entryOf(it, it * slope) }
 @Composable
 fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
@@ -404,7 +410,8 @@ fun OverallExpectedCard(
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
 
-    var showDialog by remember { mutableStateOf(false) }
+    var showCategoriesDialog by remember { mutableStateOf(false) }
+    var showDateRangeDialog by remember { mutableStateOf(false) }
     var selectedCategoryMap by remember { mutableStateOf<Map<Category, Float>>(mapOf()) }
 
     Card(
@@ -425,30 +432,86 @@ fun OverallExpectedCard(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val sortedExpenses = expenses.entries.sortedBy { it.key }
+            val sortedIncomes = incomes.entries.sortedBy { it.key }
 
-            Text(
-                text = stringResource(R.string.expected_expenses_title),
-                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
-                modifier = Modifier.padding(bottom = 16.dp)
+            val transformedExpenses = sortedExpenses.mapIndexed { index, it ->
+                index to abs(it.value.values.sum())
+            }
+            val transformedIncomes = sortedIncomes.mapIndexed { index, it ->
+                index to abs(it.value.values.sum())
+            }
+
+            val indexToDate = sortedExpenses.mapIndexed() { index, it ->
+                index to it.key
+            }.toMap()
+
+            val chartEntryModelProducer = ChartEntryModelProducer(
+                transformedExpenses.map { (k,v) -> entryOf(k,v) },
+                transformedIncomes.map { (k,v) -> entryOf(k,v) },
             )
 
-            DateRangeSelector(
-                startDate = expensesInterval.first,
-                endDate = expensesInterval.second,
-                onRangeChanged = onRangeChanged,
-                modifier = Modifier.padding(bottom = 16.dp)
+            val dateTimeFormatter = DateTimeFormatter.ofPattern("MM y")
+
+            val horizontalAxisValueFormatter =
+                AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+                    // Find the index of this value in the list
+                    val date = indexToDate[value.toInt()]
+
+                    date?.let { dateTimeFormatter.format(it) } ?: ""
+                }
+
+            val columnChart = columnChart(
+                columns = listOf(
+                    LineComponent(
+                        color = Color(0xFFCC3333).toArgb(),
+                        thicknessDp = 3f
+                    ),
+                    LineComponent(
+                        color = Color(0xFF33CC33).toArgb(),
+                        thicknessDp = 3f
+                    )
+                ),
+                mergeMode = ColumnChart.MergeMode.Grouped,
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Date", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Expenses", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Incomes", style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.size(24.dp)) // Spacer to align with the icon below
+                Text(
+                    text = stringResource(R.string.expected_expenses_title),
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                    fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                IconButton(
+                    onClick = {
+                        showDateRangeDialog = true
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Calendar",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+
+            ProvideChartStyle(chartStyle = m3ChartStyle()) {
+                Chart(
+                    chart = columnChart,
+                    chartModelProducer = chartEntryModelProducer,
+                    startAxis = rememberStartAxis(),
+                    bottomAxis = rememberBottomAxis(
+                        valueFormatter = horizontalAxisValueFormatter,
+                        labelRotationDegrees = 90f
+                    ),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             expenses.forEach { (yearMonth, expensesMap) ->
                 val totalExpenses = expensesMap.values.sum()
@@ -490,7 +553,7 @@ fun OverallExpectedCard(
                             .clickable {
                                 selectedCategoryMap =
                                     expensesMap + incomesMap
-                                showDialog = true
+                                showCategoriesDialog = true
                             }
                     )
                 }
@@ -498,14 +561,22 @@ fun OverallExpectedCard(
         }
     }
     CategoryDialog(
-        isOpen = showDialog,
-        onClose = { showDialog = false },
+        isOpen = showCategoriesDialog,
+        onClose = { showCategoriesDialog = false },
         categoryMap = selectedCategoryMap
     )
-
+    if(showDateRangeDialog){
+        DateRangeDialog(
+            isOpen = showDateRangeDialog,
+            onClose = {
+                showDateRangeDialog = false
+                onRangeChanged(it.first, it.second)
+            },
+            currentSelection = expensesInterval,
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverallBalancesCard(
     balances: Map<LocalDate, Float>,
@@ -639,6 +710,7 @@ fun DateRangeDialog(
                     Text("Close")
                 }
             },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     }
 }
