@@ -8,7 +8,7 @@ import com.example.budgetapplication.data.transactions.TransactionRecord
 data class AccountWithCurrency(
     @Embedded val account: Account,
     @Relation(
-        parentColumn = "currency", // Assuming you have a currencyId field in your Account table
+        parentColumn = "currency",
         entityColumn = "name"
     )
     val currency: Currency,

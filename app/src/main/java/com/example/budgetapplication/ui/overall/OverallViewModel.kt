@@ -213,7 +213,7 @@ class OverallViewModel(
 
 
     private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(0))
-    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(1))
+    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(6))
 
     private val balanceDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(
         balanceFromDateFlow, balanceToDateFlow

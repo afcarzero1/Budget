@@ -561,12 +561,10 @@ fun OverallBalancesCard(
                     startAxis = rememberStartAxis(),
                     bottomAxis = rememberBottomAxis(
                         valueFormatter = horizontalAxisValueFormatter,
-                        labelRotationDegrees = 5f
+                        labelRotationDegrees = 90f
                     ),
                 )
             }
-
-
 
             sortedBalances.forEach { (date, balance) ->
                 Row(
@@ -620,8 +618,3 @@ fun CategoryDialog(
         )
     }
 }
-
-
-
-
-

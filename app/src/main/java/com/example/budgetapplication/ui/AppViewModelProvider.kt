@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.budgetapplication.BudgetApplication
 import com.example.budgetapplication.ui.accounts.AccountDetailsViewModel
+import com.example.budgetapplication.ui.accounts.AccountSummaryViewModel
 import com.example.budgetapplication.ui.accounts.AccountTransferEntryViewModel
 import com.example.budgetapplication.ui.accounts.AccountsEntryViewModel
 import com.example.budgetapplication.ui.accounts.AccountsViewModel
@@ -31,6 +32,13 @@ object AppViewModelProvider {
 
         initializer {
             AccountsViewModel(budgetApplication().container.accountsRepository)
+        }
+
+        initializer {
+            AccountSummaryViewModel(
+                this.createSavedStateHandle(),
+                budgetApplication().container.accountsRepository
+            )
         }
 
         initializer {

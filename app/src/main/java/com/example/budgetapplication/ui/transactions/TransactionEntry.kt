@@ -132,7 +132,8 @@ fun TransactionForm(
     modifier: Modifier = Modifier
 ) {
     Log.d("TransactionForm", "TransactionForm: ${transactionRecord.id}")
-    var text by remember(transactionRecord.amount) { mutableStateOf(transactionRecord.amount.toString()) }
+
+    var text by remember(transactionRecord.id) { mutableStateOf(transactionRecord.amount.toString()) }
     var supportText by remember { mutableStateOf("") }
     Column(
         modifier = modifier,
@@ -140,9 +141,17 @@ fun TransactionForm(
     ) {
 
         OutlinedTextField(
-            value = transactionRecord.amount.toString(),
+            value = text,
             onValueChange = {
                 text = it
+                // Attempt to parse the input to a float
+                try {
+                    val parsedFloat = text.toFloat()
+                    onValueChange(transactionRecord.copy(amount = parsedFloat))
+                    supportText = "" // Clear any previous error message
+                } catch (e: NumberFormatException) {
+                    // Wait for the user to finish typing
+                }
             },
             label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(

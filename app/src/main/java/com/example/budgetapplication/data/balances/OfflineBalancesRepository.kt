@@ -72,7 +72,7 @@ class OfflineBalancesRepository(
             var initialBalance = 0f
             for (accountInfo in allAccounts) {
                 initialBalance += accountInfo.account.computeBalance(
-                    accountInfo.transactionRecords,
+                    accountInfo.transactionRecords.map { it.transactionRecord },
                     fromDate.minusDays(1)
                 ) / accountInfo.currency.value
             }

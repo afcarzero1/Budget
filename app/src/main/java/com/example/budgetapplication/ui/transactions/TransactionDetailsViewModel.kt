@@ -79,7 +79,7 @@ class TransactionDetailsViewModel(
 
 data class TransactionDetailsUiState(
     val transaction: TransactionRecord = TransactionRecord(
-        id = 0,
+        id = -1,
         accountId = -1,
         categoryId = -1,
         amount = 0f,

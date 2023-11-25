@@ -43,4 +43,8 @@ interface TransactionDao {
             "WHERE date >= :startDateTime AND date <= :endDateTime AND categoryId IS NOT NULL " +
             "ORDER BY date DESC")
     fun getFullTransactionsByDateStream(startDateTime: LocalDateTime, endDateTime: LocalDateTime): Flow<List<FullTransactionRecord>>
+
+    @Transaction
+    @Query("SELECT * from transactions WHERE categoryId IS NULL ORDER BY date DESC")
+    fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>>
 }

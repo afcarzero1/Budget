@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -25,9 +26,11 @@ interface FutureTransactionDao{
     @Query("SELECT * from futureTransactions ORDER BY amount DESC")
     fun getAllFutureTransactionsStream(): Flow<List<FutureTransaction>>
 
+    @Transaction
     @Query("SELECT * from futureTransactions WHERE id = :id")
     fun getFutureFullTransactionStream(id: Int): Flow<FullFutureTransaction>
 
+    @Transaction
     @Query("SELECT * from futureTransactions ORDER BY amount DESC")
     fun getAllFutureFullTransactionsStream(): Flow<List<FullFutureTransaction>>
 
