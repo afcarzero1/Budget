@@ -3,6 +3,9 @@
 ## Overview
 BudgetApp is a budget management application written in Kotlin that follows the Model-View-Architecture (MVA) design pattern. This application is designed to help users efficiently manage their finances by registering transactions, categorizing them, specifying the currency, and tracking their accounts. Additionally, BudgetApp allows users to register expected transactions in the future, providing insights into the projected balance over time and helping users assess their financial viability.
 
+
+![Alt text](/images/overall.png)
+
 The key features of BudgetApp include:
 - **Transaction Management**: Easily record your income and expenses by specifying the amount, category, currency, and account for each transaction.
 - **Category Tracking**: Categorize transactions to get a better understanding of your spending patterns and financial habits.
