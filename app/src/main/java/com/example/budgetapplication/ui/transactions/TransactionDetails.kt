@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -38,11 +37,12 @@ import kotlinx.coroutines.launch
 fun TransactionDetailsScreen(
     navigateBack: () -> Unit,
     viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
-){
-    val transactionDBState by viewModel.transactionState.collectAsState()
-    var useUpdatedUiState by remember { mutableStateOf(false) } //TODO: This is a hack to get around the fact that the UI state is not updated when the transaction is updated
-    //TODO : Do it properly by using a single state object for the UI and DB states
+) {
+
+    val transactionDBState by viewModel.transactionDBState.collectAsState()
     val transactionUiState = viewModel.transactionUiState
+    Log.d("TransactionDetailsScreen", "Transaction in DB: ${transactionDBState.transaction.id}")
+    Log.d("TransactionDetailsScreen", "Transaction in UI: ${transactionUiState.transaction.id}")
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -62,10 +62,9 @@ fun TransactionDetailsScreen(
         }
     ) { innerPadding ->
         TransactionDetailsBody(
-            transactionDetailsUiState = if (useUpdatedUiState) viewModel.transactionUiState else transactionDBState,
+            transactionDetailsUiState = viewModel.transactionUiState,
             navigateBack = navigateBack,
             onTransactionDetailsChanged = {
-                useUpdatedUiState = true
                 viewModel.updateUiState(it)
             },
             onTransactionDetailsSaved = {
@@ -76,11 +75,15 @@ fun TransactionDetailsScreen(
             onTransactionDetailsDeleted = {
                 coroutineScope.launch {
                     try {
-                        Log.d("TransactionDetailsScreen", "Deleting transaction ${transactionDBState.transaction.id}")
+                        Log.d(
+                            "TransactionDetailsScreen",
+                            "Deleting transaction ${transactionUiState.transaction.id}"
+                        )
                         viewModel.deleteTransaction()
                     } catch (e: Exception) {
                         // Show message to user
-                        Toast.makeText(context, "Error deleting transaction", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error deleting transaction", Toast.LENGTH_SHORT)
+                            .show()
                         Log.e("TransactionDetailsScreen", "Error deleting transaction", e)
                     }
                 }
@@ -102,7 +105,7 @@ fun TransactionDetailsBody(
     categoriesViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 
-){
+    ) {
     var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
     val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()

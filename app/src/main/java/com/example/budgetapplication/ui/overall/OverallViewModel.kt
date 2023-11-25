@@ -212,8 +212,8 @@ class OverallViewModel(
 
 
 
-    private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(3))
-    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(3))
+    private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(0))
+    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(6))
 
     private val balanceDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(
         balanceFromDateFlow, balanceToDateFlow
@@ -224,7 +224,7 @@ class OverallViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = Pair(YearMonth.now().minusMonths(3), YearMonth.now().plusMonths(3))
+            initialValue = Pair(YearMonth.now(), YearMonth.now().plusMonths(2))
         )
 
     fun setBalanceRangeFlow(fromDate: YearMonth, toDate: YearMonth){
@@ -235,7 +235,6 @@ class OverallViewModel(
     }
 
     val balancesByDay: StateFlow<Map<LocalDate, Float>> = balanceDateRangeFlow.flatMapLatest { (fromDate, toDate) ->
-
         val sundays = generateSequence(fromDate.atDay(1)) { it.plusMonths(1) }
             .takeWhile { it <= toDate.atEndOfMonth() }
             .flatMap { monthStart ->

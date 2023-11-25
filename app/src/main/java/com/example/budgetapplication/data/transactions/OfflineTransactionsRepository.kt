@@ -43,4 +43,8 @@ class OfflineTransactionsRepository(
         // Call the Dao function to get the transactions within the specified date range
         return transactionDao.getFullTransactionsByDateStream(startDateTime, endDateTime)
     }
+
+    override fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>> {
+        return transactionDao.getAllFullTransferTransactionsStream()
+    }
 }

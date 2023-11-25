@@ -72,7 +72,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                     "`categoryId` INTEGER, " +
                     "`amount` REAL NOT NULL, " +
                     "`date` INTEGER NOT NULL, " +
-                    "FOREIGN KEY(`accountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT, " +  // Lowercased table names
+                    "FOREIGN KEY(`accountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT, " +
                     "FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT)"
         )
         database.execSQL(
@@ -84,3 +84,4 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         database.execSQL("PRAGMA foreign_keys=ON;")
     }
 }
+

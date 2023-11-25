@@ -24,4 +24,6 @@ interface TransactionsRepository {
         fromDate: YearMonth,
         toDate: YearMonth,
     ): Flow<List<FullTransactionRecord>>
+
+    fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>>
 }

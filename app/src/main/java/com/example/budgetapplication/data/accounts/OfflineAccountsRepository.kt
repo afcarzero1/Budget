@@ -69,7 +69,7 @@ class OfflineAccountsRepository(
     override suspend fun registerTransfer(transfer: Transfer) {
         val sourceTransaction = TransactionRecord(
             id = 0,
-            name = "",
+            name = transfer.destinationAccount.id.toString(),
             type = TransactionType.EXPENSE_TRANSFER,
             accountId = transfer.sourceAccount.id,
             categoryId = null,
@@ -79,10 +79,10 @@ class OfflineAccountsRepository(
 
         val destinationTransaction = TransactionRecord(
             id = 0,  // Auto-generate the ID
-            name = "",  // Provide a suitable name or description if necessary
+            name = transfer.sourceAccount.id.toString(),
             type = TransactionType.INCOME_TRANSFER,
             accountId = transfer.destinationAccount.id,
-            categoryId = null,  // Assuming categoryId should be null for INCOME_TRANSFER type
+            categoryId = null,
             amount = transfer.amountDestination,
             date = transfer.date
         )

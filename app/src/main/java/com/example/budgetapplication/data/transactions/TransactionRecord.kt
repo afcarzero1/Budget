@@ -37,7 +37,7 @@ data class TransactionRecord (
     @TypeConverters(DateConverter::class)
     val date: LocalDateTime,
 ){
-    // I prefer to throw errors than to have incosistent data
+    // I prefer to throw errors than to have inconsistent data
     init {
         if (type in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) && categoryId != null) {
             throw IllegalArgumentException("categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions")

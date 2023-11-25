@@ -165,6 +165,7 @@ fun TransactionsSummaryBody(
                     baseCurrency = baseCurrency,
                     date = date,
                     onItemSelected = { selectedTransaction ->
+                        Log.d("TransactionsSummary", "Selected transaction: ${selectedTransaction.transactionRecord.id}")
                         navController.navigate(
                             TransactionDetails.route + "/${selectedTransaction.transactionRecord.id}"
                         )

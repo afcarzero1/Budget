@@ -106,6 +106,7 @@ fun AccountsSummaryBody(
                 },
             )
 
+
             FloatingActionButton(
                 onClick = { navController.navigate(AccountTransferEntry.route) },
                 modifier = Modifier.align(Alignment.BottomStart).padding(32.dp)  // This positions the FAB to the left (start) and a bit up from the bottom, with some padding

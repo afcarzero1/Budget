@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.components
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -41,31 +43,49 @@ fun DatePickerField(
     modifier: Modifier = Modifier,
     initialDate: LocalDateTime = LocalDateTime.now()
 ) {
+    // Use for the text the variable that we get from out
     val calendar = Calendar.getInstance()
-
     calendar.set(Calendar.YEAR, initialDate.year)
     calendar.set(Calendar.MONTH, initialDate.monthValue - 1) // Calendar months are zero-based
     calendar.set(Calendar.DAY_OF_MONTH, initialDate.dayOfMonth)
     calendar.set(Calendar.HOUR_OF_DAY, initialDate.hour)
     calendar.set(Calendar.MINUTE, initialDate.minute)
     calendar.set(Calendar.SECOND, initialDate.second)
-    calendar.set(
-        Calendar.MILLISECOND,
-        initialDate.nano / 1_000_000
-    ) // Convert nanoseconds to milliseconds
+    calendar.set(Calendar.MILLISECOND, initialDate.nano / 1_000_000)
+    val textFieldDateState = calendar.timeInMillis
 
+    // Whether to show the dialog or not
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // set the initial date
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = calendar.timeInMillis
-    )
 
-    var selectedDate by remember {
-        mutableLongStateOf(calendar.timeInMillis)
+    val enabled = true
+    Box(modifier = modifier.height(IntrinsicSize.Min)) {
+        val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.ROOT)
+        val formattedDate = formatter.format(Date(textFieldDateState))
+        OutlinedTextField(
+            label = { Text(label) },
+            value = formattedDate,
+            enabled = true,
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { },
+            readOnly = true,
+        )
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .clickable(enabled = enabled) {
+                    showDatePicker = true
+                },
+            color = Color.Transparent,
+        ) {}
     }
 
     if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = calendar.timeInMillis
+        )
         DatePickerDialog(
             onDismissRequest = {
                 showDatePicker = false
@@ -73,8 +93,7 @@ fun DatePickerField(
             confirmButton = {
                 TextButton(onClick = {
                     showDatePicker = false
-                    selectedDate = datePickerState.selectedDateMillis!!
-                    onDateChanged(convertToLocalDateTimeViaInstant(Date(selectedDate)))
+                    onDateChanged(convertToLocalDateTimeViaInstant(Date(datePickerState.selectedDateMillis!!)))
                 }) {
                     Text(text = "Confirm")
                 }
@@ -92,30 +111,9 @@ fun DatePickerField(
             )
         }
     }
-    val enabled = true
-
-    Box(modifier = modifier.height(IntrinsicSize.Min)) {
-        val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.ROOT)
-        val formattedDate = formatter.format(Date(selectedDate))
-        OutlinedTextField(
-            label = { Text(label) },
-            value = formattedDate,
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { },
-            readOnly = true,
-        )
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .clickable(enabled = enabled) { showDatePicker = true },
-            color = Color.Transparent,
-        ) {}
-    }
 
 }
+
 
 fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime {
     return dateToConvert.toInstant()
