@@ -20,7 +20,6 @@ fun BudgetApplicationApp(navController: NavHostController = rememberNavControlle
     BudgetNavHost(navController = navController)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitialScreen(
     navController: NavHostController,
@@ -29,7 +28,7 @@ fun InitialScreen(
     floatingButton : @Composable () -> Unit = {}
 ) {
     Scaffold(
-        topBar = {
+        bottomBar = {
             BudgetNavigationBar(
                 allScreens = tabDestinations,
                 onTabSelected = { screen -> navController.navigate(screen.route)},
