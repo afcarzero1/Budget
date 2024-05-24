@@ -143,7 +143,7 @@ object Currencies : BudgetDestination {
         CurrenciesScreen(navHostController = it, viewModel(factory = AppViewModelProvider.Factory))
     }
     override val topBar: (@Composable (NavHostController) -> Unit) = @Composable {
-        CurrenciesScreenTopBar(it)
+
     }
 }
 

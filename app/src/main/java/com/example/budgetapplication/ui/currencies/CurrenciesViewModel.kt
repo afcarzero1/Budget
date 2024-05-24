@@ -1,11 +1,15 @@
 package com.example.budgetapplication.ui.currencies
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -39,6 +43,26 @@ class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = CurrenciesUiState()
         )
+
+    var searchQuery = mutableStateOf("")
+        private set
+
+    private val _searchResult = MutableStateFlow<Currency?>(null)
+    val searchResult = _searchResult.asStateFlow()
+
+    fun updateSeachQuery(query: String){
+        Log.d("TextFieldViewModel", "Text updated to: $query")
+        searchQuery.value = query
+
+        if (query.isNotEmpty()){
+            viewModelScope.launch {
+                val matchedCurrency = currenciesListFlow.first().firstOrNull { currency ->
+                    currency.name.contains(query, ignoreCase = true)
+                }
+                _searchResult.value = matchedCurrency
+            }
+        }
+    }
 
     fun updateBaseCurrencySafe(newBaseCurrency: String) {
         viewModelScope.launch {

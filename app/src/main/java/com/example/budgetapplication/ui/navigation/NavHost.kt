@@ -21,8 +21,6 @@ fun BudgetNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
-
 
     NavHost(
         navController = navController,
@@ -33,10 +31,10 @@ fun BudgetNavHost(
             Overview.screen(navController)
         }
         composable(route = Currencies.route) {
-            CurrenciesScreen(navHostController = navController, viewModel = currenciesViewModel)
+            CurrenciesScreen(navHostController = navController)
         }
         composable(route = CurrenciesSettings.route) {
-            CurrencySettingsScreen(navController = navController, viewModel = currenciesViewModel)
+            CurrencySettingsScreen(navController = navController)
         }
         composable(route = Accounts.route) {
             Accounts.screen(navController)

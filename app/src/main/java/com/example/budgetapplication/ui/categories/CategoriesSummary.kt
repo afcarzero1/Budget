@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.example.budgetapplication.data.categories.CategoryWithTransactions
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.VerticalBar
-import com.example.budgetapplication.ui.navigation.AccountDetails
 import com.example.budgetapplication.ui.navigation.CategoryDetails
 import com.example.budgetapplication.ui.navigation.CategoryEntry
 

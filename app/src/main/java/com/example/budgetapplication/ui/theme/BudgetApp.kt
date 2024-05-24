@@ -2,7 +2,6 @@ package com.example.budgetapplication.ui.theme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,7 +11,6 @@ import com.example.budgetapplication.ui.navigation.BudgetDestination
 import com.example.budgetapplication.ui.navigation.BudgetNavHost
 import com.example.budgetapplication.ui.navigation.BudgetNavigationBar
 import com.example.budgetapplication.ui.navigation.BudgetTopBar
-import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.navigation.tabDestinations
 
 
@@ -26,7 +24,8 @@ fun InitialScreen(
     navController: NavHostController,
     destination: BudgetDestination,
     screenBody: @Composable () -> Unit,
-    floatingButton : @Composable () -> Unit = {}
+    floatingButton : @Composable () -> Unit = {},
+    topBar: (@Composable (BudgetDestination, NavHostController) -> Unit)? = null
 ) {
     Scaffold(
         bottomBar = {
@@ -37,7 +36,7 @@ fun InitialScreen(
             )
         },
         topBar = {
-            BudgetTopBar(currentScreen = destination, navHostController = navController)
+            topBar?.invoke(destination, navController) ?: BudgetTopBar(currentScreen = destination, navHostController = navController)
         },
         floatingActionButton = floatingButton
     ) { innerPadding ->

@@ -1,8 +1,11 @@
 package com.example.budgetapplication.ui.currencies
 
-import android.util.Log
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,14 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
@@ -33,14 +36,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,32 +67,51 @@ import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import com.example.budgetapplication.ui.navigation.Currencies
 import com.example.budgetapplication.ui.navigation.CurrenciesSettings
 import com.example.budgetapplication.ui.theme.InitialScreen
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun CurrenciesScreen(navHostController: NavHostController, viewModel: CurrenciesViewModel) {
-    InitialScreen(navController = navHostController, destination = Currencies, screenBody = {
-        CurrenciesSummary(
-            modifier = Modifier.fillMaxSize(),
-            viewModel = viewModel
-        )
-    })
+fun CurrenciesScreen(
+    navHostController: NavHostController,
+    viewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    InitialScreen(
+        navController = navHostController,
+        destination = Currencies,
+        screenBody = {
+            CurrenciesSummary(
+                modifier = Modifier.fillMaxSize(),
+                viewModel = viewModel
+            )
+        },
+        topBar = { destination, navController ->
+            CurrenciesScreenTopBar(
+                navController = navController,
+                searchTerm = viewModel.searchQuery.value,
+                onSearchTermChanged = {
+                    viewModel.updateSeachQuery(it)
+                }
+            )
+        }
+    )
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrenciesScreenTopBar(navController: NavHostController) {
+fun CurrenciesScreenTopBar(
+    navController: NavHostController,
+    searchTerm: String,
+    onSearchTermChanged: (String) -> Unit,
+) {
     TopAppBar(
         title = {
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
-                // Menu Icon
                 IconButton(onClick = {
                     // Handle navigation drawer or menu expansion
                 }) {
@@ -100,31 +121,31 @@ fun CurrenciesScreenTopBar(navController: NavHostController) {
                     )
                 }
 
-                // Search Bar in the middle
                 OutlinedTextField(
-                    value = "", // Bind to a state if needed
-                    onValueChange = { /* Update the state here */ },
+                    value = searchTerm,
+                    onValueChange = { onSearchTermChanged(it) },
                     modifier = Modifier
                         .weight(1f) // Takes up all available space between the icons
                         .padding(horizontal = 8.dp)
-                        .height(32.dp),
+                        .padding(top = 16.dp)
+                        .padding(bottom = 16.dp)
+                        .height(IntrinsicSize.Min),
                     placeholder = { Text("Search currency") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text, imeAction = ImeAction.Search
                     ),
-                    keyboardActions = KeyboardActions(onSearch = {
-                        // Define the search action, possibly navigate or fetch data
-                    }),
+                    shape = RoundedCornerShape(16.dp),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp
+                    ),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Search,
-                            contentDescription = "Search Currencies"
+                            contentDescription = "Search Currency"
                         )
-                    },
-                    shape = RoundedCornerShape(16.dp)
+                    }
                 )
-
                 IconButton(onClick = {
                     navController.navigate(CurrenciesSettings.route)
                 }) {
@@ -135,8 +156,6 @@ fun CurrenciesScreenTopBar(navController: NavHostController) {
             }
         },
     )
-
-
 }
 
 
@@ -145,14 +164,31 @@ fun CurrenciesSummary(
     modifier: Modifier = Modifier,
     viewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    Log.d("CurrenciesSummary", "Currencies summary composable")
     val currenciesState by viewModel.currenciesUiState.collectAsState()
+
+    val searchResult by viewModel.searchResult.collectAsState()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(searchResult) {
+        searchResult?.let { result ->
+            val index = currenciesState.currenciesList.indexOf(result)
+            if (index != -1) {
+                val animationSpec: AnimationSpec<Int> = TweenSpec(
+                    durationMillis = 600,  // Duration of the animation in milliseconds
+                    easing = FastOutSlowInEasing  // Easing function for the animation
+                )
+                delay(300)
+                listState.animateScrollToItem(index)
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         CurrenciesSummaryBody(
             currenciesList = currenciesState.currenciesList,
             baseCurrency = currenciesState.baseCurrency,
-            modifier = modifier
+            modifier = modifier,
+            listState = listState
         )
     }
 }
@@ -163,10 +199,14 @@ fun CurrenciesSummaryBody(
     currenciesList: List<Currency>,
     baseCurrency: String,
     modifier: Modifier = Modifier,
+    listState: LazyListState
 ) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         CurrenciesList(
-            currenciesList = currenciesList, baseCurrency = baseCurrency, modifier = modifier
+            currenciesList = currenciesList,
+            baseCurrency = baseCurrency,
+            modifier = modifier,
+            listState = listState
         )
     }
 }
@@ -177,9 +217,11 @@ fun CurrenciesList(
     currenciesList: List<Currency>,
     baseCurrency: String,
     modifier: Modifier = Modifier,
+    listState: LazyListState
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxHeight()
+        modifier = modifier.fillMaxHeight(),
+        state = listState
     ) {
         items(items = currenciesList, itemContent = { currency ->
             CurrencyItem(
@@ -187,7 +229,6 @@ fun CurrenciesList(
             )
         })
     }
-
 }
 
 
@@ -301,7 +342,11 @@ fun CurrencySettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
                     Text(
                         "Base Currency",
                         fontWeight = FontWeight.Bold,
@@ -342,8 +387,12 @@ fun CurrenciesItemPreview() {
 @Preview
 @Composable
 fun CurrenciesListPreview() {
+    val listState = rememberLazyListState()
     CurrenciesList(
-        currenciesList = currencies, baseCurrency = "USD", modifier = Modifier.fillMaxSize()
+        currenciesList = currencies,
+        baseCurrency = "USD",
+        modifier = Modifier.fillMaxSize(),
+        listState
     )
 
 }
@@ -351,8 +400,9 @@ fun CurrenciesListPreview() {
 @Preview
 @Composable
 fun CurrenciesSummaryPreview() {
+    val listState = rememberLazyListState()
     CurrenciesSummaryBody(
-        currenciesList = listOf(currencies[0]), baseCurrency = "USD"
+        currenciesList = listOf(currencies[0]), baseCurrency = "USD", listState = listState
     )
 }
 
