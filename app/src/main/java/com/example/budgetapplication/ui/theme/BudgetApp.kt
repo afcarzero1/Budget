@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.budgetapplication.ui.navigation.BudgetDestination
 import com.example.budgetapplication.ui.navigation.BudgetNavHost
 import com.example.budgetapplication.ui.navigation.BudgetNavigationBar
+import com.example.budgetapplication.ui.navigation.BudgetTopBar
 import com.example.budgetapplication.ui.navigation.Overview
 import com.example.budgetapplication.ui.navigation.tabDestinations
 
@@ -34,6 +35,9 @@ fun InitialScreen(
                 onTabSelected = { screen -> navController.navigate(screen.route)},
                 currentScreen = destination
             )
+        },
+        topBar = {
+            BudgetTopBar(currentScreen = destination, navHostController = navController)
         },
         floatingActionButton = floatingButton
     ) { innerPadding ->

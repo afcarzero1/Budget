@@ -10,14 +10,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-class CurrenciesViewModel(
-   private val currenciesRepository: CurrenciesRepository
-) : ViewModel() {
+class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository) : ViewModel() {
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
+    private val mutex = Mutex()
 
     private val currenciesListFlow = currenciesRepository.getAllCurrenciesStream()
     private val baseCurrencyFlow = currenciesRepository.getDefaultCurrencyStream()
@@ -30,17 +33,24 @@ class CurrenciesViewModel(
             currenciesList = currenciesList,
             baseCurrency = baseCurrency
         )
-        }
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = CurrenciesUiState()
         )
 
-    suspend fun updateBaseCurrency(newBaseCurrency: String){
-        val currentListOfCurrencies = currenciesListFlow.first()
+    fun updateBaseCurrencySafe(newBaseCurrency: String) {
+        viewModelScope.launch {
+            mutex.withLock {
+                updateBaseCurrency(newBaseCurrency)
+            }
+        }
+    }
 
-        if(currentListOfCurrencies.map { it.name }.contains(newBaseCurrency)){
+    private suspend fun updateBaseCurrency(newBaseCurrency: String) {
+        val currentListOfCurrencies = currenciesListFlow.first()
+        if (currentListOfCurrencies.map { it.name }.contains(newBaseCurrency)) {
             currenciesRepository.setDefaultCurrency(newBaseCurrency)
         }
     }

@@ -2,6 +2,7 @@ package com.example.budgetapplication.ui.navigation
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -10,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
+import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.accounts.AccountDetailsScreen
 import com.example.budgetapplication.ui.accounts.AccountEntryScreen
 import com.example.budgetapplication.ui.accounts.AccountsSummary
@@ -20,6 +23,8 @@ import com.example.budgetapplication.ui.categories.CategoriesSummary
 import com.example.budgetapplication.ui.categories.CategoryDetailsScreen
 import com.example.budgetapplication.ui.categories.CategoryEntryScreen
 import com.example.budgetapplication.ui.currencies.CurrenciesScreen
+import com.example.budgetapplication.ui.currencies.CurrenciesScreenTopBar
+import com.example.budgetapplication.ui.currencies.CurrencySettingsScreen
 import com.example.budgetapplication.ui.overall.OverallScreen
 import com.example.budgetapplication.ui.theme.InitialScreen
 import com.example.budgetapplication.ui.transactions.FutureTransactionDetailsScreen
@@ -32,6 +37,7 @@ interface BudgetDestination {
     val icon: @Composable (selected: Boolean) -> Unit
     val route: String
     val screen: @Composable (navController: NavHostController) -> Unit
+    val topBar: (@Composable (NavHostController) -> Unit)?
 }
 
 object Overview : BudgetDestination {
@@ -48,6 +54,7 @@ object Overview : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         OverallScreen(navController = it)
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object Accounts : BudgetDestination {
@@ -64,6 +71,7 @@ object Accounts : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         AccountsSummary(navController = it)
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object AccountEntry : BudgetDestination {
@@ -79,6 +87,7 @@ object AccountEntry : BudgetDestination {
             navigateBack = { it.popBackStack() }
         )
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object AccountTransferEntry : BudgetDestination {
@@ -94,6 +103,7 @@ object AccountTransferEntry : BudgetDestination {
             navigateBack = { it.popBackStack() }
         )
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 
@@ -114,6 +124,7 @@ object AccountDetails : BudgetDestination {
         {
             AccountDetailsScreen(navigateBack = { it.popBackStack() })
         }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 
 }
 
@@ -129,8 +140,23 @@ object Currencies : BudgetDestination {
     }
     override val route = "currencies"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
-        CurrenciesScreen(navHostController = it)
+        CurrenciesScreen(navHostController = it, viewModel(factory = AppViewModelProvider.Factory))
     }
+    override val topBar: (@Composable (NavHostController) -> Unit) = @Composable {
+        CurrenciesScreenTopBar(it)
+    }
+}
+
+
+object CurrenciesSettings: BudgetDestination{
+    override val icon =  @Composable{ selected: Boolean ->
+        Icon(imageVector = Icons.Filled.Check , contentDescription = "yes")
+    }
+    override val route: String = "currencies settings"
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        CurrencySettingsScreen(navController = it)
+    }
+    override val topBar: ((NavHostController) -> Unit)? = null
 }
 
 object Categories : BudgetDestination {
@@ -147,6 +173,7 @@ object Categories : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         CategoriesSummary(navController = it)
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object CategoryEntry : BudgetDestination {
@@ -157,6 +184,7 @@ object CategoryEntry : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         CategoryEntryScreen(navigateBack = { it.popBackStack() })
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object CategoryDetails : BudgetDestination {
@@ -176,6 +204,7 @@ object CategoryDetails : BudgetDestination {
         {
             CategoryDetailsScreen(navigateBack = { it.popBackStack() })
         }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 
@@ -191,6 +220,7 @@ object Transactions : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         TransactionsSummary(navController = it)
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object TransactionEntry : BudgetDestination {
@@ -204,6 +234,7 @@ object TransactionEntry : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         TransactionEntryScreen(navigateBack = { it.popBackStack() })
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 object TransactionDetails : BudgetDestination {
@@ -223,6 +254,7 @@ object TransactionDetails : BudgetDestination {
         {
             TransactionDetailsScreen(navigateBack = { it.popBackStack() })
         }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 
@@ -237,6 +269,7 @@ object FutureTransactionEntry : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         FutureTransactionEntryScreen(navigateBack = { it.popBackStack() })
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 
@@ -257,6 +290,7 @@ object FutureTransactionDetails : BudgetDestination {
         {
             FutureTransactionDetailsScreen(navigateBack = { it.popBackStack() })
         }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
 
