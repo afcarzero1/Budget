@@ -74,8 +74,6 @@ fun OverallScreen(
     modifier: Modifier = Modifier,
     overallViewModel: OverallViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
-    val accounts by overallViewModel.accountsUiState.collectAsState()
     val accountsTotalBalance by overallViewModel.accountsTotalBalance.collectAsState()
 
     val lastExpenses by overallViewModel.lastExpenses.collectAsState()
@@ -93,8 +91,6 @@ fun OverallScreen(
     InitialScreen(navController = navController, destination = Overview, screenBody = {
         OverallScreenBody(
             currenctBalance = accountsTotalBalance,
-            accounts = accounts.accountsList,
-            accountsColorAssigner = overallViewModel.accountsColorAssigner,
             lastExpenses = lastExpenses,
             lastIncomes = lastIncomes,
             currentTransactionsInterval = currentTransactionsInterval,
@@ -120,8 +116,6 @@ fun OverallScreen(
 @Composable
 fun OverallScreenBody(
     currenctBalance: Pair<Currency, Float>,
-    accounts: List<FullAccount>,
-    accountsColorAssigner: ColorAssigner,
     lastExpenses: Map<YearMonth, Map<Category, Float>>,
     lastIncomes: Map<YearMonth, Map<Category, Float>>,
     currentTransactionsInterval: Pair<YearMonth, YearMonth>,
@@ -140,12 +134,6 @@ fun OverallScreenBody(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
-        OverallAccountsCard(
-            accounts = accounts,
-            accountColorAssigner = accountsColorAssigner,
-            currentBalance = currenctBalance,
-        )
-
         BudgetsCard(
             expenses = lastExpenses,
             expectedExpenses = expectedExpenses,
