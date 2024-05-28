@@ -15,7 +15,13 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
 
 class OnlineCurrenciesRepository(
@@ -56,6 +62,23 @@ class OnlineCurrenciesRepository(
     }
     private var isEmpty: Boolean = false
 
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            initializeDatabaseIfNeeded()
+        }
+    }
+
+    private suspend fun initializeDatabaseIfNeeded() {
+        val hasCurrencies = currencyDao.getAllCurrencies().first().isNotEmpty()
+        if (!hasCurrencies) {
+            Log.d(TAG, "Database is empty. Initializing with default currencies.")
+            defaultCurrencies.forEach {
+                currencyDao.insert(it)
+            }
+            isEmpty = false
+        }
+    }
+
     override fun getAllCurrenciesStream(): Flow<List<Currency>> {
         val currentTime = LocalDateTime.now()
         Log.d(TAG, "Getting all currencies stream at: $currentTime")
@@ -67,7 +90,9 @@ class OnlineCurrenciesRepository(
 
                 if (lastUpdatedTime < currentTime.minusDays(1)) {
                     Log.d(TAG, "Fetching API data because last update is older than 1 day.")
-                    fetchApi()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchApi()  // Similarly, this handles the empty database case.
+                    }
                 } else {
                     Log.d(TAG, "Current data is from $lastUpdatedTime")
                     Log.d(TAG, "Not refreshing data.")
@@ -77,7 +102,6 @@ class OnlineCurrenciesRepository(
                 isEmpty = true
                 fetchApi()
             }
-
         }
     }
 
@@ -121,6 +145,7 @@ class OnlineCurrenciesRepository(
         try {
             responses = currenciesApiService.getCurrencies(apiKey)
         } catch (e: Exception) {
+            Log.d(TAG, "Error while fetching data $e")
             if (isEmpty) {
                 // Add default data
                 for (currency in defaultCurrencies){
