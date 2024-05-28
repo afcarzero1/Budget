@@ -8,6 +8,7 @@ import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.components.ColorAssigner
+import com.example.budgetapplication.ui.components.graphics.AvailableColors
 import com.example.budgetapplication.ui.overall.OverallViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,17 +31,7 @@ class AccountsViewModel(accountsRepository: AccountsRepository): ViewModel() {
         )
 
     val accountsColorAssigner: ColorAssigner = ColorAssigner(
-        listOf(
-            Color(0xFFBB86FC),
-            Color(0xFF6200EE),
-            Color(0xFF03DAC5),
-            Color(0xFF007BFF),
-            Color(0xFF5C6BC0),
-            Color(0xFFE91E63),
-            Color(0xFF9C27B0),
-            Color(0xFF2196F3),
-            Color(0xFF4CAF50),
-        )
+        AvailableColors.colorsList
     )
 
     val accountsUiState: StateFlow<AccountsUiState> = accountsRepository
@@ -51,8 +42,6 @@ class AccountsViewModel(accountsRepository: AccountsRepository): ViewModel() {
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = AccountsUiState()
         )
-
-
 }
 
 data class AccountsUiState(val accountsList: List<FullAccount> = listOf())

@@ -46,6 +46,7 @@ import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.components.SummaryPage
 import com.example.budgetapplication.ui.components.TextPiece
+import com.example.budgetapplication.ui.components.graphics.convertLongToColor
 import com.example.budgetapplication.ui.navigation.AccountDetails
 import com.example.budgetapplication.ui.navigation.AccountEntry
 import com.example.budgetapplication.ui.navigation.AccountTransferEntry
@@ -212,7 +213,7 @@ fun AccountsSummaryBody(
                             }
                         },
                         itemToColor = {
-                            accountColorAssigner.assignColor(it.account.name)
+                            convertLongToColor(it.account.color)
                         }
                     )
                 }

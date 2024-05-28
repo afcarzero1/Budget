@@ -1,22 +1,35 @@
 package com.example.budgetapplication.ui.accounts
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,9 +45,18 @@ import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
+import com.example.budgetapplication.ui.components.graphics.AvailableColors
+import com.example.budgetapplication.ui.components.graphics.ColorPicker
+import com.example.budgetapplication.ui.components.graphics.convertColorToLong
+import com.example.budgetapplication.ui.components.graphics.convertLongToColor
+import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountEntryScreen(
     navigateBack: () -> Unit,
@@ -46,16 +68,26 @@ fun AccountEntryScreen(
 
     Scaffold(
         topBar = {
-            Surface(
-                Modifier
-                    .height(dimensionResource(id = R.dimen.tab_height))
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.entry_account_title),
-                    modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.entry_account_title)
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navigateBack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
-            }
+            )
         }
     ) { innerPadding ->
         AccountEntryBody(
@@ -120,40 +152,59 @@ fun AccountForm(
 ) {
 
     val currencyIndex = availableCurrencies.indexOfFirst { it.name == account.currency }
-
+    Log.d("AccountForm", convertLongToColor(account.color).toString())
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
     ) {
-        OutlinedTextField(
-            value = account.name,
-            onValueChange = { onValueChange(account.copy(name = it)) },
-            label = { Text(text = stringResource(R.string.entry_account_name)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            OutlinedTextField(
+                value = account.name,
+                onValueChange = { onValueChange(account.copy(name = it)) },
+                label = { Text(text = stringResource(R.string.entry_account_name)) },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                modifier = Modifier.padding(end = 16.dp),
+                enabled = enabled,
+                singleLine = true
+            )
+            ColorPicker(
+                color = convertLongToColor(account.color),
+                options = AvailableColors.colorsList,
+                onColorChanged = {
+                    onValueChange(account.copy(color = convertColorToLong(it)))
+                },
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 4.dp)
+            )
+        }
+        FloatOutlinedText(
+            record = account,
+            label = { Text("Initial Balance") },
+            onValueChange = { account: Account, newAmount: Float ->
+                onValueChange(account.copy(initialBalance = newAmount))
+            },
+            recordToId = {
+                it.id
+            },
+            recordToFloat = {
+                it.initialBalance
+            },
+            modifier = Modifier.fillMaxWidth()
         )
-        OutlinedTextField(
-            value = account.initialBalance.toString(),
-            onValueChange = { onValueChange(account.copy(initialBalance = it.toFloat())) },
-            label = { Text(text = stringResource(R.string.entry_account_initial_balance)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        LargeDropdownMenu<String>(
+        LargeDropdownMenu(
             label = stringResource(id = R.string.entry_account_currency),
             items = availableCurrencies.map { it.name },
-            onItemSelected = { index, item ->  onValueChange(account.copy(currency = item))},
+            onItemSelected = { index, item -> onValueChange(account.copy(currency = item)) },
             initialIndex = currencyIndex,
         )
+
+
     }
 }
 

@@ -41,12 +41,21 @@ class AccountDetailsViewModel(
     var accountUiState by mutableStateOf(AccountDetailsUiState())
         private set
 
+    var showUpdatedState by mutableStateOf(false)
+        private set
+
 
     fun updateUiState(account: Account) {
+
+        if(account.id != accountId){
+            return
+        }
+
         this.accountUiState = AccountDetailsUiState(
             account = account,
             isValid = validateInput(account)
         )
+        showUpdatedState = true
     }
 
     private fun validateInput(account: Account): Boolean {

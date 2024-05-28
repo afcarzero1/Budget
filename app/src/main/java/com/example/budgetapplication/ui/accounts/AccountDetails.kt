@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -15,8 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.budgetapplication.ui.AppViewModelProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,8 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
 import kotlinx.coroutines.launch
 
@@ -38,12 +37,13 @@ fun AccountDetailsScreen(
 ) {
 
     val accountDetails by viewModel.accountState.collectAsState()
-    var useUpdatedUiState by remember { mutableStateOf(false) }
+    val useUpdatedUiState = viewModel.showUpdatedState
 
     val coroutineScope = rememberCoroutineScope()
 
     Log.d("AccountDetailsScreen", "Loading account with ID : ${viewModel.accountId}")
     Log.d("AccountDetailsScreen", "AccountDetails: $accountDetails")
+    Log.d("AccountDetailsScreen", "Use updated: $useUpdatedUiState")
 
     Scaffold(
         topBar = {
@@ -63,7 +63,6 @@ fun AccountDetailsScreen(
             accountDetailsUiState = if (useUpdatedUiState) viewModel.accountUiState else accountDetails,
             navigateBack = navigateBack,
             onAccountDetailsChanged = {
-                useUpdatedUiState = true
                 viewModel.updateUiState(it)
             },
             onAccountDetailsSaved = {

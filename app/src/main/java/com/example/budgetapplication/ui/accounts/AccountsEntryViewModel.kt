@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.budgetapplication.ui.components.graphics.AvailableColors
+import com.example.budgetapplication.ui.components.graphics.convertColorToLong
 
 class AccountsEntryViewModel(
     private val accountsRepository: AccountsRepository,
@@ -62,7 +64,7 @@ data class AccountUiState(
         name = "",
         initialBalance = 0f,
         currency = "USD",
-        color = 0
+        color = convertColorToLong(AvailableColors.colorsList[0])
     ),
     val isValid: Boolean = false,
 )
