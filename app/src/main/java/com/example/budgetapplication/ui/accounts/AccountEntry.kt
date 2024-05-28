@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,7 +87,7 @@ fun AccountEntryScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
         }
@@ -120,25 +122,32 @@ fun AccountEntryBody(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
+
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
     ) {
-        AccountForm(
-            account = accountUiState.account,
-            availableCurrencies = availableCurrencies,
-            onValueChange = onAccountValueChange,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = onSaveClick,
-            enabled = accountUiState.isValid,
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
+            modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
         ) {
-            Text(text = stringResource(R.string.entry_account_save))
+            AccountForm(
+                account = accountUiState.account,
+                availableCurrencies = availableCurrencies,
+                onValueChange = onAccountValueChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(
+                onClick = onSaveClick,
+                enabled = accountUiState.isValid,
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.entry_account_save))
+            }
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -152,6 +161,12 @@ fun AccountForm(
 ) {
 
     val currencyIndex = availableCurrencies.indexOfFirst { it.name == account.currency }
+
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f),
+        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+    )
     Log.d("AccountForm", convertLongToColor(account.color).toString())
     Column(
         modifier = modifier.padding(16.dp),
@@ -166,9 +181,7 @@ fun AccountForm(
                 value = account.name,
                 onValueChange = { onValueChange(account.copy(name = it)) },
                 label = { Text(text = stringResource(R.string.entry_account_name)) },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
+                colors = colors,
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = enabled,
                 singleLine = true
@@ -195,16 +208,16 @@ fun AccountForm(
             recordToFloat = {
                 it.initialBalance
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = colors
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_account_currency),
             items = availableCurrencies.map { it.name },
             onItemSelected = { index, item -> onValueChange(account.copy(currency = item)) },
             initialIndex = currencyIndex,
+            colors = colors
         )
-
-
     }
 }
 

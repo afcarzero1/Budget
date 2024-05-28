@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -546,6 +547,11 @@ fun <T> DetailsPieChart(
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Divider(
+            color = Color.Gray, // Set the color of the divider
+            thickness = 1.dp, // Set the thickness of the divider
+            modifier = Modifier.padding(horizontal = 10.dp).padding(bottom = 8.dp) // Optionally add padding
+        )
 
         data.forEachIndexed { index, item ->
             Surface(
