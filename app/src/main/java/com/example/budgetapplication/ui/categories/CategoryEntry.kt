@@ -28,6 +28,8 @@ import com.example.budgetapplication.ui.accounts.AccountForm
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.budgetapplication.data.categories.CategoryType
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 
@@ -40,16 +42,10 @@ fun CategoryEntryScreen(
     val availableCategories by viewModel.categoriesListState.collectAsState()
 
     Scaffold(topBar = {
-        Surface(
-            Modifier
-                .height(dimensionResource(id = R.dimen.tab_height))
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.entry_category_title),
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
-            )
-        }
+        SecondaryScreenTopBar(
+            navigateBack = navigateBack,
+            titleResId = R.string.entry_category_title
+        )
     }) { innerPadding ->
         CategoryEntryBody(
             categoryUiState = viewModel.categoryUiState,
@@ -112,7 +108,8 @@ fun CategoryForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
     ) {
-        OutlinedTextField(value = category.name,
+        OutlinedTextField(
+            value = category.name,
             onValueChange = { onValueChange(category.copy(name = it)) },
             label = { Text(text = stringResource(R.string.entry_category_name)) },
             modifier = Modifier.fillMaxWidth(),
@@ -120,14 +117,14 @@ fun CategoryForm(
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_type),
-            items = listOf("Expense", "Income"),
+            items = listOf(CategoryType.Expense, CategoryType.Income),
             onItemSelected = { index, item -> onValueChange(category.copy(defaultType = item)) },
-            initialIndex = if (category.defaultType == "Expense") 0 else 1
+            initialIndex = if (category.defaultType == CategoryType.Expense) 0 else 1
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_parent),
             items = availableCategories.map { it.name },
-            onItemSelected = {index, item -> onValueChange(category.copy(parentCategoryId = availableCategories[index].id)) },
+            onItemSelected = { index, item -> onValueChange(category.copy(parentCategoryId = availableCategories[index].id)) },
         )
     }
 }

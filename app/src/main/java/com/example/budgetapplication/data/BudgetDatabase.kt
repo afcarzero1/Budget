@@ -29,7 +29,7 @@ import com.example.budgetapplication.data.transactions.TransactionRecord
     version = 3,
     exportSchema = false,
 )
-@TypeConverters(DateConverter::class)
+@TypeConverters(DateConverter::class, CategoryTypeConverter::class)
 abstract class BudgetDatabase : RoomDatabase() {
 
     abstract fun currencyDao(): CurrencyDao

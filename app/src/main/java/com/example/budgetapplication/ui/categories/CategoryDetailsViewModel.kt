@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.budgetapplication.data.categories.CategoryType
 
 class CategoryDetailsViewModel(
     savedStateHandle: SavedStateHandle,
@@ -72,8 +73,9 @@ data class CategoryDetailsUiState(
     val category: Category = Category(
         id = -1,
         name = "",
-        defaultType = "",
-        parentCategoryId = -1
+        defaultType = CategoryType.Expense,
+        parentCategoryId = -1,
+        iconResId = 0
     ),
     val isValid: Boolean = false
 )

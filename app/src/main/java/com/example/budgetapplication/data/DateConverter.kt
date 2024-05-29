@@ -1,6 +1,7 @@
 package com.example.budgetapplication.data
 
 import androidx.room.TypeConverter
+import com.example.budgetapplication.data.categories.CategoryType
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -15,3 +16,18 @@ class DateConverter{
         return value?.toEpochSecond(ZoneOffset.UTC)
     }
 }
+
+
+class CategoryTypeConverter {
+    @TypeConverter
+    fun fromDefaultType(defaultType: CategoryType): String {
+        return defaultType.name
+    }
+
+    @TypeConverter
+    fun toDefaultType(defaultType: String): CategoryType {
+        return CategoryType.valueOf(defaultType)
+    }
+}
+
+

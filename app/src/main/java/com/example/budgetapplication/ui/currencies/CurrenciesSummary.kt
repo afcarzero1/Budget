@@ -330,7 +330,9 @@ fun CurrencySettingsScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -365,6 +367,27 @@ fun CurrencySettingsScreen(
                     },
                     modifier = Modifier.width(160.dp)
                 )
+            }
+            Spacer(Modifier.weight(1f))  // This spacer pushes the Row to the bottom
+            if (currenciesState.currenciesList.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+
+                    Text(
+                        "Last Updated: ${
+                            currenciesState.currenciesList.first().updatedTime.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                            )
+                        }",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                    )
+                }
             }
         }
     }

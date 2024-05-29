@@ -4,6 +4,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+enum class CategoryType {
+    Income, Expense
+}
+
 @Entity(
     tableName = "categories",
     foreignKeys = [ForeignKey(
@@ -17,6 +21,9 @@ data class Category(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
-    val defaultType: String,
-    val parentCategoryId: Int?
+    val defaultType: CategoryType,
+    val parentCategoryId: Int?,
+    val iconResId: Int? = null,
 )
+
+

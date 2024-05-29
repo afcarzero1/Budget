@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class OnlineCurrenciesRepository(
@@ -64,7 +65,8 @@ class OnlineCurrenciesRepository(
         const val TAG = "OnlineCurrenciesRepo"
 
     }
-    private var isEmpty: Boolean = false
+
+    private val isFetching = AtomicBoolean(false)
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -79,7 +81,6 @@ class OnlineCurrenciesRepository(
             defaultCurrencies.forEach {
                 currencyDao.insert(it)
             }
-            isEmpty = false
         }
     }
 
@@ -96,7 +97,7 @@ class OnlineCurrenciesRepository(
                     Log.d(TAG, "Fetching API data because last update is older than 1 day.")
                     CoroutineScope(Dispatchers.IO).launch {
                         try{
-                            fetchApi()
+                            //fetchApi()
                         }catch (e: Exception){
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
@@ -109,10 +110,9 @@ class OnlineCurrenciesRepository(
                 }
             } else {
                 Log.d(TAG, "Fetching API data because database is empty.")
-                isEmpty = true
                 CoroutineScope(Dispatchers.IO).launch {
                     try{
-                        fetchApi()
+                        //fetchApi()
                     }catch (e: Exception){
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
@@ -156,49 +156,28 @@ class OnlineCurrenciesRepository(
     }
 
     private suspend fun fetchApi() {
-        Log.d(TAG, "Fetching data from API...")
+        if (isFetching.compareAndSet(false, true)) {
+            Log.d(TAG, "Fetching data from API...")
+            try {
+                val responses: CurrenciesResponse = currenciesApiService.getCurrencies(apiKey)
+                val currentBaseCurrency: String = getDefaultCurrencyStream().first()
+                val currentBaseCurrencyRate = responses.rates[currentBaseCurrency]?.toFloat()
 
-        val responses: CurrenciesResponse
-
-        try {
-            responses = currenciesApiService.getCurrencies(apiKey)
-        } catch (e: Exception) {
-            Log.d(TAG, "Error while fetching data $e")
-            if (isEmpty) {
-                // Add default data
-                for (currency in defaultCurrencies){
-                    currencyDao.insert(currency = currency)
+                if (currentBaseCurrencyRate == null) {
+                    Log.e(TAG, "Error fetching data from API.")
+                    return
                 }
-                isEmpty = false
+
+                // processing and inserting into the database
+
+                Log.d(TAG, "Data fetched from API and inserted into database.")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error while fetching data $e")
+            } finally {
+                isFetching.set(false)
             }
-            return
+        } else {
+            Log.d(TAG, "Fetch request ignored because a previous one is still running.")
         }
-
-        val currentBaseCurrency: String = getDefaultCurrencyStream().first()
-        val currentBaseCurrencyRate = responses.rates[currentBaseCurrency]?.toFloat()
-
-        if (currentBaseCurrencyRate == null){
-            Log.e(TAG, "Error fetching data from API.")
-            return
-        }
-
-
-        // Insert all currencies into the database
-        // TODO: figure out why dates are saved with 00:00 time
-        val correctedDateString = responses.date.replace("+00+00", "+00:00")
-        for (rate in responses.rates) {
-            val currency = Currency(
-                name = rate.key,
-                value = rate.value.toFloat() / currentBaseCurrencyRate,
-                updatedTime = LocalDateTime.parse(
-                    correctedDateString,
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX")
-                )
-            )
-            currencyDao.insertOrReplace(currency)
-            isEmpty = false
-        }
-
-        Log.d(TAG, "Data fetched from API and inserted into database.")
     }
 }
