@@ -1,6 +1,5 @@
 package com.example.budgetapplication.ui.categories
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,31 +9,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,18 +39,11 @@ import com.example.budgetapplication.ui.components.VerticalBar
 import com.example.budgetapplication.ui.navigation.Categories
 import com.example.budgetapplication.ui.navigation.CategoryDetails
 import com.example.budgetapplication.ui.navigation.CategoryEntry
+import com.example.budgetapplication.ui.navigation.TabItem
+import com.example.budgetapplication.ui.navigation.TabbedPage
 import com.example.budgetapplication.ui.theme.InitialScreen
-import kotlinx.coroutines.launch
 
 
-data class TabItem(
-    val title: String,
-    val icon: @Composable () -> Unit,
-    val screen: @Composable () -> Unit
-)
-
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CategoriesSummary(
     navController: NavHostController,
@@ -67,50 +51,6 @@ fun CategoriesSummary(
     viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val categoriesState by viewModel.categoriesUiState.collectAsState()
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f,
-        pageCount = { 2 }
-    )
-    val coroutineScope = rememberCoroutineScope()
-
-    val tabs = listOf(
-        TabItem(
-            title = "Expense",
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Expenses",
-                    tint = Color(0xFFE57373)
-                )
-            },
-            screen = {
-                CategoriesSummaryBody(
-                    categories = categoriesState.categoriesList.filter {
-                        it.category.defaultType == CategoryType.Expense
-                    },
-                    navController = navController
-                )
-            }
-        ),
-        TabItem(
-            title = "Income",
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Incomes",
-                    tint = Color(0xFF4CAF50)
-                )
-            },
-            screen = {
-                CategoriesSummaryBody(
-                    categories = categoriesState.categoriesList.filter {
-                        it.category.defaultType == CategoryType.Income
-                    }, navController = navController
-                )
-            }
-        ),
-    )
     InitialScreen(
         navController = navController,
         destination = Categories,
@@ -118,36 +58,45 @@ fun CategoriesSummary(
             if (categoriesState.categoriesList.isEmpty()) {
                 EmptyCategoryScreen()
             } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                    ) {
-                        tabs.forEachIndexed { index, item ->
-                            Tab(
-                                selected = index == pagerState.currentPage,
-                                text = { Text(text = item.title) },
-                                icon = item.icon,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(
-                                            index
-                                        )
-                                    }
-                                },
-                            )
-                        }
-                    }
-                    HorizontalPager(
-                        modifier = Modifier,
-                        state = pagerState,
-                        pageSpacing = 0.dp,
-                        pageContent = {
-                            tabs[it].screen()
-                        }
-                    )
-                }
+                TabbedPage(
+                    modifier = modifier.fillMaxSize(),
+                    tabs = listOf(
+                        TabItem(
+                            title = "Expense",
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
+                                    contentDescription = "Expenses",
+                                    tint = Color(0xFFE57373)
+                                )
+                            },
+                            screen = {
+                                CategoriesSummaryBody(
+                                    categories = categoriesState.categoriesList.filter {
+                                        it.category.defaultType == CategoryType.Expense
+                                    },
+                                    navController = navController
+                                )
+                            }
+                        ),
+                        TabItem(
+                            title = "Income",
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
+                                    contentDescription = "Incomes",
+                                    tint = Color(0xFF4CAF50)
+                                )
+                            },
+                            screen = {
+                                CategoriesSummaryBody(
+                                    categories = categoriesState.categoriesList.filter {
+                                        it.category.defaultType == CategoryType.Income
+                                    }, navController = navController
+                                )
+                            }
+                        ),
+                    ))
             }
         }, floatingButton = {
             FloatingActionButton(

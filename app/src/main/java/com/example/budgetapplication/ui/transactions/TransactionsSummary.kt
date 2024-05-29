@@ -1,6 +1,7 @@
 package com.example.budgetapplication.ui.transactions
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -27,13 +29,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.budgetapplication.R
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FullFutureTransaction
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
@@ -44,6 +49,8 @@ import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.VerticalBar
 import com.example.budgetapplication.ui.navigation.FutureTransactionDetails
 import com.example.budgetapplication.ui.navigation.FutureTransactionEntry
+import com.example.budgetapplication.ui.navigation.TabItem
+import com.example.budgetapplication.ui.navigation.TabbedPage
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
@@ -52,6 +59,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionsSummary(
     navController: NavHostController,
@@ -67,60 +75,62 @@ fun TransactionsSummary(
         val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
         val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
 
-        // Selector for showing future transactions
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Button(
-                    onClick = { showFutureTransactions = false },
-                    enabled = showFutureTransactions,
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .weight(1f)
-                ) {
-                    Text(text = "Present")
-                }
-                Button(
-                    onClick = { showFutureTransactions = true },
-                    enabled = !showFutureTransactions,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .weight(1f)
-                ) {
-                    Text(text = "Future")
-                }
-            }
-
-            if (showFutureTransactions) {
-                if (futureTransactionsState.futureTransactionsList.isEmpty()) {
-                    EmptyTransactionScreen()
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        FutureTransactionsSummaryBody(
-                            futureTransactions = futureTransactionsState.futureTransactionsList,
-                            navController = navController
+        TabbedPage(
+            tabs = listOf(
+                TabItem(
+                    title = "Present",
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Executed Transactions"
                         )
-                    }
-                }
-            } else {
-                if (transactionsState.transactionsList.isEmpty()) {
-                    EmptyTransactionScreen()
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        TransactionsSummaryBody(
-                            transactions = transactionsState.transactionsList,
-                            baseCurrency = baseCurrency,
-                            navController = navController
+                    },
+                    screen = {
+                        if (transactionsState.transactionsList.isEmpty()) {
+                            EmptyTransactionScreen()
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                TransactionsSummaryBody(
+                                    transactions = transactionsState.transactionsList,
+                                    baseCurrency = baseCurrency,
+                                    navController = navController
+                                )
+                            }
+                        }
+                    },
+                ),
+                TabItem(
+                    title = "Planned",
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Planned Transactions"
                         )
+                    },
+                    screen = {
+                        if (futureTransactionsState.futureTransactionsList.isEmpty()) {
+                            EmptyTransactionScreen()
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                FutureTransactionsSummaryBody(
+                                    futureTransactions = futureTransactionsState.futureTransactionsList,
+                                    navController = navController
+                                )
+                            }
+                        }
                     }
-                }
+                )
+            ),
+            onTabChanged = {
+                showFutureTransactions = it == 1
             }
-        }
+        )
     }, floatingButton = {
         FloatingActionButton(
             onClick = {
@@ -165,7 +175,10 @@ fun TransactionsSummaryBody(
                     baseCurrency = baseCurrency,
                     date = date,
                     onItemSelected = { selectedTransaction ->
-                        Log.d("TransactionsSummary", "Selected transaction: ${selectedTransaction.transactionRecord.id}")
+                        Log.d(
+                            "TransactionsSummary",
+                            "Selected transaction: ${selectedTransaction.transactionRecord.id}"
+                        )
                         navController.navigate(
                             TransactionDetails.route + "/${selectedTransaction.transactionRecord.id}"
                         )
