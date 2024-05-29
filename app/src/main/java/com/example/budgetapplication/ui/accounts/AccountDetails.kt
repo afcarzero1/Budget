@@ -44,6 +44,7 @@ import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,22 +66,9 @@ fun AccountDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.details_account_title),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navigateBack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Go back",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
+            SecondaryScreenTopBar(
+                navigateBack = navigateBack,
+                titleResId = R.string.details_account_title,
                 actions = {
                     IconButton(
                         onClick = { deleteConfirmationRequired = true },
@@ -108,13 +96,7 @@ fun AccountDetailsScreen(
                             tint = if (accountDetails.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                         )
                     }
-
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+                }
             )
         }
     ) { innerPadding ->

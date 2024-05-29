@@ -1,6 +1,5 @@
 package com.example.budgetapplication.ui.accounts
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -32,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
@@ -40,11 +37,9 @@ import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.accounts.FullAccount
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.ui.AppViewModelProvider
-import com.example.budgetapplication.ui.components.AnimatedPieChart
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.PieChart
-import com.example.budgetapplication.ui.components.SummaryPage
 import com.example.budgetapplication.ui.components.TextPiece
 import com.example.budgetapplication.ui.components.graphics.convertLongToColor
 import com.example.budgetapplication.ui.navigation.AccountDetails
@@ -79,8 +74,8 @@ fun AccountsSummary(
                     onAccountClick = {
                         navController.navigate("${AccountDetails.route}/${it.id}")
                     },
-                    onAddAccountClick = {
-                        navController.navigate(AccountEntry.route)
+                    onAccountTransfer = {
+                        navController.navigate(AccountTransferEntry.route)
                     })
             }
         }
@@ -103,7 +98,7 @@ fun AccountsSummaryBody(
     accountsTotalBalance: Pair<Currency, Float>,
     accountColorAssigner: ColorAssigner,
     onAccountClick: (account: Account) -> Unit,
-    onAddAccountClick: () -> Unit
+    onAccountTransfer: () -> Unit
 ) {
     val amountByCurrency: MutableMap<String, Float> = mutableMapOf()
 
@@ -220,7 +215,7 @@ fun AccountsSummaryBody(
             }
 
             FloatingActionButton(
-                onClick = onAddAccountClick,
+                onClick = onAccountTransfer,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(32.dp)  // This positions the FAB to the left (start) and a bit up from the bottom, with some padding

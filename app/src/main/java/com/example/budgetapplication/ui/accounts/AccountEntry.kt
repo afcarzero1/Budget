@@ -56,6 +56,7 @@ import com.example.budgetapplication.ui.components.graphics.ColorPicker
 import com.example.budgetapplication.ui.components.graphics.convertColorToLong
 import com.example.budgetapplication.ui.components.graphics.convertLongToColor
 import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,25 +71,9 @@ fun AccountEntryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.entry_account_title)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navigateBack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Go back"
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+            SecondaryScreenTopBar(
+                navigateBack = navigateBack,
+                titleResId = R.string.entry_account_title
             )
         }
     ) { innerPadding ->

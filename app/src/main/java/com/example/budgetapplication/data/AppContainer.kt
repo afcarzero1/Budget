@@ -59,6 +59,7 @@ class AppDataContainer(private val context: Context) : AppContainer{
 
     override val currenciesRepository: CurrenciesRepository by lazy {
         OnlineCurrenciesRepository(
+            context,
             BudgetDatabase.getDatabase(context).currencyDao(),
             currenciesApiService,
             currenciesApiKey,

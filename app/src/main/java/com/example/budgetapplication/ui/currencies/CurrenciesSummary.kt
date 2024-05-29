@@ -66,6 +66,7 @@ import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
 import com.example.budgetapplication.ui.navigation.Currencies
 import com.example.budgetapplication.ui.navigation.CurrenciesSettings
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import com.example.budgetapplication.ui.theme.InitialScreen
 import kotlinx.coroutines.delay
 import java.text.DecimalFormat
@@ -314,7 +315,6 @@ fun CurrencyItem(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencySettingsScreen(
     navController: NavHostController,
@@ -324,13 +324,9 @@ fun CurrencySettingsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Currencies Settings") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            SecondaryScreenTopBar(
+                navigateBack = { navController.popBackStack() },
+                titleResId = R.string.currency_settings_title
             )
         }
     ) { innerPadding ->

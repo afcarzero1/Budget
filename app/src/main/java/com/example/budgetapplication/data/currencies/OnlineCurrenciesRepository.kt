@@ -1,7 +1,9 @@
 package com.example.budgetapplication.data.currencies
 
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -22,9 +24,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class OnlineCurrenciesRepository(
+    private val context: Context,
     private val currencyDao: CurrencyDao,
     private val currenciesApiService: CurrenciesApiService,
     private val apiKey: String,
@@ -91,7 +95,13 @@ class OnlineCurrenciesRepository(
                 if (lastUpdatedTime < currentTime.minusDays(1)) {
                     Log.d(TAG, "Fetching API data because last update is older than 1 day.")
                     CoroutineScope(Dispatchers.IO).launch {
-                        fetchApi()  // Similarly, this handles the empty database case.
+                        try{
+                            fetchApi()
+                        }catch (e: Exception){
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }
                 } else {
                     Log.d(TAG, "Current data is from $lastUpdatedTime")
@@ -100,7 +110,15 @@ class OnlineCurrenciesRepository(
             } else {
                 Log.d(TAG, "Fetching API data because database is empty.")
                 isEmpty = true
-                fetchApi()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try{
+                        fetchApi()
+                    }catch (e: Exception){
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
             }
         }
     }
@@ -167,14 +185,14 @@ class OnlineCurrenciesRepository(
 
         // Insert all currencies into the database
         // TODO: figure out why dates are saved with 00:00 time
+        val correctedDateString = responses.date.replace("+00+00", "+00:00")
         for (rate in responses.rates) {
-
             val currency = Currency(
                 name = rate.key,
                 value = rate.value.toFloat() / currentBaseCurrencyRate,
                 updatedTime = LocalDateTime.parse(
-                    responses.date,
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
+                    correctedDateString,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX")
                 )
             )
             currencyDao.insertOrReplace(currency)
