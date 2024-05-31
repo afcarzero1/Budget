@@ -83,6 +83,7 @@ fun <T> AnimatedPieChart(
         acc + pieData.value
     }.div(360)
 
+
     var currentSum = 0f
     val arcs = pieDataPoints.map {
         currentSum += it.value
@@ -158,33 +159,6 @@ fun <T> AnimatedPieChart(
             itemToColor = itemToColor,
             itemDetails = itemDetails
         )
-    }
-}
-
-
-@Preview
-@Composable
-fun PreviewAnimatedPieChart() {
-    val PieDataPoints = listOf(
-        PieData(20f, Color.Black),
-        PieData(10f, Color.Black.copy(alpha = 0.5f)),
-        PieData(10f, Color.LightGray)
-    )
-
-    BudgetApplicationTheme {
-        Surface {
-            AnimatedPieChart(
-                modifier = Modifier.padding(32.dp),
-                data = PieDataPoints,
-                itemToColor = { it.color },
-                itemToWeight = { it.value },
-                itemDetails = {
-                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Text("Text")
-                    }
-                }
-            )
-        }
     }
 }
 
@@ -480,16 +454,19 @@ fun <T> PieChart(
                     .rotate(animateRotation)
             ) {
                 // draw each Arc for each data entry in Pie Chart
-                floatValue.forEachIndexed { index, value ->
-                    drawArc(
-                        color = colors[index],
-                        lastValue,
-                        value,
-                        useCenter = false,
-                        style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
-                    )
-                    lastValue += value
+                if (totalSum != 0f) {
+                    floatValue.forEachIndexed { index, value ->
+                        drawArc(
+                            color = colors[index],
+                            lastValue,
+                            value,
+                            useCenter = false,
+                            style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
+                        )
+                        lastValue += value
+                    }
                 }
+
 
                 // Initial vertical offset for text drawing
                 var totalTextHeight = 0f
@@ -550,7 +527,9 @@ fun <T> DetailsPieChart(
         Divider(
             color = Color.Gray, // Set the color of the divider
             thickness = 1.dp, // Set the thickness of the divider
-            modifier = Modifier.padding(horizontal = 10.dp).padding(bottom = 8.dp) // Optionally add padding
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(bottom = 8.dp) // Optionally add padding
         )
 
         data.forEachIndexed { index, item ->
@@ -574,6 +553,58 @@ fun <T> DetailsPieChart(
                     itemDetails(item)
                 }
             }
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun PreviewAnimatedPieChart() {
+    val PieDataPoints = listOf(
+        PieData(20f, Color.Black),
+        PieData(10f, Color.Black.copy(alpha = 0.5f)),
+        PieData(10f, Color.LightGray)
+    )
+
+    BudgetApplicationTheme {
+        Surface {
+            AnimatedPieChart(
+                modifier = Modifier.padding(32.dp),
+                data = PieDataPoints,
+                itemToColor = { it.color },
+                itemToWeight = { it.value },
+                itemDetails = {
+                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Text("Text")
+                    }
+                }
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun PreviewAnimatedPieChartEmpty() {
+    val PieDataPoints = listOf(
+        PieData(0f, Color.Black),
+    )
+
+    BudgetApplicationTheme {
+        Surface {
+            AnimatedPieChart(
+                modifier = Modifier.padding(32.dp),
+                data = PieDataPoints,
+                itemToColor = { it.color },
+                itemToWeight = { it.value },
+                itemDetails = {
+                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Text("Text")
+                    }
+                }
+            )
         }
     }
 }
