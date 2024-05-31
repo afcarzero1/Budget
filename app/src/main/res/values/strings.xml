@@ -11,7 +11,7 @@
   <string name="attention">Attention!</string>
 
   <string name="entry_account_save">Save Account</string>
-  <string name="entry_account_title">Account</string>
+  <string name="entry_account_title">Add Account</string>
   <string name="entry_account_name">Account Name</string>
   <string name="entry_account_initial_balance">Initial Balance</string>
   <string name="entry_account_currency">Currency</string>
@@ -42,4 +42,6 @@
   <string name="transfer_entry_destination_account">Destination account</string>
   <string name="transfer_entry_save_transfer">Save transfer</string>
   <string name="entry_transfer_title">Transfer</string>
+  <string name="details_account_title">Account Details</string>
+  <string name="currency_settings_title">Currencies Settings</string>
 </resources>
