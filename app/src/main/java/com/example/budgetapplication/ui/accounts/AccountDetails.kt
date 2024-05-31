@@ -36,8 +36,6 @@ import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
 import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-@Composable
-private const val s = "Error deleting account"
 
 @Composable
 fun AccountDetailsScreen(
@@ -108,7 +106,11 @@ fun AccountDetailsScreen(
                         try {
                             viewModel.deleteAccount()
                         } catch (e: Exception) {
-                            Toast.makeText(context, stringResource(id = R.string.error_on_deletion_account), Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                context,
+                                "Error deleting account",
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                         }
 
