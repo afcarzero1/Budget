@@ -9,7 +9,8 @@ import com.example.budgetapplication.data.transactions.TransactionType
 import java.time.LocalDate
 
 
-@Entity(tableName = "accounts",
+@Entity(
+    tableName = "accounts",
     foreignKeys = [ForeignKey(
         entity = Currency::class,
         parentColumns = arrayOf("name"),
@@ -17,7 +18,7 @@ import java.time.LocalDate
         onDelete = ForeignKey.RESTRICT
     )]
 )
-data class Account (
+data class Account(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
@@ -25,7 +26,7 @@ data class Account (
     val currency: String,
     val color: Long = 0xFF0000FF,
     val hidden: Boolean = false
-){
+) {
 
     /**
      * Compute the balance of the account at the start of the day (not considering transactions
@@ -40,11 +41,13 @@ data class Account (
         var balance = initialBalance
 
         for (transactionRecord in transactionRecords) {
-            if(transactionRecord.date.toLocalDate() > atDate){continue}
+            if (transactionRecord.date.toLocalDate() > atDate) {
+                continue
+            }
 
-            when(transactionRecord.type){
-                TransactionType.EXPENSE -> balance-=transactionRecord.amount
-                TransactionType.INCOME -> balance+=transactionRecord.amount
+            when (transactionRecord.type) {
+                TransactionType.EXPENSE -> balance -= transactionRecord.amount
+                TransactionType.INCOME -> balance += transactionRecord.amount
                 TransactionType.INCOME_TRANSFER -> balance += transactionRecord.amount
                 TransactionType.EXPENSE_TRANSFER -> balance -= transactionRecord.amount
             }

@@ -52,7 +52,7 @@ data class CategoryUiState(
         name = "",
         defaultType = CategoryType.Expense,
         parentCategoryId = null,
-        iconResId = 0
+        iconResId = null
     ),
     val isValid: Boolean = false
 )
