@@ -23,7 +23,7 @@ data class Category(
     val name: String,
     val defaultType: CategoryType,
     val parentCategoryId: Int?,
-    val iconResId: Int? = null,
+    val iconResId: String? = null,
 )
 
 

@@ -46,8 +46,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -189,9 +191,17 @@ fun CategoryCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val icon =
-                        categoryWithTransactions.category.iconResId?.let { painterResource(id = it) }
-                            ?: painterResource(id = R.drawable.categories)
+                    val iconName =
+                        categoryWithTransactions.category.iconResId // Assuming 'iconName' is the string field
+                    val iconResourceId = iconName?.let {
+                        LocalContext.current.resources.getIdentifier(
+                            "cat_$it",
+                            "drawable",
+                            LocalContext.current.packageName
+                        )
+                    } ?: R.drawable.categories // Default icon if none specified
+
+                    val icon = painterResource(id = iconResourceId)
 
                     Image(
                         painter = icon,
@@ -207,10 +217,11 @@ fun CategoryCard(
 
                     Text(
                         text = categoryWithTransactions.category.name,
-                        style = MaterialTheme.typography.titleLarge.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
-                        )
+                        ),
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
