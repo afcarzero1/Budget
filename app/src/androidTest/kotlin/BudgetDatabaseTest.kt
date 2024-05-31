@@ -7,6 +7,7 @@ import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.accounts.AccountDao
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryDao
+import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.currencies.CurrencyDao
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
@@ -81,25 +82,25 @@ class BudgetDatabaseTest {
         Category(
             id = 1,
             name = "Food",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 2,
             name = "Transportation",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 3,
             name = "Rent",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 4,
             name = "Salary",
-            defaultType = "Income",
+            defaultType = CategoryType.Income,
             parentCategoryId = null,
         ),
     )

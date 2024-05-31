@@ -3,6 +3,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.balances.MockBalancesRepository
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.ui.overall.OverallViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -19,25 +20,25 @@ class OverallViewModelTest {
         Category(
             id = 1,
             name = "Food",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 2,
             name = "Transportation",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 3,
             name = "Rent",
-            defaultType = "Expense",
+            defaultType = CategoryType.Expense,
             parentCategoryId = null,
         ),
         Category(
             id = 4,
             name = "Salary",
-            defaultType = "Income",
+            defaultType = CategoryType.Income,
             parentCategoryId = null,
         ),
     )

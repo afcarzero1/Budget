@@ -55,6 +55,7 @@ class onlineCurrenciesRepositoryTest {
         currenciesApiService = retrofit.create(CurrenciesApiService::class.java)
 
         onlineCurrenciesRepository = OnlineCurrenciesRepository(
+            context,
             BudgetDatabase.getDatabase(context).currencyDao(),
             currenciesApiService,
             apiKey,
