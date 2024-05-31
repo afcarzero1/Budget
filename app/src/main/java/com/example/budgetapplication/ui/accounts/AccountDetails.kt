@@ -1,40 +1,28 @@
 package com.example.budgetapplication.ui.accounts
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,11 +37,14 @@ import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 @Composable
+private const val s = "Error deleting account"
+
+@Composable
 fun AccountDetailsScreen(
     navigateBack: () -> Unit,
     viewModel: AccountDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-
+    val context = LocalContext.current
     val accountDetails by viewModel.accountState.collectAsState()
     val useUpdatedUiState = viewModel.showUpdatedState
 
@@ -102,19 +93,8 @@ fun AccountDetailsScreen(
     ) { innerPadding ->
         AccountDetailsBody(
             accountDetailsUiState = if (useUpdatedUiState) viewModel.accountUiState else accountDetails,
-            navigateBack = navigateBack,
             onAccountDetailsChanged = {
                 viewModel.updateUiState(it)
-            },
-            onAccountDetailsSaved = {
-                coroutineScope.launch {
-                    viewModel.updateAccount()
-                }
-            },
-            onAccountDetailsDeleted = {
-                coroutineScope.launch {
-                    viewModel.deleteAccount()
-                }
             },
             modifier = Modifier.padding(innerPadding)
         )
@@ -125,7 +105,13 @@ fun AccountDetailsScreen(
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     coroutineScope.launch {
-                        viewModel.deleteAccount()
+                        try {
+                            viewModel.deleteAccount()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, stringResource(id = R.string.error_on_deletion_account), Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
                     }
                     navigateBack()
                 },
@@ -139,10 +125,7 @@ fun AccountDetailsScreen(
 @Composable
 fun AccountDetailsBody(
     accountDetailsUiState: AccountDetailsUiState,
-    navigateBack: () -> Unit,
     onAccountDetailsChanged: (Account) -> Unit,
-    onAccountDetailsSaved: () -> Unit,
-    onAccountDetailsDeleted: () -> Unit,
     modifier: Modifier = Modifier,
     currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
