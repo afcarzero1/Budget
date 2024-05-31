@@ -43,11 +43,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.dialogs.ConfirmationDeletionDialog
 import com.example.budgetapplication.ui.currencies.CurrenciesViewModel
 import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailsScreen(
     navigateBack: () -> Unit,
@@ -120,7 +120,8 @@ fun AccountDetailsScreen(
         )
 
         if (deleteConfirmationRequired) {
-            DeleteConfirmationDialog(
+            ConfirmationDeletionDialog(
+                message = stringResource(R.string.delete_account),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     coroutineScope.launch {
@@ -161,25 +162,3 @@ fun AccountDetailsBody(
     }
 }
 
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit,
-    onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    AlertDialog(onDismissRequest = { /* Do nothing */ },
-        title = { Text(stringResource(R.string.attention)) },
-        text = { Text(stringResource(R.string.delete_account)) },
-        modifier = modifier,
-        dismissButton = {
-            TextButton(onClick = onDeleteCancel) {
-                Text(stringResource(R.string.no))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDeleteConfirm) {
-                Text(stringResource(R.string.yes))
-            }
-        })
-}

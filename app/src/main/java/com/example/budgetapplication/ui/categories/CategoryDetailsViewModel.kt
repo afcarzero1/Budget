@@ -44,11 +44,20 @@ class CategoryDetailsViewModel(
     var categoryUiState by mutableStateOf(CategoryDetailsUiState())
         private set
 
+    var showUpdatedState by mutableStateOf(false)
+        private set
+
     fun updateUiState(category: Category) {
+
+        if (category.id != categoryId) {
+            return
+        }
+
         this.categoryUiState = CategoryDetailsUiState(
             category = category,
             isValid = validateInput(category)
         )
+        showUpdatedState = true
     }
 
     private fun validateInput(category: Category): Boolean {
@@ -58,7 +67,7 @@ class CategoryDetailsViewModel(
 
     suspend fun updateCategory() {
         if (categoryUiState.isValid) {
-         categoriesRepository.update(categoryUiState.category)
+            categoriesRepository.update(categoryUiState.category)
         }
     }
 

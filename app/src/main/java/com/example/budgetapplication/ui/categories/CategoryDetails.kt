@@ -29,6 +29,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.dialogs.ConfirmationDeletionDialog
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 @Composable
@@ -38,7 +40,7 @@ fun CategoryDetailsScreen(
 ) {
 
     val categoryState by viewModel.categoryState.collectAsState()
-    var useUpdatedUiState by remember { mutableStateOf(false) }
+    var useUpdatedUiState = viewModel.showUpdatedState
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
@@ -48,16 +50,10 @@ fun CategoryDetailsScreen(
 
     Scaffold(
         topBar = {
-            Surface(
-                Modifier
-                    .height(dimensionResource(id = R.dimen.tab_height))
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.entry_account_title),
-                    modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
-                )
-            }
+            SecondaryScreenTopBar(
+                navigateBack = navigateBack,
+                titleResId = R.string.details_category_title
+            )
         }
     ) { innerPadding ->
         CategoryDetailsBody(
@@ -129,7 +125,8 @@ fun CategoryDetailsBody(
         }
 
         if (deleteConfirmationRequired) {
-            DeleteConfirmationDialog(
+            ConfirmationDeletionDialog(
+                message = stringResource(R.string.delete_category),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     onCategoryDetailsDeleted()
@@ -140,27 +137,4 @@ fun CategoryDetailsBody(
             )
         }
     }
-}
-
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit,
-    onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    AlertDialog(onDismissRequest = { /* Do nothing */ },
-        title = { Text(stringResource(R.string.attention)) },
-        text = { Text(stringResource(R.string.delete_category)) },
-        modifier = modifier,
-        dismissButton = {
-            TextButton(onClick = onDeleteCancel) {
-                Text(stringResource(R.string.no))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDeleteConfirm) {
-                Text(stringResource(R.string.yes))
-            }
-        })
 }

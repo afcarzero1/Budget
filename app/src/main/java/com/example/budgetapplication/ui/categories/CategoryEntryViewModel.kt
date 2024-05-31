@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.categories.CategoryType
+import com.example.budgetapplication.ui.components.graphics.AvailableIcons
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -52,7 +53,7 @@ data class CategoryUiState(
         name = "",
         defaultType = CategoryType.Expense,
         parentCategoryId = null,
-        iconResId = null
+        iconResId = AvailableIcons.icons[0]
     ),
     val isValid: Boolean = false
 )

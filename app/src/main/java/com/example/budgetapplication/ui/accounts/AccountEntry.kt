@@ -59,7 +59,6 @@ import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
 import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountEntryScreen(
     navigateBack: () -> Unit,
@@ -135,7 +134,6 @@ fun AccountEntryBody(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountForm(
     account: Account,

@@ -49,12 +49,14 @@ fun CategoryEntryScreen(
     val coroutineScope = rememberCoroutineScope()
     val availableCategories by viewModel.categoriesListState.collectAsState()
 
-    Scaffold(topBar = {
-        SecondaryScreenTopBar(
-            navigateBack = navigateBack,
-            titleResId = R.string.entry_category_title
-        )
-    }) { innerPadding ->
+    Scaffold(
+        topBar = {
+            SecondaryScreenTopBar(
+                navigateBack = navigateBack,
+                titleResId = R.string.entry_category_title
+            )
+        }
+    ) { innerPadding ->
         CategoryEntryBody(
             categoryUiState = viewModel.categoryUiState,
             availableCategories = availableCategories,
@@ -178,8 +180,20 @@ fun PreviewCategoryForm() {
 
     // Create a list of categories for the dropdown
     val categoriesList = listOf(
-        Category(id = 1, name = "Groceries", iconResId = "groceries", defaultType = CategoryType.Expense, parentCategoryId = null),
-        Category(id = 2, name = "Utilities", iconResId = "bar", defaultType = CategoryType.Expense, parentCategoryId = null)
+        Category(
+            id = 1,
+            name = "Groceries",
+            iconResId = "groceries",
+            defaultType = CategoryType.Expense,
+            parentCategoryId = null
+        ),
+        Category(
+            id = 2,
+            name = "Utilities",
+            iconResId = "bar",
+            defaultType = CategoryType.Expense,
+            parentCategoryId = null
+        )
     )
 
     // Provide necessary Theme and Modifier
@@ -188,7 +202,9 @@ fun PreviewCategoryForm() {
             category = testCategory,
             availableCategories = categoriesList,
             onValueChange = {},
-            modifier = Modifier.padding(16.dp).fillMaxHeight()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxHeight()
         )
     }
 }
