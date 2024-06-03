@@ -11,7 +11,7 @@ class ComputeDeltaFromTransactionsUseCase {
     fun computeDelta(transactions: List<Pair<TransactionRecord, Currency>>): Float {
         var delta = 0f  // Initialize delta as a floating point number
         for (transaction in transactions) {
-            val amountInBaseCurrency = transaction.first.amount * transaction.second.value
+            val amountInBaseCurrency = transaction.first.amount * 1 / transaction.second.value
             delta += amountInBaseCurrency
         }
         return delta
