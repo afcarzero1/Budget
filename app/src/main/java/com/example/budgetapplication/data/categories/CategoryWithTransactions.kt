@@ -6,6 +6,7 @@ import androidx.room.Relation
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
+import com.example.budgetapplication.data.transactions.TransactionWithCurrency
 import org.jetbrains.annotations.Nullable
 
 
@@ -16,7 +17,7 @@ data class CategoryWithTransactions(
             parentColumn = "id",
             entityColumn = "categoryId"
     )
-    val transactions: List<TransactionRecord>
+    val transactions: List<TransactionWithCurrency>
 ){
     @get:Ignore val historicalBalance: Float
         get() {

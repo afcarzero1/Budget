@@ -236,7 +236,6 @@ fun <T : Any> PieChart(
             ) {
                 if (totalSum != 0f) {
                     floatValue.forEachIndexed { index, value ->
-                        Log.d("PIE CHART", "$index , ${colors[index]}")
                         drawArc(
                             color = colors[index],
                             lastValue,

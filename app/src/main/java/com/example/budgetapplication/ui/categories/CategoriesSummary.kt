@@ -140,7 +140,8 @@ fun CategoriesSummary(
                                     yearMonthOfTransactions = transactionsYearMonth,
                                     categoryToColor = {
                                         viewModel.colorAssigner.assignColor(it.name)
-                                    }
+                                    },
+                                    deltas = categoriesState.categoriesDelta
                                 )
                             }
                         ),
@@ -178,7 +179,8 @@ fun CategoriesSummary(
                                     yearMonthOfTransactions = transactionsYearMonth,
                                     categoryToColor = {
                                         viewModel.colorAssigner.assignColor(it.name)
-                                    }
+                                    },
+                                    deltas = categoriesState.categoriesDelta
                                 )
                             }
                         ),
@@ -201,6 +203,7 @@ fun CategoriesSummary(
 @Composable
 fun CategoriesSummaryBody(
     categories: List<CategoryWithTransactions>,
+    deltas: Map<Category, Float>,
     yearMonthOfTransactions: YearMonth,
     categoryToColor: (Category) -> Color,
     onNextMonth: () -> Unit,
@@ -227,7 +230,7 @@ fun CategoriesSummaryBody(
             PieChart(
                 data = categories,
                 itemToWeight = { categoryWithTransactions ->
-                    1f//TODO: make this sensible
+                    deltas[categoryWithTransactions.category] ?: 0f
                 },
                 itemDetails = null,
                 itemToColor = {
@@ -344,7 +347,7 @@ fun CategoryCard(
                 Column {
                     categoryWithTransactions.transactions.forEach { transaction ->
                         Text(
-                            text = "${transaction.type}: \$${transaction.amount}",
+                            text = "${transaction.transactionRecord.type}: \$${transaction.transactionRecord.amount}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

@@ -2,12 +2,12 @@ package com.example.budgetapplication.ui.categories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.budgetapplication.data.accounts.AccountWithTransactions
-import com.example.budgetapplication.data.accounts.AccountsRepository
 import com.example.budgetapplication.data.categories.CategoriesRepository
+import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryWithTransactions
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.graphics.AvailableColors
+import com.example.budgetapplication.use_cases.ComputeDeltaFromTransactionsUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,7 +47,20 @@ class CategoriesSummaryViewModel(
                 it.atEndOfMonth().atTime(23, 59, 59)
             )
         }
-        .map { CategoriesUiState(it) }
+        .map { categoryWithTransactionsList ->
+            val deltaUseCase = ComputeDeltaFromTransactionsUseCase()
+            CategoriesUiState(
+                categoryWithTransactionsList,
+                categoryWithTransactionsList.associate { categoryWithTransactions ->
+                    Pair(
+                        categoryWithTransactions.category,
+                        deltaUseCase.computeDelta(categoryWithTransactions.transactions.map {
+                            Pair(it.transactionRecord, it.account.currency)
+                        })
+                    )
+                }
+            )
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -58,7 +71,9 @@ class CategoriesSummaryViewModel(
         monthOfTransactions.value = date
     }
 
-
 }
 
-data class CategoriesUiState(val categoriesList: List<CategoryWithTransactions> = listOf())
+data class CategoriesUiState(
+    val categoriesList: List<CategoryWithTransactions> = listOf(),
+    val categoriesDelta: Map<Category, Float> = mapOf()
+)

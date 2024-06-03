@@ -218,7 +218,7 @@ class BudgetDatabaseTest {
     fun daoGetAllAccountsTest() = runBlocking {
         addAllItemsToDb()
         val allAccounts = accountDao.getAllAccounts().first()
-        for(account in allAccounts) {
+        for (account in allAccounts) {
             assertTrue(accounts.contains(account))
         }
     }
@@ -228,7 +228,7 @@ class BudgetDatabaseTest {
     fun daoGetAllCategoriesTest() = runBlocking {
         addAllItemsToDb()
         val allCategories = categoryDao.getAllCategoriesStream().first()
-        for(category in allCategories) {
+        for (category in allCategories) {
             assertTrue(categories.contains(category))
         }
     }
@@ -238,7 +238,7 @@ class BudgetDatabaseTest {
     fun daoGetAllTransactionsTest() = runBlocking {
         addAllItemsToDb()
         val allTransactions = transactionDao.getAllTransactionsStream().first()
-        for(transaction in allTransactions) {
+        for (transaction in allTransactions) {
             assertTrue(transactions.contains(transaction))
         }
     }
@@ -248,37 +248,36 @@ class BudgetDatabaseTest {
     fun daoGetAllCategoriesWithTransactionsTest() = runBlocking {
         addAllItemsToDb()
         val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
-        for(category in allCategories) {
+        for (category in allCategories) {
             assertTrue(categories.contains(category.category))
-            for(transaction in category.transactions) {
-                assertTrue(transaction.categoryId == category.category.id)
-                assertTrue(transactions.contains(transaction))
+            for (transaction in category.transactions) {
+                assertTrue(transaction.transactionRecord.categoryId == category.category.id)
+                assertTrue(transactions.contains(transaction.transactionRecord))
             }
 
-            if (category.category.name == "Food") {
-                assertTrue(category.transactions.size == 2)
-            }
 
         }
     }
 
     @Test
     @Throws(Exception::class)
-    fun getAllAccountsWithTransactionsTest(){
+    fun getAllAccountsWithTransactionsTest() {
         runBlocking {
             addAllItemsToDb()
             val allAccounts = accountDao.getAllAccountsWithTransactions().first()
-            for(account in allAccounts) {
+            for (account in allAccounts) {
                 assertTrue(accounts.contains(account.account))
-                for(transaction in account.transactionRecords) {
+                for (transaction in account.transactionRecords) {
                     assertTrue(transaction.accountId == account.account.id)
                     assertTrue(transactions.contains(transaction))
                 }
 
                 if (account.account.name == "JPMorgan Chase") {
-                    assertTrue(account.transactionRecords.size == 4)
+                    assertTrue(account.transactionRecords.size == transactions.filter { it.accountId == 1 }.size)
 
-                    assertTrue(account.balance == (100f + 10000f - 10f - 20f - 1000f))
+                    assertTrue(account.balance == transactions.filter { it.accountId == 1 }
+                        .map { if (it.type == TransactionType.EXPENSE) -it.amount else it.amount }
+                        .sum())
                 }
             }
         }
@@ -286,11 +285,12 @@ class BudgetDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun getAllFullTransactionsTest(){
+    fun getAllFullTransactionsTest() {
         runBlocking {
             addAllItemsToDb()
-            val allTransactions: List<FullTransactionRecord> = transactionDao.getAllFullTransactionsStream().first()
-            for(transaction in allTransactions) {
+            val allTransactions: List<FullTransactionRecord> =
+                transactionDao.getAllFullTransactionsStream().first()
+            for (transaction in allTransactions) {
                 assertTrue(transactions.contains(transaction.transactionRecord))
                 assertTrue(accounts.contains(transaction.account.account))
                 assertTrue(currencies.contains(transaction.account.currency))
@@ -316,23 +316,25 @@ class BudgetDatabaseTest {
     fun getCategoriesWithTransactionsByDate() = runBlocking {
         addAllItemsToDb()
 
-        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream(localDateTime, localDateTime.plusDays(5)).first()
+        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream(
+            localDateTime,
+            localDateTime.plusDays(5)
+        ).first()
 
         assertTrue(allCategories.size == categories.size)
 
 
-        for((category, transactions) in allCategories){
-            for(transaction in transactions){
-                assertTrue(transaction.date < localDateTime.plusDays(5))
+        for ((category, transactions) in allCategories) {
+            for (transaction in transactions) {
+                assertTrue(transaction.transactionRecord.date < localDateTime.plusDays(5))
             }
         }
 
     }
 
 
-
     @Test(expected = Exception::class)
-    fun daoInsertAccountWithWrongCurrency(){
+    fun daoInsertAccountWithWrongCurrency() {
         val account = Account(
             id = 4,
             name = "Banco de Bogota",

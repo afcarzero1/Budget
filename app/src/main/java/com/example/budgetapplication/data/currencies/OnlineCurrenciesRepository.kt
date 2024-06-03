@@ -51,12 +51,12 @@ class OnlineCurrenciesRepository(
             ),
             Currency(
                 name = "EUR",
-                value = 1.1f,
+                value = 1/1.1f,
                 updatedTime = localDateTime
             ),
             Currency(
                 name = "SEK",
-                value = 0.1f,
+                value = 1/0.1f,
                 updatedTime = localDateTime
             )
         )
