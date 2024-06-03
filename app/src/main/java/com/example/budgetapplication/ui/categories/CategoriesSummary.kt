@@ -301,7 +301,12 @@ fun CategoriesSummaryBody(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(categories) {
-                CategoryCard(it, onCategoryClicked, categoryToColor(it.category))
+                CategoryCard(
+                    it,
+                    Pair(baseCurrency, deltas[it.category] ?: 0f),
+                    onCategoryClicked,
+                    categoryToColor(it.category)
+                )
             }
         }
     }
@@ -310,6 +315,7 @@ fun CategoriesSummaryBody(
 @Composable
 fun CategoryCard(
     categoryWithTransactions: CategoryWithTransactions,
+    totalAmount: Pair<String, Float>,
     onCategoryClicked: (Category) -> Unit,
     color: Color
 ) {
@@ -357,17 +363,24 @@ fun CategoryCard(
                             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                             .padding(8.dp)
                     )
-
                     Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = categoryWithTransactions.category.name,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Column() {
+                        Text(
+                            text = categoryWithTransactions.category.name,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = Currency.formatAmountStatic(totalAmount.first, totalAmount.second),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.ExtraLight,
+                            ),
+                        )
+                    }
                 }
 
                 // Expand/Collapse icon
