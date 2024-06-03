@@ -94,27 +94,9 @@ fun CategoryDetailsScreen(
     ) { innerPadding ->
         CategoryDetailsBody(
             categoryDetailsUiState = if (useUpdatedUiState) viewModel.categoryUiState else categoryState,
-            navigateBack = navigateBack,
             onCategoryDetailsChanged = {
                 useUpdatedUiState = true
                 viewModel.updateUiState(it)
-            },
-            onCategoryDetailsSaved = {
-                coroutineScope.launch {
-                    viewModel.updateCategory()
-                }
-            },
-            onCategoryDetailsDeleted = {
-                coroutineScope.launch {
-                    try {
-                        viewModel.deleteCategory()
-                    } catch (e: Exception) {
-                        // Show message to user
-                        Toast.makeText(context, "Error deleting category", Toast.LENGTH_SHORT)
-                            .show()
-                        Log.e("CategoryDetailsScreen", "Error deleting category", e)
-                    }
-                }
             },
             modifier = Modifier.padding(innerPadding)
         )
@@ -148,14 +130,10 @@ fun CategoryDetailsScreen(
 @Composable
 fun CategoryDetailsBody(
     categoryDetailsUiState: CategoryDetailsUiState,
-    navigateBack: () -> Unit,
     onCategoryDetailsChanged: (Category) -> Unit,
-    onCategoryDetailsSaved: () -> Unit,
-    onCategoryDetailsDeleted: () -> Unit,
     modifier: Modifier = Modifier,
     categoriesSummaryViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
     val availableCategories by categoriesSummaryViewModel.categoriesUiState.collectAsState()
 
     Column(
@@ -167,25 +145,5 @@ fun CategoryDetailsBody(
             availableCategories = availableCategories.categoriesList.map { it.category },
             onValueChange = { onCategoryDetailsChanged(it) }
         )
-
-        OutlinedButton(
-            onClick = {
-                onCategoryDetailsSaved()
-                navigateBack()
-            },
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = categoryDetailsUiState.isValid
-        ) {
-            Text(stringResource(R.string.save))
-        }
-
-        OutlinedButton(
-            onClick = { deleteConfirmationRequired = true },
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.delete))
-        }
     }
 }

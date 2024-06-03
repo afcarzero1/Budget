@@ -1,6 +1,8 @@
 package com.example.budgetapplication.ui.components
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
+import kotlin.math.abs
 
 class ColorAssigner(
     private val availableColors: List<Color>
@@ -10,7 +12,6 @@ class ColorAssigner(
     private val assignedColors: MutableMap<String, Color> = HashMap()
 
     fun assignColor(key: String): Color {
-
         // If already assigned, return the assigned color
         if (assignedColors.containsKey(key)) {
             return assignedColors[key]!!

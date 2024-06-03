@@ -3,8 +3,10 @@ package com.example.budgetapplication.ui.categories
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,12 +26,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,14 +61,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
+import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountWithCurrency
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.categories.CategoryWithTransactions
+import com.example.budgetapplication.data.currencies.Currency
+import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.AppViewModelProvider
+import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.ListDivider
+import com.example.budgetapplication.ui.components.PieChart
 import com.example.budgetapplication.ui.components.VerticalBar
+import com.example.budgetapplication.ui.components.graphics.AvailableColors
 import com.example.budgetapplication.ui.navigation.AccountDetails
 import com.example.budgetapplication.ui.navigation.Categories
 import com.example.budgetapplication.ui.navigation.CategoryDetails
@@ -72,6 +84,7 @@ import com.example.budgetapplication.ui.navigation.TabItem
 import com.example.budgetapplication.ui.navigation.TabbedPage
 import com.example.budgetapplication.ui.theme.InitialScreen
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 
 @Composable
@@ -81,6 +94,8 @@ fun CategoriesSummary(
     viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val categoriesState by viewModel.categoriesUiState.collectAsState()
+    val transactionsYearMonth by viewModel.currentMonthOfTransactions.collectAsState()
+
     InitialScreen(
         navController = navController,
         destination = Categories,
@@ -107,6 +122,24 @@ fun CategoriesSummary(
                                     },
                                     onCategoryClicked = {
                                         navController.navigate("${CategoryDetails.route}/${it.id}")
+                                    },
+                                    onNextMonth = {
+                                        viewModel.setMonthOfTransactions(
+                                            transactionsYearMonth.plusMonths(
+                                                1
+                                            )
+                                        )
+                                    },
+                                    onPreviousMonth = {
+                                        viewModel.setMonthOfTransactions(
+                                            transactionsYearMonth.minusMonths(
+                                                1
+                                            )
+                                        )
+                                    },
+                                    yearMonthOfTransactions = transactionsYearMonth,
+                                    categoryToColor = {
+                                        viewModel.colorAssigner.assignColor(it.name)
                                     }
                                 )
                             }
@@ -127,6 +160,24 @@ fun CategoriesSummary(
                                     },
                                     onCategoryClicked = {
                                         navController.navigate("${CategoryDetails.route}/${it.id}")
+                                    },
+                                    onNextMonth = {
+                                        viewModel.setMonthOfTransactions(
+                                            transactionsYearMonth.plusMonths(
+                                                1
+                                            )
+                                        )
+                                    },
+                                    onPreviousMonth = {
+                                        viewModel.setMonthOfTransactions(
+                                            transactionsYearMonth.minusMonths(
+                                                1
+                                            )
+                                        )
+                                    },
+                                    yearMonthOfTransactions = transactionsYearMonth,
+                                    categoryToColor = {
+                                        viewModel.colorAssigner.assignColor(it.name)
                                     }
                                 )
                             }
@@ -149,17 +200,69 @@ fun CategoriesSummary(
 
 @Composable
 fun CategoriesSummaryBody(
-    categories: List<CategoryWithTransactions>, onCategoryClicked: (Category) -> Unit
+    categories: List<CategoryWithTransactions>,
+    yearMonthOfTransactions: YearMonth,
+    categoryToColor: (Category) -> Color,
+    onNextMonth: () -> Unit,
+    onPreviousMonth: () -> Unit,
+    onCategoryClicked: (Category) -> Unit
 ) {
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(all = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(categories) {
-            CategoryCard(it, onCategoryClicked)
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = onPreviousMonth,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Previous",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+            PieChart(
+                data = categories,
+                itemToWeight = { categoryWithTransactions ->
+                    1f//TODO: make this sensible
+                },
+                itemDetails = null,
+                itemToColor = {
+                    categoryToColor(it.category)
+                },
+                middleText = "$yearMonthOfTransactions"
+            )
+            IconButton(
+                onClick = onNextMonth,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Next",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+        Divider(
+            color = Color.Gray,
+            thickness = 1.dp,
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .padding(vertical = 16.dp)
+        )
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(all = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(categories) {
+                CategoryCard(it, onCategoryClicked, categoryToColor(it.category))
+            }
         }
     }
 }
@@ -167,7 +270,8 @@ fun CategoriesSummaryBody(
 @Composable
 fun CategoryCard(
     categoryWithTransactions: CategoryWithTransactions,
-    onCategoryClicked: (Category) -> Unit
+    onCategoryClicked: (Category) -> Unit,
+    color: Color
 ) {
     var isExpanded by remember { mutableStateOf(false) }  // State to manage card expansion
 
@@ -209,6 +313,7 @@ fun CategoryCard(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
+                            .border(2.dp, color, CircleShape)
                             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                             .padding(8.dp)
                     )
@@ -239,7 +344,7 @@ fun CategoryCard(
                 Column {
                     categoryWithTransactions.transactions.forEach { transaction ->
                         Text(
-                            text = "${transaction.name}: \$${transaction.amount}",
+                            text = "${transaction.type}: \$${transaction.amount}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -249,48 +354,93 @@ fun CategoryCard(
     }
 }
 
+/**
 @Preview(showBackground = true)
 @Composable
 fun PreviewCategoryCard() {
-    val transactions = listOf(
-        TransactionRecord(
-            id = 1,
-            name = "Books",
-            type = TransactionType.EXPENSE,
-            accountId = 101,
-            categoryId = 1,
-            amount = 79.99f,
-            date = LocalDateTime.now()
-        ),
-        TransactionRecord(
-            id = 2,
-            name = "Supplies",
-            type = TransactionType.EXPENSE,
-            accountId = 101,
-            categoryId = 1,
-            amount = 49.50f,
-            date = LocalDateTime.now()
-        )
-    )
+val transactions = listOf(
+FullTransactionRecord(
+transactionRecord = TransactionRecord(
+id = 1,
+name = "Books",
+type = TransactionType.EXPENSE,
+accountId = 101,
+categoryId = 1,
+amount = 79.99f,
+date = LocalDateTime.now()
+),
+account = AccountWithCurrency(
+account = Account(
+id = 101,
+name = "Bank",
+currency = "EUR",
+initialBalance = 1000f
+),
+currency = Currency(
+"EUR",
+1.0f,
+updatedTime = LocalDateTime.now()
+)
+),
+category = Category(
+id = 1,
+name = "Education",
+defaultType = CategoryType.Expense,
+parentCategoryId = null,
+iconResId = null
+)
+),
+FullTransactionRecord(
+transactionRecord = TransactionRecord(
+id = 2,
+name = "Supplies",
+type = TransactionType.EXPENSE,
+accountId = 101,
+categoryId = 1,
+amount = 200.99f,
+date = LocalDateTime.now()
+),
+account = AccountWithCurrency(
+account = Account(
+id = 101,
+name = "Bank",
+currency = "EUR",
+initialBalance = 1000f
+),
+currency = Currency(
+"EUR",
+1.0f,
+updatedTime = LocalDateTime.now()
+)
+),
+category = Category(
+id = 1,
+name = "Education",
+defaultType = CategoryType.Expense,
+parentCategoryId = null,
+iconResId = null
+)
+)
+)
 
-    // Create a sample CategoryWithTransactions
-    val sampleCategoryWithTransactions = CategoryWithTransactions(
-        category = Category(
-            id = 1,
-            name = "Education",
-            defaultType = CategoryType.Expense,
-            parentCategoryId = null,
-            iconResId = null
-        ),
-        transactions = transactions
-    )
+// Create a sample CategoryWithTransactions
+val sampleCategoryWithTransactions = CategoryWithTransactions(
+category = Category(
+id = 1,
+name = "Education",
+defaultType = CategoryType.Expense,
+parentCategoryId = null,
+iconResId = null
+),
+transactions = transactions
+)
 
-    CategoryCard(
-        categoryWithTransactions = sampleCategoryWithTransactions,
-        onCategoryClicked = {}
-    )
+CategoryCard(
+categoryWithTransactions = sampleCategoryWithTransactions,
+onCategoryClicked = {}
+)
 }
-
+ **/
 
 @Composable
 fun EmptyCategoryScreen() {

@@ -23,6 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.time.LocalDateTime
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
@@ -149,6 +150,26 @@ class BudgetDatabaseTest {
             categoryId = 1,
             amount = 15.0f,
             date = localDateTime.plusDays(7),
+        ),
+
+        // Late transactions
+        TransactionRecord(
+            id = 6,
+            name = "Rent",
+            type = TransactionType.EXPENSE,
+            accountId = 1,
+            categoryId = 3,
+            amount = 1000.0f,
+            date = localDateTime.plusDays(35),
+        ),
+        TransactionRecord(
+            id = 7,
+            name = "Burger King",
+            type = TransactionType.EXPENSE,
+            accountId = 2,
+            categoryId = 1,
+            amount = 20.0f,
+            date = localDateTime.plusDays(40),
         ),
     )
 
@@ -277,6 +298,38 @@ class BudgetDatabaseTest {
             }
         }
     }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun getCategoriesWithTransactions() = runBlocking {
+        addAllItemsToDb()
+
+        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
+
+        assertTrue(allCategories.size == categories.size)
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun getCategoriesWithTransactionsByDate() = runBlocking {
+        addAllItemsToDb()
+
+        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream(localDateTime, localDateTime.plusDays(5)).first()
+
+        assertTrue(allCategories.size == categories.size)
+
+
+        for((category, transactions) in allCategories){
+            for(transaction in transactions){
+                assertTrue(transaction.date < localDateTime.plusDays(5))
+            }
+        }
+
+    }
+
+
 
     @Test(expected = Exception::class)
     fun daoInsertAccountWithWrongCurrency(){

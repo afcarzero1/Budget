@@ -6,6 +6,7 @@ import androidx.room.Relation
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
+import org.jetbrains.annotations.Nullable
 
 
 data class CategoryWithTransactions(

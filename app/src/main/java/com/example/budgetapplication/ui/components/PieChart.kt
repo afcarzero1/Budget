@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.components
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -166,10 +168,10 @@ fun <T> AnimatedPieChart(
 //https://github.com/developerchunk/Custom-Bar-Chart-Jetpack-Compose/tree/main/app
 
 @Composable
-fun <T> PieChart(
+fun <T : Any> PieChart(
     data: List<T>,
     itemToWeight: (T) -> Float,
-    itemDetails: @Composable (T) -> Unit,
+    itemDetails: (@Composable (T) -> Unit)?,
     itemToColor: (T) -> Color,
     radiusOuter: Dp = 90.dp,
     chartBarWidth: Dp = 20.dp,
@@ -216,7 +218,7 @@ fun <T> PieChart(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .wrapContentWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -232,17 +234,20 @@ fun <T> PieChart(
                     .size(radiusOuter * 2f)
                     .rotate(animateRotation)
             ) {
-                // draw each Arc for each data entry in Pie Chart
-                floatValue.forEachIndexed { index, value ->
-                    drawArc(
-                        color = colors[index],
-                        lastValue,
-                        value,
-                        useCenter = false,
-                        style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
-                    )
-                    lastValue += value
+                if (totalSum != 0f) {
+                    floatValue.forEachIndexed { index, value ->
+                        Log.d("PIE CHART", "$index , ${colors[index]}")
+                        drawArc(
+                            color = colors[index],
+                            lastValue,
+                            value,
+                            useCenter = false,
+                            style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
+                        )
+                        lastValue += value
+                    }
                 }
+
 
                 // draw the text in the middle of the pie chart
                 val text = middleText
@@ -264,11 +269,10 @@ fun <T> PieChart(
                 )
             }
         }
-        DetailsPieChart(
-            data = data,
-            itemToColor = itemToColor,
-            itemDetails = itemDetails
-        )
+        itemDetails?.let {
+            DetailsPieChart(data = data, itemToColor = itemToColor, itemDetails = it)
+        }
+
     }
 }
 
@@ -390,7 +394,7 @@ data class TextPiece(
 fun <T> PieChart(
     data: List<T>,
     itemToWeight: (T) -> Float,
-    itemDetails: @Composable (T) -> Unit,
+    itemDetails: (@Composable (T) -> Unit)?,
     itemToColor: (T) -> Color,
     radiusOuter: Dp = 90.dp,
     chartBarWidth: Dp = 20.dp,
@@ -501,11 +505,10 @@ fun <T> PieChart(
 
             }
         }
-        DetailsPieChart(
-            data = data,
-            itemToColor = itemToColor,
-            itemDetails = itemDetails
-        )
+        itemDetails?.let {
+            DetailsPieChart(data = data, itemToColor = itemToColor, itemDetails = it)
+        }
+
     }
 }
 
@@ -525,11 +528,11 @@ fun <T> DetailsPieChart(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Divider(
-            color = Color.Gray, // Set the color of the divider
-            thickness = 1.dp, // Set the thickness of the divider
+            color = Color.Gray,
+            thickness = 1.dp,
             modifier = Modifier
                 .padding(horizontal = 10.dp)
-                .padding(bottom = 8.dp) // Optionally add padding
+                .padding(bottom = 8.dp)
         )
 
         data.forEachIndexed { index, item ->
