@@ -53,8 +53,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,6 +77,7 @@ import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.ListDivider
 import com.example.budgetapplication.ui.components.PieChart
+import com.example.budgetapplication.ui.components.TextPiece
 import com.example.budgetapplication.ui.components.VerticalBar
 import com.example.budgetapplication.ui.components.graphics.AvailableColors
 import com.example.budgetapplication.ui.navigation.AccountDetails
@@ -94,6 +98,7 @@ fun CategoriesSummary(
     viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val categoriesState by viewModel.categoriesUiState.collectAsState()
+    val baseCurrency by viewModel.baseCurrency.collectAsState()
     val transactionsYearMonth by viewModel.currentMonthOfTransactions.collectAsState()
 
     InitialScreen(
@@ -141,7 +146,8 @@ fun CategoriesSummary(
                                     categoryToColor = {
                                         viewModel.colorAssigner.assignColor(it.name)
                                     },
-                                    deltas = categoriesState.categoriesDelta
+                                    deltas = categoriesState.categoriesDelta,
+                                    baseCurrency = baseCurrency
                                 )
                             }
                         ),
@@ -180,7 +186,8 @@ fun CategoriesSummary(
                                     categoryToColor = {
                                         viewModel.colorAssigner.assignColor(it.name)
                                     },
-                                    deltas = categoriesState.categoriesDelta
+                                    deltas = categoriesState.categoriesDelta,
+                                    baseCurrency = baseCurrency
                                 )
                             }
                         ),
@@ -204,12 +211,15 @@ fun CategoriesSummary(
 fun CategoriesSummaryBody(
     categories: List<CategoryWithTransactions>,
     deltas: Map<Category, Float>,
+    baseCurrency: String,
     yearMonthOfTransactions: YearMonth,
     categoryToColor: (Category) -> Color,
     onNextMonth: () -> Unit,
     onPreviousMonth: () -> Unit,
     onCategoryClicked: (Category) -> Unit
 ) {
+
+    val totalDelta = deltas.map { it.value }.sum()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -236,7 +246,34 @@ fun CategoriesSummaryBody(
                 itemToColor = {
                     categoryToColor(it.category)
                 },
-                middleText = "$yearMonthOfTransactions"
+                middleText = listOf(
+                    TextPiece(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            ) {
+                                append(yearMonthOfTransactions.toString())
+                            }
+                        }
+                    ),
+                    TextPiece(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
+                            ) {
+                                append(
+                                    Currency.formatAmountStatic(baseCurrency, totalDelta)
+                                )
+                            }
+                        }
+                    )
+                )
             )
             IconButton(
                 onClick = onNextMonth,

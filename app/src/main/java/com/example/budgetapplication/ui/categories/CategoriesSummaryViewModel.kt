@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.categories.CategoriesRepository
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryWithTransactions
+import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.ui.components.ColorAssigner
 import com.example.budgetapplication.ui.components.graphics.AvailableColors
 import com.example.budgetapplication.use_cases.ComputeDeltaFromTransactionsUseCase
@@ -18,7 +19,8 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.YearMonth
 
 class CategoriesSummaryViewModel(
-    categoriesRepository: CategoriesRepository
+    categoriesRepository: CategoriesRepository,
+    currenciesRepository: CurrenciesRepository,
 ) : ViewModel() {
 
     companion object {
@@ -33,6 +35,13 @@ class CategoriesSummaryViewModel(
     )
 
 
+    val baseCurrency = currenciesRepository.getDefaultCurrencyStream().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = "USD",
+        )
+
+
     val currentMonthOfTransactions: StateFlow<YearMonth> = monthOfTransactions.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -40,17 +49,13 @@ class CategoriesSummaryViewModel(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val categoriesUiState: StateFlow<CategoriesUiState> = currentMonthOfTransactions
-        .flatMapLatest {
+    val categoriesUiState: StateFlow<CategoriesUiState> = currentMonthOfTransactions.flatMapLatest {
             categoriesRepository.getAllCategoriesWithTransactionsStream(
-                it.atDay(1).atStartOfDay(),
-                it.atEndOfMonth().atTime(23, 59, 59)
+                it.atDay(1).atStartOfDay(), it.atEndOfMonth().atTime(23, 59, 59)
             )
-        }
-        .map { categoryWithTransactionsList ->
+        }.map { categoryWithTransactionsList ->
             val deltaUseCase = ComputeDeltaFromTransactionsUseCase()
-            CategoriesUiState(
-                categoryWithTransactionsList,
+            CategoriesUiState(categoryWithTransactionsList,
                 categoryWithTransactionsList.associate { categoryWithTransactions ->
                     Pair(
                         categoryWithTransactions.category,
@@ -58,10 +63,8 @@ class CategoriesSummaryViewModel(
                             Pair(it.transactionRecord, it.account.currency)
                         })
                     )
-                }
-            )
-        }
-        .stateIn(
+                })
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = CategoriesUiState()

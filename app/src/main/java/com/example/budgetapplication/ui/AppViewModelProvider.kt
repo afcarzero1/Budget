@@ -56,7 +56,10 @@ object AppViewModelProvider {
         }
 
         initializer {
-            CategoriesSummaryViewModel(budgetApplication().container.categoriesRepository)
+            CategoriesSummaryViewModel(
+                budgetApplication().container.categoriesRepository,
+                budgetApplication().container.currenciesRepository
+            )
         }
 
         initializer {
