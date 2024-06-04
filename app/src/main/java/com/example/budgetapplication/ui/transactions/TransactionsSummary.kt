@@ -320,7 +320,7 @@ private fun TransactionRow(
         Spacer(Modifier.width(12.dp))
         // Title and subtitle
         Column(Modifier) {
-            Row{
+            Row(verticalAlignment = Alignment.CenterVertically){
                 val icon =
                     IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
                         transaction.category.iconResId

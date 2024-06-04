@@ -158,7 +158,18 @@ fun ColorBox(color: Color, onColorSelected: (Color) -> Unit) {
 
 object AvailableIcons {
     val icons = listOf(
-        "bar", "groceries", "rent", "restaurants", "school", "trips"
+        "bar",
+        "groceries",
+        "rent",
+        "restaurants",
+        "school",
+        "trips",
+        "exercise",
+        "flights",
+        "bets",
+        "entertainment",
+        "hotel",
+        "others"
     )
 }
 
