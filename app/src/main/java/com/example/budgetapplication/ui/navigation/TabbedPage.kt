@@ -1,9 +1,11 @@
 package com.example.budgetapplication.ui.navigation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -63,7 +65,8 @@ fun TabbedPage(
             pageSpacing = 0.dp,
             pageContent = {
                 tabs[it].screen()
-            }
+            },
+            pageSize = PageSize.Fill
         )
     }
 }

@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,13 +36,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
+import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FullFutureTransaction
+import com.example.budgetapplication.data.future_transactions.FutureTransaction
+import com.example.budgetapplication.data.future_transactions.RecurrenceType
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.AppViewModelProvider
@@ -55,7 +65,9 @@ import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.example.budgetapplication.use_cases.IconFromReIdUseCase
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -74,62 +86,54 @@ fun TransactionsSummary(
         val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
         val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
 
-        TabbedPage(
-            tabs = listOf(
-                TabItem(
-                    title = "Present",
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24),
-                            contentDescription = "Executed Transactions"
-                        )
-                    },
-                    screen = {
-                        if (transactionsState.transactionsList.isEmpty()) {
-                            EmptyTransactionScreen()
-                        } else {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                TransactionsSummaryBody(
-                                    transactions = transactionsState.transactionsList,
-                                    baseCurrency = baseCurrency,
-                                    navController = navController
-                                )
-                            }
-                        }
-                    },
-                ),
-                TabItem(
-                    title = "Planned",
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24),
-                            contentDescription = "Planned Transactions"
-                        )
-                    },
-                    screen = {
-                        if (futureTransactionsState.futureTransactionsList.isEmpty()) {
-                            EmptyTransactionScreen()
-                        } else {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                FutureTransactionsSummaryBody(
-                                    futureTransactions = futureTransactionsState.futureTransactionsList,
-                                    navController = navController
-                                )
-                            }
+        TabbedPage(tabs = listOf(
+            TabItem(
+                title = "Present",
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24),
+                        contentDescription = "Executed Transactions"
+                    )
+                },
+                screen = {
+                    if (transactionsState.transactionsList.isEmpty()) {
+                        EmptyTransactionScreen()
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TransactionsSummaryBody(
+                                transactions = transactionsState.transactionsList,
+                                baseCurrency = baseCurrency,
+                                navController = navController
+                            )
                         }
                     }
+                },
+            ), TabItem(title = "Planned", icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24),
+                    contentDescription = "Planned Transactions"
                 )
-            ),
-            onTabChanged = {
-                showFutureTransactions = it == 1
-            }
-        )
+            }, screen = {
+                if (futureTransactionsState.futureTransactionsList.isEmpty()) {
+                    EmptyTransactionScreen()
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        FutureTransactionsSummaryBody(
+                            futureTransactions = futureTransactionsState.futureTransactionsList,
+                            navController = navController
+                        )
+                    }
+                }
+            })
+        ), onTabChanged = {
+            showFutureTransactions = it == 1
+        })
     }, floatingButton = {
         FloatingActionButton(
             onClick = {
@@ -161,16 +165,14 @@ fun TransactionsSummaryBody(
     val scrollState = rememberLazyListState()
 
     LazyColumn(
-        modifier = modifier,
-        state = scrollState
+        modifier = modifier, state = scrollState
     ) {
         groupedByDate.entries.forEach { entry ->
             val date = entry.key
             val transactionsForDate = entry.value
 
             item {
-                DayTransactionsGroup(
-                    transactions = transactionsForDate,
+                DayTransactionsGroup(transactions = transactionsForDate,
                     baseCurrency = baseCurrency,
                     date = date,
                     onItemSelected = { selectedTransaction ->
@@ -181,8 +183,7 @@ fun TransactionsSummaryBody(
                         navController.navigate(
                             TransactionDetails.route + "/${selectedTransaction.transactionRecord.id}"
                         )
-                    }
-                )
+                    })
             }
         }
     }
@@ -258,24 +259,20 @@ fun FutureTransactionsSummaryBody(
     val scrollState = rememberLazyListState()
 
     LazyColumn(
-        modifier = modifier,
-        state = scrollState
+        modifier = modifier, state = scrollState
     ) {
         items(futureTransactions.size) { index ->
             val transaction = futureTransactions[index]
             Log.d("TransactionSummary", "Future Transaction: ${transaction.futureTransaction.id}")
-            FutureTransactionRow(
-                futureTransaction = transaction,
-                onItemSelected = {
-                    Log.d(
-                        "TransactionSummary",
-                        "Details of Future Transaction ID: ${it.futureTransaction.id}"
-                    )
-                    navController.navigate(
-                        FutureTransactionDetails.route + "/${transaction.futureTransaction.id}"
-                    )
-                }
-            )
+            FutureTransactionRow(futureTransaction = transaction, onItemSelected = {
+                Log.d(
+                    "TransactionSummary",
+                    "Details of Future Transaction ID: ${it.futureTransaction.id}"
+                )
+                navController.navigate(
+                    FutureTransactionDetails.route + "/${transaction.futureTransaction.id}"
+                )
+            })
             ListDivider()
         }
     }
@@ -303,17 +300,78 @@ private fun TransactionRow(
 
     val isExpense = transaction.transactionRecord.type == TransactionType.EXPENSE
     val color = if (isExpense) expenseColor else incomeColor
-
-    BaseRow(
-        color = color,
-        title = transaction.category.name,
-        subtitle = formatter.format(transaction.transactionRecord.date),
-        amount = transaction.transactionRecord.amount,
-        currency = transaction.account.currency.name,
-        negative = isExpense,
-        holdedItem = transaction,
-        onItemSelected = onItemSelected
+    val formattedAmount = Currency.formatAmountStatic(
+        transaction.account.currency.name,
+        transaction.transactionRecord.amount
     )
+
+    Row(
+        modifier = Modifier
+            .height(68.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Color bar in the left side
+        VerticalBar(
+            color = color,
+            modifier = Modifier.width(2.dp)
+        )
+
+        Spacer(Modifier.width(12.dp))
+        // Title and subtitle
+        Column(Modifier) {
+            Row{
+                val icon =
+                    IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
+                        transaction.category.iconResId
+                    )
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = "Category Icon",
+                    tint = color.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = transaction.category.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+
+
+            Text(
+                text = formatter.format(transaction.transactionRecord.date),
+                style = MaterialTheme.typography.titleSmall
+            )
+
+        }
+        Spacer(Modifier.weight(1f))
+        // Amount
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = if (isExpense) "-" else " ",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = formattedAmount,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = { onItemSelected(transaction) }) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
+        }
+        Spacer(Modifier.width(16.dp))
+    }
+    ListDivider()
 }
 
 @Composable
@@ -321,82 +379,160 @@ private fun FutureTransactionRow(
     futureTransaction: FullFutureTransaction,
     onItemSelected: (FullFutureTransaction) -> Unit = {},
 ) {
-
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
 
     val isExpense = futureTransaction.futureTransaction.type == TransactionType.EXPENSE
     val color = if (isExpense) expenseColor else incomeColor
-    //TODO: Assign global formatter using dependency injection
-    // TODO : Create a base row that accepts different objects for title/subtitle, so it is more
-    // flexible
 
-    Row(
-        modifier = Modifier
-            .height(90.dp)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .height(90.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
 
-        // Color bar in the left side
-        VerticalBar(
-            color = color, modifier = Modifier.width(2.dp)
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        // Title and subtitle
-        Column(Modifier) {
-            Text(
-                text = futureTransaction.category.name,
-                style = MaterialTheme.typography.headlineSmall
+            // Color bar in the left side
+            VerticalBar(
+                color = color, modifier = Modifier.width(2.dp)
             )
 
-            val formattedInitialDate =
-                formatter.format(futureTransaction.futureTransaction.startDate)
-            val formattedFinalDate = formatter.format(futureTransaction.futureTransaction.endDate)
+            Spacer(Modifier.width(8.dp))
 
-            Text(text = "From $formattedInitialDate", style = MaterialTheme.typography.titleSmall)
-            Text(text = "To $formattedFinalDate", style = MaterialTheme.typography.titleSmall)
+            // Title and subtitle
+            Column(Modifier.weight(1f)) {
 
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        // Amount
-        Column() {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = if (isExpense) "-${futureTransaction.currency.name}" else futureTransaction.currency.name,
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = futureTransaction.currency.formatAmount(futureTransaction.futureTransaction.amount),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = { onItemSelected(futureTransaction) }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val icon =
+                        IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
+                            futureTransaction.category.iconResId
+                        )
                     Icon(
-                        imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = null,
+                        painter = painterResource(id = icon),
+                        contentDescription = "Category Icon",
+                        tint = color
+                    )
+
+                    Text(
+                        text = futureTransaction.category.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
+
+
+                val formattedInitialDate =
+                    formatter.format(futureTransaction.futureTransaction.startDate)
+                val formattedFinalDate =
+                    formatter.format(futureTransaction.futureTransaction.endDate)
+
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painterResource(id = R.drawable.date_range_24dp_fill0_wght400_grad0_opsz24),
+                        contentDescription = "Date",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = formattedInitialDate,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 14.sp
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.ArrowForward,
+                        contentDescription = "To",
+                        modifier = Modifier.size(8.dp)
+                    )
+                    Text(
+                        text = formattedFinalDate,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 14.sp
+                    )
+                }
+
+                if (futureTransaction.futureTransaction.recurrenceType != RecurrenceType.NONE) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.event_repeat_24dp_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Event repeated",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(text = futureTransaction.futureTransaction.recurrenceType.name.lowercase())
+                    }
+                }
+
+
             }
-            Text(
-                text = "Repeted ${futureTransaction.futureTransaction.recurrenceType} every ${futureTransaction.futureTransaction.recurrenceValue}",
-                style = MaterialTheme.typography.labelSmall
-            )
+
+            // Amount
+            Column() {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Text(
+                        text = if (isExpense) "-" else " ",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = futureTransaction.currency.formatAmount(futureTransaction.futureTransaction.amount),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(onClick = { onItemSelected(futureTransaction) }) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(16.dp))
         }
-
-        Spacer(Modifier.width(16.dp))
     }
-    ListDivider()
 
+    ListDivider()
 }
+
+
+@Preview
+@Composable
+fun PreviewFutureTransactionRow(
+) {
+    val futureTransaction = FutureTransaction(
+        id = 0,
+        name = "Gym",
+        type = TransactionType.EXPENSE,
+        categoryId = 0,
+        amount = 50f,
+        currency = "EUR",
+        startDate = LocalDateTime.now(),
+        endDate = LocalDateTime.now().plusMonths(3),
+        recurrenceType = RecurrenceType.MONTHLY,
+        recurrenceValue = 1
+    )
+
+    val fullFutureTransaction = FullFutureTransaction(
+        futureTransaction = futureTransaction, category = Category(
+            id = 0,
+            name = "Sports",
+            defaultType = CategoryType.Expense,
+            parentCategoryId = null,
+            iconResId = "school"
+        ), currency = Currency(
+            "EUR", 1.0f, LocalDateTime.now()
+        )
+    )
+
+    FutureTransactionRow(futureTransaction = fullFutureTransaction)
+}
+
 
 private val expenseColor = Color(0xFFCD5C5C)
 private val incomeColor = Color(0xFF196F3D)
