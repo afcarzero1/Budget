@@ -148,13 +148,13 @@ fun FutureTransactionForm(
         DatePickerField(
             label = stringResource(id = R.string.entry_future_transaction_initial_date),
             onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
-            initialDate = futureTransaction.startDate
+            date = futureTransaction.startDate
         )
 
         DatePickerField(
             label = stringResource(id = R.string.entry_future_transaction_final_date),
             onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
-            initialDate = futureTransaction.endDate
+            date = futureTransaction.endDate
         )
 
         LargeDropdownMenu(

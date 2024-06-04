@@ -176,7 +176,7 @@ fun AccountTransferForm(
         DatePickerField(
             label = stringResource(id = R.string.entry_transaction_date),
             onDateChanged = { onValueChange(transfer.copy(date = it)) },
-            initialDate = transfer.date
+            date = transfer.date
         )
     }
 }

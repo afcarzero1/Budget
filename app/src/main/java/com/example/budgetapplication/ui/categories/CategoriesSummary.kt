@@ -87,6 +87,7 @@ import com.example.budgetapplication.ui.navigation.CategoryEntry
 import com.example.budgetapplication.ui.navigation.TabItem
 import com.example.budgetapplication.ui.navigation.TabbedPage
 import com.example.budgetapplication.ui.theme.InitialScreen
+import com.example.budgetapplication.use_cases.IconFromReIdUseCase
 import java.time.LocalDateTime
 import java.time.YearMonth
 
@@ -341,15 +342,10 @@ fun CategoryCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val iconName =
-                        categoryWithTransactions.category.iconResId // Assuming 'iconName' is the string field
-                    val iconResourceId = iconName?.let {
-                        LocalContext.current.resources.getIdentifier(
-                            "cat_$it",
-                            "drawable",
-                            LocalContext.current.packageName
+                    val iconResourceId =
+                        IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
+                            categoryWithTransactions.category.iconResId
                         )
-                    } ?: R.drawable.categories // Default icon if none specified
 
                     val icon = painterResource(id = iconResourceId)
 
@@ -374,7 +370,10 @@ fun CategoryCard(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = Currency.formatAmountStatic(totalAmount.first, totalAmount.second),
+                            text = Currency.formatAmountStatic(
+                                totalAmount.first,
+                                totalAmount.second
+                            ),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.ExtraLight,

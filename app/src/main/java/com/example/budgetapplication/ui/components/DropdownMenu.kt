@@ -3,10 +3,13 @@ package com.example.budgetapplication.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -49,26 +52,24 @@ fun <T> LargeDropdownMenu(
     selectedItemToString: (T) -> String = { it.toString() },
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     drawItem: @Composable (T, Boolean, Boolean, () -> Unit) -> Unit = { item, selected, itemEnabled, onClick ->
-        LargeDropdownMenuItem(
-            text = item.toString(),
-            selected = selected,
-            enabled = itemEnabled,
-            onClick = onClick,
-        )
+        DefaultDrawItem(item, selected, itemEnabled, onClick, selectedItemToString, leadingIcon)
     },
+    leadingIcon: (@Composable (T) -> Unit)? = null,
     initialIndex: Int = -1,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
     // Case in which the initial index is out of bounds (probably items has not received data yet)
-    if (initialIndex > items.size){
+    if (initialIndex > items.size) {
         selectedIndex = -1
     }
     val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
 
 
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
+
+
         OutlinedTextField(
             label = { Text(label) },
             value = items.getOrNull(uiIndex)?.let { selectedItemToString(it) } ?: "",
@@ -79,10 +80,14 @@ fun <T> LargeDropdownMenu(
                     if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown
                 Icon(icon, "")
             },
+            leadingIcon = items.getOrNull(uiIndex)?.let { item ->
+                leadingIcon?.let { { leadingIcon(item) } }
+            },
             onValueChange = { },
             readOnly = true,
             colors = colors
         )
+
 
         // Transparent clickable surface on top of OutlinedTextField
         Surface(
@@ -146,12 +151,32 @@ fun <T> LargeDropdownMenu(
     }
 }
 
+
+@Composable
+fun <T> DefaultDrawItem(
+    item: T,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    selectedItemToString: (T) -> String,
+    leadingIcon: (@Composable (T) -> Unit)? = null
+) {
+    LargeDropdownMenuItem(
+        text = selectedItemToString(item),
+        selected = selected,
+        enabled = enabled,
+        onClick = onClick,
+        leadingIcon = leadingIcon?.let { { leadingIcon(item) } }
+    )
+}
+
 @Composable
 fun LargeDropdownMenuItem(
     text: String,
     selected: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,
+    leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val contentColor = when {
         !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_DISABLED)
@@ -164,10 +189,18 @@ fun LargeDropdownMenuItem(
             .clickable(enabled) { onClick() }
             .fillMaxWidth()
             .padding(16.dp)) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.titleSmall,
-            )
+            Row(
+                
+            ){
+                leadingIcon?.let {
+                    it()
+                    Spacer(modifier = Modifier.width(16.dp))  // Add spacer only if leadingIcon is not null
+                }
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
         }
     }
 }
