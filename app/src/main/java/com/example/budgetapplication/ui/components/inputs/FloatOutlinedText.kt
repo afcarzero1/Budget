@@ -58,7 +58,6 @@ fun <T> FloatOutlinedText(
         label = label ?: { Text("Enter value") },
         colors = colors,
         modifier = modifier
-            .fillMaxWidth()
             .onFocusChanged { focusState ->
                 if (!focusState.isFocused) {
                     try {

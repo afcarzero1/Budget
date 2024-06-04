@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,10 +34,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.Account
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.categories.CategorySelector
@@ -46,6 +49,7 @@ import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
 import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import com.example.budgetapplication.use_cases.IconFromReIdUseCase
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun TransactionEntryScreen(
@@ -59,8 +63,7 @@ fun TransactionEntryScreen(
 
     Scaffold(topBar = {
         SecondaryScreenTopBar(
-            navigateBack = navigateBack,
-            titleResId = R.string.entry_transaction_title
+            navigateBack = navigateBack, titleResId = R.string.entry_transaction_title
         )
     }) { innerPadding ->
         TransactionEntryBody(
@@ -134,29 +137,37 @@ fun TransactionForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        FloatOutlinedText(
-            record = transactionRecord,
-            onValueChange = { transactionRecord, newValue ->
-                onValueChange(transactionRecord.copy(amount = newValue))
-            },
-            recordToId = {
-                it.id
-            },
-            recordToFloat = { it.amount }
-        )
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_transaction_account),
+        Row(modifier = Modifier.fillMaxWidth()) {
+            FloatOutlinedText(
+                record = transactionRecord,
+                onValueChange = { transactionRecord, newValue ->
+                    onValueChange(transactionRecord.copy(amount = newValue))
+                },
+                recordToId = {
+                    it.id
+                },
+                recordToFloat = { it.amount },
+                modifier = Modifier.weight(1.5f).padding(end=8.dp)
+            )
+            DatePickerField(
+                label = stringResource(id = R.string.entry_transaction_date),
+                onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
+                date = transactionRecord.date,
+                modifier = Modifier.weight(1f).padding(start= 8.dp)
+            )
+        }
+
+        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_account),
             items = availableAccounts.map { it.name },
             onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) },
-            initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId }
-        )
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_transaction_category),
+            initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId })
+        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
             items = availableCategories,
             onItemSelected = { index, item ->
                 onValueChange(
                     transactionRecord.copy(
                         categoryId = availableCategories[index].id,
+                        type = if (item.defaultType == CategoryType.Expense) TransactionType.EXPENSE else TransactionType.INCOME
                     )
                 )
             },
@@ -176,22 +187,9 @@ fun TransactionForm(
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                 )
             },
-            initialIndex = availableCategories.indexOfFirst { it.id == transactionRecord.categoryId }
-        )
+            initialIndex = availableCategories.indexOfFirst { it.id == transactionRecord.categoryId })
 
-        //TODO : make this radio button for adding transfers
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_category_type),
-            items = enumValues<TransactionType>().toList(),
-            onItemSelected = { index, item -> onValueChange(transactionRecord.copy(type = item)) },
-            initialIndex = if (transactionRecord.type == TransactionType.EXPENSE) 0 else 1
-        )
 
-        DatePickerField(
-            label = stringResource(id = R.string.entry_transaction_date),
-            onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
-            date = transactionRecord.date
-        )
 
         OutlinedTextField(
             value = transactionRecord.name,
@@ -206,4 +204,28 @@ fun TransactionForm(
         )
 
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun TransactionFormPreview() {
+    val sampleAccount = Account(id = 1, name = "Bank Account", initialBalance = 1000f, currency = "USD")
+    val sampleCategory = Category(id = 1, name = "Groceries", defaultType = CategoryType.Expense, parentCategoryId = null)
+    val sampleTransaction = TransactionRecord(
+        id = 1,
+        name = "Grocery Shopping",
+        type = TransactionType.EXPENSE,
+        accountId = 1,
+        categoryId = 1,
+        amount = 150f,
+        date = LocalDateTime.now()
+    )
+
+    TransactionForm(
+        transactionRecord = sampleTransaction,
+        availableAccounts = listOf(sampleAccount),
+        availableCategories = listOf(sampleCategory),
+        onValueChange = {}
+    )
 }
