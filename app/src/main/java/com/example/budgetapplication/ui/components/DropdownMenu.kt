@@ -68,8 +68,6 @@ fun <T> LargeDropdownMenu(
 
 
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
-
-
         OutlinedTextField(
             label = { Text(label) },
             value = items.getOrNull(uiIndex)?.let { selectedItemToString(it) } ?: "",

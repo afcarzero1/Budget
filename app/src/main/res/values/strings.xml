@@ -6,7 +6,7 @@
   <string name="save">Save</string>
   <string name="delete">Delete</string>
   <string name="delete_account">Deleting Account</string>
-  <string name="delete_category">Deleting Category</string>
+  <string name="delete_category">You are deleting a category</string>
   <string name="delete_transaction">Deleting Transaction</string>
   <string name="attention">Attention!</string>
 
@@ -17,7 +17,7 @@
   <string name="entry_account_currency">Currency</string>
 
   <string name="entry_category_save">Save Category</string>
-  <string name="entry_category_title">Category</string>
+  <string name="entry_category_title">Add Category</string>
   <string name="entry_category_name">Category Name</string>
   <string name="entry_category_type">Category Type</string>
   <string name="entry_category_parent">Parent Category</string>
@@ -44,4 +44,10 @@
   <string name="entry_transfer_title">Transfer</string>
   <string name="details_account_title">Account Details</string>
   <string name="currency_settings_title">Currencies Settings</string>
+  <string name="details_category_title">Category Details</string>
+  <string name="yes_delete">Yes!</string>
+  <string name="cancel">Cancel</string>
+  <string name="delete_confirmation">This action might be irreversible</string>
+  <string name="error_on_deletion_account">Error deleting account</string>
+  <string name="details_transaction_title">Transaction</string>
 </resources>

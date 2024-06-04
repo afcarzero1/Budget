@@ -45,15 +45,24 @@ class FutureTransactionDetailsViewModel(
     var transactionUiState by mutableStateOf(FutureTransactionDetailsUiState())
         private set
 
+    var showUpdatedState by mutableStateOf(false)
+        private set
+
     fun updateUiState(futureTransaction: FutureTransaction) {
+
+        if (futureTransaction.id != futureTransactionId) {
+            return
+        }
+
         this.transactionUiState = FutureTransactionDetailsUiState(
             transaction = futureTransaction,
             isValid = validateInput(futureTransaction)
         )
+        showUpdatedState = true
     }
 
     private fun validateInput(futureTransaction: FutureTransaction): Boolean {
-        return with(futureTransaction){
+        return with(futureTransaction) {
             amount > 0 && categoryId >= 0 && endDate > startDate
         }
     }

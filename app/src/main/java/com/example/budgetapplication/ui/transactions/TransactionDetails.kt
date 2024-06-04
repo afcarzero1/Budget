@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -21,15 +25,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.accounts.AccountsViewModel
 import com.example.budgetapplication.ui.categories.CategoriesSummaryViewModel
+import com.example.budgetapplication.ui.components.dialogs.ConfirmationDeletionDialog
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 
@@ -45,105 +54,62 @@ fun TransactionDetailsScreen(
     Log.d("TransactionDetailsScreen", "Transaction in UI: ${transactionUiState.transaction.id}")
 
     val context = LocalContext.current
+    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            Surface(
-                Modifier
-                    .height(dimensionResource(id = R.dimen.tab_height))
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.entry_transaction_title),
-                    modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
-                )
-            }
-        }
-    ) { innerPadding ->
+    Scaffold(topBar = {
+        SecondaryScreenTopBar(navigateBack = navigateBack,
+            titleResId = R.string.details_transaction_title,
+            actions = {
+                IconButton(
+                    onClick = { deleteConfirmationRequired = true },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = stringResource(R.string.delete),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                IconButton(
+                    modifier = Modifier.padding(horizontal = 8.dp), onClick = {
+                        coroutineScope.launch {
+                            viewModel.updateTransaction()
+                        }
+                        navigateBack()
+                    }, enabled = transactionUiState.isValid
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24),
+                        contentDescription = stringResource(R.string.save),
+                        tint = if (transactionUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
+                    )
+                }
+            })
+    }) { innerPadding ->
         TransactionDetailsBody(
             transactionDetailsUiState = viewModel.transactionUiState,
-            navigateBack = navigateBack,
             onTransactionDetailsChanged = {
                 viewModel.updateUiState(it)
             },
-            onTransactionDetailsSaved = {
-                coroutineScope.launch {
-                    viewModel.updateTransaction()
-                }
-            },
-            onTransactionDetailsDeleted = {
-                coroutineScope.launch {
-                    try {
-                        Log.d(
-                            "TransactionDetailsScreen",
-                            "Deleting transaction ${transactionUiState.transaction.id}"
-                        )
-                        viewModel.deleteTransaction()
-                    } catch (e: Exception) {
-                        // Show message to user
-                        Toast.makeText(context, "Error deleting transaction", Toast.LENGTH_SHORT)
-                            .show()
-                        Log.e("TransactionDetailsScreen", "Error deleting transaction", e)
-                    }
-                }
-            },
             modifier = Modifier.padding(innerPadding)
         )
-    }
-
-}
-
-@Composable
-fun TransactionDetailsBody(
-    transactionDetailsUiState: TransactionDetailsUiState,
-    navigateBack: () -> Unit,
-    onTransactionDetailsChanged: (TransactionRecord) -> Unit,
-    onTransactionDetailsSaved: () -> Unit,
-    onTransactionDetailsDeleted: () -> Unit,
-    modifier: Modifier = Modifier,
-    categoriesViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
-
-    ) {
-    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
-
-    val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()
-    val availableAccounts by accountsViewModel.accountsUiState.collectAsState()
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        TransactionForm(
-            transactionRecord = transactionDetailsUiState.transaction,
-            onValueChange = { onTransactionDetailsChanged(it) },
-            availableAccounts = availableAccounts.accountsList.map { it.account },
-            availableCategories = availableCategories.categoriesList.map { it.category },
-        )
-
-        OutlinedButton(
-            onClick = {
-                onTransactionDetailsSaved()
-                navigateBack()
-            },
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = transactionDetailsUiState.isValid
-        ) {
-            Text(stringResource(R.string.save))
-        }
-
-        OutlinedButton(
-            onClick = { deleteConfirmationRequired = true },
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.delete))
-        }
 
         if (deleteConfirmationRequired) {
-            DeleteConfirmationDialog(
+            ConfirmationDeletionDialog(message = stringResource(R.string.delete_account),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
-                    onTransactionDetailsDeleted()
+                    coroutineScope.launch {
+                        try {
+                            viewModel.deleteTransaction()
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                context, "Error deleting account", Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
@@ -155,10 +121,32 @@ fun TransactionDetailsBody(
 }
 
 @Composable
+fun TransactionDetailsBody(
+    transactionDetailsUiState: TransactionDetailsUiState,
+    onTransactionDetailsChanged: (TransactionRecord) -> Unit,
+    modifier: Modifier = Modifier,
+    categoriesViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+
+    ) {
+    val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()
+    val availableAccounts by accountsViewModel.accountsUiState.collectAsState()
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        TransactionForm(
+            transactionRecord = transactionDetailsUiState.transaction,
+            onValueChange = { onTransactionDetailsChanged(it) },
+            availableAccounts = availableAccounts.accountsList.map { it.account },
+            availableCategories = availableCategories.categoriesList.map { it.category },
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+
+}
+
+@Composable
 private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit,
-    onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    onDeleteConfirm: () -> Unit, onDeleteCancel: () -> Unit, modifier: Modifier = Modifier
 ) {
     AlertDialog(onDismissRequest = { /* Do nothing */ },
         title = { Text(stringResource(R.string.attention)) },

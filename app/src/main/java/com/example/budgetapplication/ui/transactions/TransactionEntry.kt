@@ -3,6 +3,7 @@ package com.example.budgetapplication.ui.transactions
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -147,13 +149,17 @@ fun TransactionForm(
                     it.id
                 },
                 recordToFloat = { it.amount },
-                modifier = Modifier.weight(1.5f).padding(end=8.dp)
+                modifier = Modifier
+                    .weight(1.5f)
+                    .padding(end = 8.dp)
             )
             DatePickerField(
                 label = stringResource(id = R.string.entry_transaction_date),
                 onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
                 date = transactionRecord.date,
-                modifier = Modifier.weight(1f).padding(start= 8.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
             )
         }
 
@@ -161,7 +167,8 @@ fun TransactionForm(
             items = availableAccounts.map { it.name },
             onItemSelected = { index, item -> onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id)) },
             initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId })
-        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
+        LargeDropdownMenu(
+            label = stringResource(id = R.string.entry_transaction_category),
             items = availableCategories,
             onItemSelected = { index, item ->
                 onValueChange(
@@ -182,12 +189,20 @@ fun TransactionForm(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Category Icon",
                     modifier = Modifier
-                        .size(25.dp)
+                        .size(30.dp)
                         .clip(CircleShape)
+                        .border(
+                            2.dp,
+                            if (it.defaultType == CategoryType.Expense)
+                                Color.Red.copy(alpha = 0.3f) else
+                                Color.Green.copy(alpha = 0.3f),
+                            CircleShape
+                        )
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                 )
             },
-            initialIndex = availableCategories.indexOfFirst { it.id == transactionRecord.categoryId })
+            initialIndex = availableCategories.indexOfFirst { it.id == transactionRecord.categoryId }
+        )
 
 
 
@@ -210,8 +225,14 @@ fun TransactionForm(
 @Preview(showBackground = true)
 @Composable
 fun TransactionFormPreview() {
-    val sampleAccount = Account(id = 1, name = "Bank Account", initialBalance = 1000f, currency = "USD")
-    val sampleCategory = Category(id = 1, name = "Groceries", defaultType = CategoryType.Expense, parentCategoryId = null)
+    val sampleAccount =
+        Account(id = 1, name = "Bank Account", initialBalance = 1000f, currency = "USD")
+    val sampleCategory = Category(
+        id = 1,
+        name = "Groceries",
+        defaultType = CategoryType.Expense,
+        parentCategoryId = null
+    )
     val sampleTransaction = TransactionRecord(
         id = 1,
         name = "Grocery Shopping",

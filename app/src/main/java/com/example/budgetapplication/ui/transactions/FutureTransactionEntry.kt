@@ -1,14 +1,23 @@
 package com.example.budgetapplication.ui.transactions
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -16,12 +25,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.categories.Category
+import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.currencies.Currency
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.RecurrenceType
@@ -29,6 +44,9 @@ import com.example.budgetapplication.data.transactions.TransactionType
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
+import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
+import com.example.budgetapplication.use_cases.IconFromReIdUseCase
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,19 +58,30 @@ fun FutureTransactionEntryScreen(
     val availableCategories by viewModel.categoriesListState.collectAsState()
     val availableCurrencies by viewModel.currenciesListState.collectAsState()
 
-
-    FutureTransactionEntryBody(futureTransactionUiState = viewModel.transactionUiState,
-        availableCategories = availableCategories,
-        availableCurrencies = availableCurrencies,
-        onFutureTransactionValueChanged = {
-            viewModel.updateUiState(it)
-        },
-        onSaveClick = {
-            coroutineScope.launch {
-                viewModel.saveTransaction()
-                navigateBack()
-            }
-        })
+    Scaffold(
+        topBar = {
+            SecondaryScreenTopBar(
+                navigateBack = navigateBack,
+                titleResId = R.string.entry_transaction_title
+            )
+        }
+    ) { paddingValue ->
+        FutureTransactionEntryBody(
+            futureTransactionUiState = viewModel.transactionUiState,
+            availableCategories = availableCategories,
+            availableCurrencies = availableCurrencies,
+            onFutureTransactionValueChanged = {
+                viewModel.updateUiState(it)
+            },
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.saveTransaction()
+                    navigateBack()
+                }
+            },
+            modifier = Modifier.padding(paddingValue)
+        )
+    }
 }
 
 @Composable
@@ -100,83 +129,131 @@ fun FutureTransactionForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
-        OutlinedTextField(value = futureTransaction.amount.toString(),
-            onValueChange = {
-                onValueChange(futureTransaction.copy(amount = it.toFloat()))
-            },
-            label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-        )
 
-        LargeDropdownMenu(label = stringResource(id = R.string.entry_transaction_category),
-            items = availableCategories.map { it.name },
+        Row {
+            FloatOutlinedText(
+                record = futureTransaction,
+                onValueChange = { newTransaction, newValue ->
+                    onValueChange(futureTransaction.copy(amount = newValue))
+                },
+                recordToId = {
+                    it.id
+                },
+                recordToFloat = {
+                    it.amount
+                },
+                modifier = Modifier.weight(1.5f)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            LargeDropdownMenu(
+                label = stringResource(id = R.string.entry_future_transaction_currency),
+                items = availableCurrencies.map { it.name },
+                onItemSelected = { index, item ->
+                    onValueChange(
+                        futureTransaction.copy(
+                            currency = availableCurrencies[index].name,
+                        )
+                    )
+                },
+                initialIndex = availableCurrencies.indexOfFirst { it.name == futureTransaction.currency },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+
+
+        LargeDropdownMenu(
+            label = stringResource(id = R.string.entry_transaction_category),
+            items = availableCategories,
             onItemSelected = { index, item ->
                 onValueChange(
                     futureTransaction.copy(
                         categoryId = availableCategories[index].id,
+                        type = if (item.defaultType == CategoryType.Expense)
+                            TransactionType.EXPENSE else TransactionType.INCOME
                     )
+                )
+            },
+            selectedItemToString = {
+                it.name
+            },
+            leadingIcon = {
+                val iconResourceId = IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
+                    it.iconResId
+                )
+                Image(
+                    painter = painterResource(id = iconResourceId),
+                    contentDescription = "Category Icon",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(
+                            2.dp,
+                            if (it.defaultType == CategoryType.Expense)
+                                Color.Red.copy(alpha = 0.3f) else
+                                Color.Green.copy(alpha = 0.3f),
+                            CircleShape
+                        )
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                 )
             },
             initialIndex = availableCategories.indexOfFirst { it.id == futureTransaction.categoryId }
         )
 
-        LargeDropdownMenu(label = stringResource(id = R.string.entry_future_transaction_currency),
-            items = availableCurrencies.map { it.name },
-            onItemSelected = { index, item ->
-                onValueChange(
-                    futureTransaction.copy(
-                        currency = availableCurrencies[index].name,
-                    )
-                )
-            },
-            initialIndex = availableCurrencies.indexOfFirst { it.name == futureTransaction.currency }
-        )
 
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_category_type),
-            items = listOf(TransactionType.EXPENSE, TransactionType.INCOME),
-            onItemSelected = { index, item -> onValueChange(futureTransaction.copy(type = item)) },
-            initialIndex = if (futureTransaction.type == TransactionType.EXPENSE) 0 else 1
-        )
 
-        DatePickerField(
-            label = stringResource(id = R.string.entry_future_transaction_initial_date),
-            onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
-            date = futureTransaction.startDate
-        )
+        Row {
+            DatePickerField(
+                label = stringResource(id = R.string.entry_future_transaction_initial_date),
+                onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
+                date = futureTransaction.startDate,
+                modifier = Modifier.weight(1f)
+            )
 
-        DatePickerField(
-            label = stringResource(id = R.string.entry_future_transaction_final_date),
-            onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
-            date = futureTransaction.endDate
-        )
+            Spacer(modifier = Modifier.width(16.dp))
 
-        LargeDropdownMenu(
-            label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
-            items = enumValues<RecurrenceType>().toList(),
-            onItemSelected = { index, item -> onValueChange(futureTransaction.copy(recurrenceType = item)) },
-            initialIndex = enumValues<RecurrenceType>().toList().indexOfFirst { it == futureTransaction.recurrenceType }
-        )
+            DatePickerField(
+                label = stringResource(id = R.string.entry_future_transaction_final_date),
+                onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
+                date = futureTransaction.endDate,
+                modifier = Modifier.weight(1f)
+            )
+        }
 
-        if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
+        Row {
             LargeDropdownMenu(
-                label = stringResource(id = R.string.entry_future_transaction_recurrence_value),
-                items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
+                items = enumValues<RecurrenceType>().toList(),
                 onItemSelected = { index, item ->
                     onValueChange(
                         futureTransaction.copy(
-                            recurrenceValue = item.toInt()
+                            recurrenceType = item
                         )
                     )
                 },
-                initialIndex = futureTransaction.recurrenceValue - 1
+                initialIndex = enumValues<RecurrenceType>().toList()
+                    .indexOfFirst { it == futureTransaction.recurrenceType },
+                modifier = Modifier.weight(1f)
             )
+
+            if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
+                Spacer(modifier = Modifier.width(16.dp))
+                LargeDropdownMenu(
+                    label = stringResource(id = R.string.entry_future_transaction_recurrence_value),
+                    items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                    onItemSelected = { index, item ->
+                        onValueChange(
+                            futureTransaction.copy(
+                                recurrenceValue = item.toInt()
+                            )
+                        )
+                    },
+                    initialIndex = futureTransaction.recurrenceValue - 1,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
+
+
     }
 }
