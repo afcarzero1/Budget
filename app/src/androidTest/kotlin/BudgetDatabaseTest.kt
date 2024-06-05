@@ -14,6 +14,7 @@ import com.example.budgetapplication.data.transactions.FullTransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionDao
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
+import com.example.budgetapplication.data.transfers.Transfer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -329,6 +330,32 @@ class BudgetDatabaseTest {
                 assertTrue(transaction.transactionRecord.date < localDateTime.plusDays(5))
             }
         }
+
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testTransfers() = runBlocking {
+        addAllItemsToDb()
+
+        transactionDao.insertTransferAndTransactions(
+            Transfer(
+                id = 0,
+                sourceAccountId = 1,
+                destinationAccountId = 2,
+                destinationAccountTransactionId = -1,
+                sourceAccountTransactionId = -1,
+                amountDestination = 10f,
+                amountSource = 10f,
+                date = localDateTime.plusDays(5)
+            )
+        )
+
+
+        val transactions = transactionDao.getAllTransactionsStream().first()
+        val fullTransactions = transactionDao.getAllFullTransactionsStream().first()
+
+        val accounts = accountDao.getAllFullAccounts().first()
 
     }
 

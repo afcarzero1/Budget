@@ -2,14 +2,20 @@ package com.example.budgetapplication.ui.accounts
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -20,10 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetapplication.R
 import com.example.budgetapplication.data.accounts.FullAccount
@@ -31,6 +39,7 @@ import com.example.budgetapplication.data.transfers.Transfer
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
+import com.example.budgetapplication.ui.components.inputs.FloatOutlinedText
 import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
@@ -44,7 +53,10 @@ fun TransferEntryScreen(
     val accountsListState by viewModel.accountsListState.collectAsState()
 
     Scaffold(topBar = {
-        SecondaryScreenTopBar(navigateBack = navigateBack, titleResId = R.string.entry_transfer_title)
+        SecondaryScreenTopBar(
+            navigateBack = navigateBack,
+            titleResId = R.string.entry_transfer_title
+        )
     }) { innerPadding ->
 
         TransferEntryBody(
@@ -107,34 +119,32 @@ fun AccountTransferForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
     ) {
-        OutlinedTextField(
-            value = transfer.amountSource.toString(),
-            onValueChange = {
-                onValueChange(transfer.copy(amountSource = it.toFloat()))
-            },
-            label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-        )
-        OutlinedTextField(
-            value = transfer.amountDestination.toString(),
-            onValueChange = {
-                onValueChange(transfer.copy(amountDestination = it.toFloat()))
-            },
-            label = { Text(text = stringResource(R.string.entry_transaction_amount)) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            FloatOutlinedText(
+                record = transfer,
+                onValueChange = { _, newValue ->
+                    onValueChange(transfer.copy(amountSource = newValue))
+                },
+                recordToId = { it.id },
+                recordToFloat = { it.amountSource },
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowForward,
+                contentDescription = "To",
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            FloatOutlinedText(
+                record = transfer,
+                onValueChange = { _, newValue ->
+                    onValueChange(transfer.copy(amountDestination = newValue))
+                },
+                recordToId = { it.id },
+                recordToFloat = { it.amountDestination },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_source_account),
             items = availableAccounts.map {
@@ -149,7 +159,6 @@ fun AccountTransferForm(
                 it.account.id == transfer.sourceAccountId
             }
         )
-
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_destination_account),
             items = availableAccounts.map {

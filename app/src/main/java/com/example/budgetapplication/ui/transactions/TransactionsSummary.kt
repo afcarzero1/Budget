@@ -320,18 +320,20 @@ private fun TransactionRow(
         Spacer(Modifier.width(12.dp))
         // Title and subtitle
         Column(Modifier) {
-            Row(verticalAlignment = Alignment.CenterVertically){
-                val icon =
-                    IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                        transaction.category.iconResId
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                transaction.category?.let {
+
+                }
+                val iconResId = transaction.category?.let {
+                    IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(it.iconResId)
+                } ?: R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24
                 Icon(
-                    painter = painterResource(id = icon),
+                    painter = painterResource(id = iconResId),
                     contentDescription = "Category Icon",
                     tint = color.copy(alpha = 0.5f)
                 )
                 Text(
-                    text = transaction.category.name,
+                    text = transaction.category?.name ?: "Transfer",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(start = 8.dp)
                 )

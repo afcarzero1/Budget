@@ -42,29 +42,6 @@ class OverallViewModel(
             initialValue = "USD"
         )
 
-    val accountsColorAssigner: ColorAssigner = ColorAssigner(
-        listOf(
-            Color(0xFFBB86FC),
-            Color(0xFF6200EE),
-            Color(0xFF03DAC5),
-            Color(0xFF007BFF),
-            Color(0xFF5C6BC0),
-            Color(0xFFE91E63),
-            Color(0xFF9C27B0),
-            Color(0xFF2196F3),
-            Color(0xFF4CAF50),
-        )
-    )
-
-    val accountsUiState: StateFlow<OverallAccountsUiState> = accountsRepository
-        .getAllFullAccountsStream()
-        .map { OverallAccountsUiState(it) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = OverallAccountsUiState()
-        )
-
     val accountsTotalBalance: StateFlow<Pair<Currency, Float>> = accountsRepository
         .totalBalance()
         .stateIn(

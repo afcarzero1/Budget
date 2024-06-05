@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.transactions
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -45,7 +46,7 @@ interface TransactionDao {
                 date = transfer.date
             )
         )
-
+        Log.d("TRANSACTION DAO", "Transactions inserted")
         // Assuming TransferDao is accessible or this method is in a Dao that also handles Transfer objects
         insertTransfer(
             transfer.copy(

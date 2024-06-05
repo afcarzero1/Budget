@@ -310,12 +310,17 @@ class OfflineBalancesRepository(
                 TransactionType.EXPENSE_TRANSFER -> 0f
                 TransactionType.INCOME_TRANSFER -> 0f
             }
-            if (categoryMonthBalance != null) {
-                monthBalances[transactionCategory] =
-                    categoryMonthBalance + transactionValue
-            } else {
-                monthBalances?.set(transactionCategory, transactionValue)
+
+            // Only in the case that this is not a transfer we attempt to add it
+            transactionCategory?.let {
+                if (categoryMonthBalance != null) {
+                    monthBalances[transactionCategory] =
+                        categoryMonthBalance + transactionValue
+                } else {
+                    monthBalances?.set(transactionCategory, transactionValue)
+                }
             }
+
         }
 
         return balancesByMonth

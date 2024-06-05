@@ -17,7 +17,7 @@ class OfflineTransactionsRepository(
     }
 
     override suspend fun insertTransfer(transfer: Transfer) {
-
+        transactionDao.insertTransferAndTransactions(transfer)
     }
 
     override suspend fun update(transactionRecord: TransactionRecord) =
@@ -52,6 +52,7 @@ class OfflineTransactionsRepository(
     }
 
     override fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>> {
+        TODO("Not tested yet")
         return transactionDao.getAllFullTransferTransactionsStream()
     }
 }
