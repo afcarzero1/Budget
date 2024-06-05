@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.transactions
 
+import com.example.budgetapplication.data.transfers.Transfer
 import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
 
@@ -7,6 +8,8 @@ interface TransactionsRepository {
     suspend fun insert(transactionRecord: TransactionRecord)
 
     suspend fun insertMany(vararg transactionRecord: TransactionRecord)
+
+    suspend fun insertTransfer(transfer: Transfer)
 
     suspend fun update(transactionRecord: TransactionRecord)
 

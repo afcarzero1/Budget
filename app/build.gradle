@@ -20,6 +20,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -96,5 +99,6 @@ dependencies {
     //Navigation
     implementation "androidx.navigation:navigation-compose:2.7.2"
 
+    // Figures
     implementation("com.patrykandpatrick.vico:compose-m3:1.12.0")
 }

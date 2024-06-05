@@ -169,16 +169,18 @@ object AvailableIcons {
         "bets",
         "entertainment",
         "hotel",
-        "others"
+        "groceries",
+        "others",
+        "salary"
     )
 }
 
 @Composable
 fun IconPicker(
     modifier: Modifier = Modifier,
-    currentIconName: String, // Current icon name as a string
-    iconOptions: List<String>, // List of icon names
-    onIconChanged: (String) -> Unit // Passing string to callback instead of Painter
+    currentIconName: String,
+    iconOptions: List<String>,
+    onIconChanged: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current

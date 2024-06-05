@@ -31,6 +31,7 @@ import com.example.budgetapplication.data.transfers.Transfer
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.DatePickerField
 import com.example.budgetapplication.ui.components.LargeDropdownMenu
+import com.example.budgetapplication.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
 
@@ -43,16 +44,7 @@ fun TransferEntryScreen(
     val accountsListState by viewModel.accountsListState.collectAsState()
 
     Scaffold(topBar = {
-        Surface(
-            Modifier
-                .height(dimensionResource(id = R.dimen.tab_height))
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.entry_transfer_title),
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
-            )
-        }
+        SecondaryScreenTopBar(navigateBack = navigateBack, titleResId = R.string.entry_transfer_title)
     }) { innerPadding ->
 
         TransferEntryBody(
@@ -150,11 +142,11 @@ fun AccountTransferForm(
             },
             onItemSelected = { index, item ->
                 onValueChange(
-                    transfer.copy(sourceAccount = availableAccounts[index].account)
+                    transfer.copy(sourceAccountId = availableAccounts[index].account.id)
                 )
             },
             initialIndex = availableAccounts.indexOfFirst {
-                it.account.id == transfer.sourceAccount.id
+                it.account.id == transfer.sourceAccountId
             }
         )
 
@@ -165,11 +157,11 @@ fun AccountTransferForm(
             },
             onItemSelected = { index, item ->
                 onValueChange(
-                    transfer.copy(destinationAccount = availableAccounts[index].account)
+                    transfer.copy(destinationAccountId = availableAccounts[index].account.id)
                 )
             },
             initialIndex = availableAccounts.indexOfFirst {
-                it.account.id == transfer.destinationAccount.id
+                it.account.id == transfer.destinationAccountId
             }
         )
 

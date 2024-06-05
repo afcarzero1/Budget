@@ -44,18 +44,18 @@ class AccountTransferEntryViewModel(
 
     private fun validateInput(transfer: Transfer): Boolean {
         // Check that both ids are not null and not the same
-        if (transfer.sourceAccount.id == -1 || transfer.destinationAccount.id == -1) {
+        if (transfer.sourceAccountId == -1 || transfer.destinationAccountId == -1) {
             return false
         }
-        if (transfer.sourceAccount.id == transfer.destinationAccount.id) {
+        if (transfer.sourceAccountId == transfer.destinationAccountId) {
             return false
         }
 
         val currentAccountIdsList = accountsListState.value.map { it.account.id }
-        if (!currentAccountIdsList.contains(transfer.sourceAccount.id)) {
+        if (!currentAccountIdsList.contains(transfer.sourceAccountId)) {
             return false
         }
-        if (!currentAccountIdsList.contains(transfer.destinationAccount.id)) {
+        if (!currentAccountIdsList.contains(transfer.destinationAccountId)) {
             return false
         }
 
@@ -66,7 +66,7 @@ class AccountTransferEntryViewModel(
 
         // Check that the account has enough balance to transfer
         // Select the account with the source id
-        val sourceAccount = accountsListState.value.find { it.account.id == transfer.sourceAccount.id }
+        val sourceAccount = accountsListState.value.find { it.account.id == transfer.sourceAccountId }
         // Check if the account was found and if it has enough balance to transfer
         if (sourceAccount == null || sourceAccount.balance < transfer.amountSource) {
             return false
@@ -79,18 +79,14 @@ class AccountTransferEntryViewModel(
 
 data class AccountTransferUiState(
     val transfer: Transfer = Transfer(
-        sourceAccount = invalidAccount,
-        destinationAccount = invalidAccount,
+        id = -1,
+        sourceAccountId = -1,
+        sourceAccountTransactionId = -1,
+        destinationAccountId = -1,
+        destinationAccountTransactionId = -1,
         amountDestination = 0f,
         amountSource = 0f,
         date = LocalDateTime.now()
     ),
     val isValid: Boolean = false
-)
-
-private val invalidAccount: Account = Account(
-    id = -1,
-    name = "",
-    initialBalance = 0f,
-    currency = "USD",
 )

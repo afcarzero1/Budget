@@ -17,6 +17,7 @@ import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.FutureTransactionDao
 import com.example.budgetapplication.data.transactions.TransactionDao
 import com.example.budgetapplication.data.transactions.TransactionRecord
+import com.example.budgetapplication.data.transfers.Transfer
 
 @Database(
     entities = [
@@ -24,10 +25,11 @@ import com.example.budgetapplication.data.transactions.TransactionRecord
         Account::class,
         Category::class,
         TransactionRecord::class,
-        FutureTransaction::class
+        FutureTransaction::class,
+        Transfer::class
     ],
     version = 3,
-    exportSchema = false,
+    exportSchema = true,
 )
 @TypeConverters(DateConverter::class, CategoryTypeConverter::class)
 abstract class BudgetDatabase : RoomDatabase() {
