@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
+import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountWithCurrency
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.categories.CategoryType
 import com.example.budgetapplication.data.currencies.Currency
@@ -336,7 +338,6 @@ private fun TransactionRow(
             color = color,
             modifier = Modifier.width(2.dp)
         )
-
         Spacer(Modifier.width(12.dp))
         // Title and subtitle
         Column(Modifier) {
@@ -350,12 +351,12 @@ private fun TransactionRow(
                 Icon(
                     painter = painterResource(id = iconResId),
                     contentDescription = "Category Icon",
-                    tint = color.copy(alpha = 0.5f)
+                    tint = color.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
                     text = transaction.category?.name ?: "Transfer",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
             Text(
@@ -381,14 +382,13 @@ private fun TransactionRow(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = { onItemSelected(transaction) }) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                )
-            }
         }
-        Spacer(Modifier.width(16.dp))
+        IconButton(onClick = { onItemSelected(transaction) }) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+            )
+        }
     }
     ListDivider()
 }
@@ -401,11 +401,11 @@ private fun TransferRow(
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
     val formattedAmountSource = Currency.formatAmountStatic(
-        "USD",
+        transfer.sourceAccount.currency.name,
         transfer.transfer.amountSource
     )
     val formattedAmountDestination = Currency.formatAmountStatic(
-        "USD",
+        transfer.destinationAccount.currency.name,
         transfer.transfer.amountDestination
     )
 
@@ -415,58 +415,56 @@ private fun TransferRow(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Color bar in the left side
         VerticalBar(
             color = Color.Blue.copy(alpha = 0.2f),
             modifier = Modifier.width(2.dp)
         )
-
         Spacer(Modifier.width(12.dp))
-        // Title and subtitle
-        Column(Modifier) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(id = R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24),
-                    contentDescription = "Category Icon",
-                    tint = Color.Blue.copy(alpha = 0.5f)
+        Icon(
+            painter = painterResource(id = R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24),
+            contentDescription = "Category Icon",
+            tint = Color.Blue.copy(alpha = 0.5f),
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(2f)
+        ){
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = transfer.sourceAccount.account.name,
+                    style = MaterialTheme.typography.headlineSmall,
                 )
                 Text(
-                    text = "Transfer",
+                    text = formattedAmountSource,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            Icon(
+                imageVector = Icons.Filled.ArrowForward,
+                contentDescription = "To",
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = transfer.destinationAccount.account.name,
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(start = 8.dp)
+                )
+                Text(
+                    text = formattedAmountDestination,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
-            Text(
-                text = formatter.format(transfer.transfer.date),
-                style = MaterialTheme.typography.titleSmall
-            )
-
         }
-        Spacer(Modifier.weight(1f))
-        // Amount
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+        IconButton(
+            onClick = { onTransferSelected(transfer.transfer) }
         ) {
-            Text(
-                text = " ",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = formattedAmountSource,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = { onTransferSelected(transfer.transfer) }) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                )
-            }
         }
-        Spacer(Modifier.width(16.dp))
     }
     ListDivider()
 }
@@ -597,6 +595,47 @@ private fun FutureTransactionRow(
     ListDivider()
 }
 
+
+
+@Preview
+@Composable
+fun PreviewTransferRow(){
+    val transfer = TransferWithAccounts(
+        transfer = Transfer(
+            amountSource = 10.0f,
+            amountDestination = 15.0f,
+            sourceAccountId = 0,
+            destinationAccountId = 1,
+            id=0,
+            date = LocalDateTime.now(),
+            destinationAccountTransactionId = 10,
+            sourceAccountTransactionId = 11
+        ),
+        sourceAccount = AccountWithCurrency(
+            account = Account(
+                id = 0,
+                name = "Bank",
+                currency = "USD",
+                initialBalance = 5000.0f
+            ),
+            Currency(
+                "USD", 1.0f, updatedTime = LocalDateTime.now()
+            )
+        ),
+        destinationAccount = AccountWithCurrency(
+            account = Account(
+                id = 1,
+                name = "Bank",
+                currency = "EUR",
+                initialBalance = 4000.0f
+            ),
+            Currency(
+                "EUR", 1.1f, updatedTime = LocalDateTime.now()
+            )
+        )
+    )
+    TransferRow(transfer = transfer, onTransferSelected = {})
+}
 
 @Preview
 @Composable

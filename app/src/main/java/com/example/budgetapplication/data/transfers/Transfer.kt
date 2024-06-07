@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.example.budgetapplication.data.accounts.Account
+import com.example.budgetapplication.data.accounts.AccountWithCurrency
 import com.example.budgetapplication.data.transactions.TransactionRecord
 import java.time.LocalDateTime
 
@@ -54,13 +55,15 @@ data class Transfer(
 data class TransferWithAccounts(
     @Embedded val transfer: Transfer,
     @Relation(
+        entity = Account::class,
         parentColumn = "sourceAccountId",
         entityColumn = "id"
     )
-    val sourceAccount: Account,
+    val sourceAccount: AccountWithCurrency,
     @Relation(
+        entity = Account::class,
         parentColumn = "destinationAccountId",
         entityColumn = "id"
     )
-    val destinationAccount: Account
+    val destinationAccount: AccountWithCurrency
 )
