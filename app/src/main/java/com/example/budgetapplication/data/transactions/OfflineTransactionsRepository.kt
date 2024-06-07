@@ -1,6 +1,7 @@
 package com.example.budgetapplication.data.transactions
 
 import com.example.budgetapplication.data.transfers.Transfer
+import com.example.budgetapplication.data.transfers.TransferWithAccounts
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -31,6 +32,12 @@ class OfflineTransactionsRepository(
 
     override fun getAllTransactionsStream(): Flow<List<TransactionRecord>> =
         transactionDao.getAllTransactionsStream()
+
+    override fun getAllTransfersStream(): Flow<List<Transfer>> =
+        transactionDao.getAllTransfersStream()
+
+    override fun getAllTransfersWithAccountsStream(): Flow<List<TransferWithAccounts>> =
+        transactionDao.getAllTransfersWithAccountsStream()
 
     override fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord> =
         transactionDao.getFullTransactionStream(id)

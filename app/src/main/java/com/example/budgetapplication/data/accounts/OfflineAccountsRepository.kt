@@ -40,7 +40,7 @@ class OfflineAccountsRepository(
         return combine(
             this.getAllFullAccountsStream(),
             currenciesRepository.getDefaultCurrencyStream()
-        ){ fullAccounts, baseCurrency ->
+        ) { fullAccounts, baseCurrency ->
             val currencyToBalanceMap = mutableMapOf<Currency, Float>()
 
             for (fullAccount in fullAccounts) {
@@ -54,7 +54,7 @@ class OfflineAccountsRepository(
 
             var totalBalance = 0f
             for ((currency, balance) in currencyToBalanceMap) {
-                totalBalance += balance * (1/currency.value)
+                totalBalance += balance * (1 / currency.value)
             }
 
             //TODO: Use default currency. Add currency repository and use the actual actual currency
@@ -67,31 +67,7 @@ class OfflineAccountsRepository(
         }
     }
 
-    override suspend fun registerTransfer(transfer: Transfer) {
-        val sourceTransaction = TransactionRecord(
-            id = 0,
-            name = transfer.destinationAccountId.toString(),
-            type = TransactionType.EXPENSE_TRANSFER,
-            accountId = transfer.sourceAccountId,
-            categoryId = null,
-            amount = transfer.amountSource,
-            date = transfer.date
-        )
+    override suspend fun registerTransfer(transfer: Transfer) =
+        transactionsRepository.insertTransfer(transfer)
 
-        val destinationTransaction = TransactionRecord(
-            id = 0,  // Auto-generate the ID
-            name = transfer.sourceAccountId.toString(),
-            type = TransactionType.INCOME_TRANSFER,
-            accountId = transfer.destinationAccountId,
-            categoryId = null,
-            amount = transfer.amountDestination,
-            date = transfer.date
-        )
-
-        // Insert the destination transaction into the database
-        transactionsRepository.insertMany(
-            destinationTransaction, sourceTransaction
-        )
-
-    }
 }

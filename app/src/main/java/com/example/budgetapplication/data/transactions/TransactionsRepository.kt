@@ -1,6 +1,7 @@
 package com.example.budgetapplication.data.transactions
 
 import com.example.budgetapplication.data.transfers.Transfer
+import com.example.budgetapplication.data.transfers.TransferWithAccounts
 import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
 
@@ -18,6 +19,10 @@ interface TransactionsRepository {
     fun getTransactionStream(id: Int): Flow<TransactionRecord>
 
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
+
+    fun getAllTransfersStream(): Flow<List<Transfer>>
+
+    fun getAllTransfersWithAccountsStream(): Flow<List<TransferWithAccounts>>
 
     fun getFullTransactionStream(id: Int): Flow<FullTransactionRecord>
 

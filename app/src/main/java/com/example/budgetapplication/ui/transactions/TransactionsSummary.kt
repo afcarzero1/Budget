@@ -52,7 +52,10 @@ import com.example.budgetapplication.data.future_transactions.FullFutureTransact
 import com.example.budgetapplication.data.future_transactions.FutureTransaction
 import com.example.budgetapplication.data.future_transactions.RecurrenceType
 import com.example.budgetapplication.data.transactions.FullTransactionRecord
+import com.example.budgetapplication.data.transactions.TransactionRecord
 import com.example.budgetapplication.data.transactions.TransactionType
+import com.example.budgetapplication.data.transfers.Transfer
+import com.example.budgetapplication.data.transfers.TransferWithAccounts
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.components.BaseRow
 import com.example.budgetapplication.ui.components.ListDivider
@@ -81,10 +84,11 @@ fun TransactionsSummary(
     var showFutureTransactions by remember { mutableStateOf(false) }
     val baseCurrency by transactionsViewModel.baseCurrency.collectAsState()
 
+    val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
+    val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
 
     InitialScreen(navController = navController, destination = Transactions, screenBody = {
-        val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
-        val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
+
 
         TabbedPage(tabs = listOf(
             TabItem(
@@ -96,7 +100,7 @@ fun TransactionsSummary(
                     )
                 },
                 screen = {
-                    if (transactionsState.transactionsList.isEmpty()) {
+                    if (transactionsState.groupedTransactionsAndTransfers.isEmpty()) {
                         EmptyTransactionScreen()
                     } else {
                         Column(
@@ -104,7 +108,7 @@ fun TransactionsSummary(
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             TransactionsSummaryBody(
-                                transactions = transactionsState.transactionsList,
+                                transactions = transactionsState.groupedTransactionsAndTransfers,
                                 baseCurrency = baseCurrency,
                                 navController = navController
                             )
@@ -154,12 +158,11 @@ fun TransactionsSummary(
 
 @Composable
 fun TransactionsSummaryBody(
-    transactions: List<FullTransactionRecord>,
+    transactions: List<GroupOfTransactionsAndTransfers>,
     baseCurrency: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val groupedByDate = transactions.groupBy { it.transactionRecord.date.toLocalDate() }
 
     // Remember the scroll state
     val scrollState = rememberLazyListState()
@@ -167,15 +170,14 @@ fun TransactionsSummaryBody(
     LazyColumn(
         modifier = modifier, state = scrollState
     ) {
-        groupedByDate.entries.forEach { entry ->
-            val date = entry.key
-            val transactionsForDate = entry.value
-
+        transactions.forEach {
             item {
-                DayTransactionsGroup(transactions = transactionsForDate,
+                DayTransactionsGroup(
+                    transactions = it.transactions,
+                    transfers = it.transfers,
                     baseCurrency = baseCurrency,
-                    date = date,
-                    onItemSelected = { selectedTransaction ->
+                    date = it.date,
+                    onTransactionSelected = { selectedTransaction ->
                         Log.d(
                             "TransactionsSummary",
                             "Selected transaction: ${selectedTransaction.transactionRecord.id}"
@@ -183,7 +185,11 @@ fun TransactionsSummaryBody(
                         navController.navigate(
                             TransactionDetails.route + "/${selectedTransaction.transactionRecord.id}"
                         )
-                    })
+                    },
+                    onTransferSelected = {
+
+                    }
+                )
             }
         }
     }
@@ -193,9 +199,11 @@ fun TransactionsSummaryBody(
 @Composable
 fun DayTransactionsGroup(
     transactions: List<FullTransactionRecord>,
+    transfers: List<TransferWithAccounts>,
     baseCurrency: String,
     date: LocalDate,
-    onItemSelected: (FullTransactionRecord) -> Unit,
+    onTransactionSelected: (FullTransactionRecord) -> Unit,
+    onTransferSelected: (Transfer) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val totalAmount = transactions.sumOf {
@@ -204,10 +212,12 @@ fun DayTransactionsGroup(
 
     val formattedAmount = Currency.formatAmountStatic(baseCurrency, totalAmount.toFloat())
 
+    // Combine and sort transactions and transfers by date
+    val items = (transactions.map { ItemWrapper(it.transactionRecord.date, it, true) } +
+            transfers.map { ItemWrapper(it.transfer.date, it, false) })
+        .sortedBy { it.date }
+
     Column(modifier = modifier.fillMaxWidth()) {
-
-
-        // Add date as a title here
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,16 +226,14 @@ fun DayTransactionsGroup(
             verticalAlignment = Alignment.Bottom
         ) {
             Text(
-                text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), // or any other format you prefer
+                text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f) // Allocates all available space to the left
+                modifier = Modifier.weight(1f)
             )
-
-            // Add formatted amount here
             Text(
                 text = formattedAmount,
                 style = MaterialTheme.typography.bodySmall,
-                color = LocalContentColor.current.copy(alpha = 0.6f), // 0.6f is for 60% opacity, adjust as needed
+                color = LocalContentColor.current.copy(alpha = 0.6f),
             )
         }
 
@@ -237,16 +245,28 @@ fun DayTransactionsGroup(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                transactions.forEach { transaction ->
-                    TransactionRow(
-                        transaction = transaction, onItemSelected = onItemSelected
-                    )
+                items.forEach { item ->
+                    if (item.isTransaction) {
+                        TransactionRow(
+                            transaction = item.data as FullTransactionRecord,
+                            onItemSelected = { onTransactionSelected(it) })
+                    } else {
+                        TransferRow(
+                            transfer = item.data as TransferWithAccounts,
+                            onTransferSelected = { onTransferSelected(it) })
+                    }
                     ListDivider()
                 }
             }
         }
     }
 }
+
+data class ItemWrapper(
+    val date: LocalDateTime,
+    val data: Any,
+    val isTransaction: Boolean
+)
 
 
 @Composable
@@ -338,9 +358,6 @@ private fun TransactionRow(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-
-
-
             Text(
                 text = formatter.format(transaction.transactionRecord.date),
                 style = MaterialTheme.typography.titleSmall
@@ -365,6 +382,84 @@ private fun TransactionRow(
             )
             Spacer(modifier = Modifier.width(4.dp))
             IconButton(onClick = { onItemSelected(transaction) }) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
+        }
+        Spacer(Modifier.width(16.dp))
+    }
+    ListDivider()
+}
+
+
+@Composable
+private fun TransferRow(
+    transfer: TransferWithAccounts,
+    onTransferSelected: (Transfer) -> Unit
+) {
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+    val formattedAmountSource = Currency.formatAmountStatic(
+        "USD",
+        transfer.transfer.amountSource
+    )
+    val formattedAmountDestination = Currency.formatAmountStatic(
+        "USD",
+        transfer.transfer.amountDestination
+    )
+
+    Row(
+        modifier = Modifier
+            .height(68.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Color bar in the left side
+        VerticalBar(
+            color = Color.Blue.copy(alpha = 0.2f),
+            modifier = Modifier.width(2.dp)
+        )
+
+        Spacer(Modifier.width(12.dp))
+        // Title and subtitle
+        Column(Modifier) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24),
+                    contentDescription = "Category Icon",
+                    tint = Color.Blue.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = "Transfer",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+            Text(
+                text = formatter.format(transfer.transfer.date),
+                style = MaterialTheme.typography.titleSmall
+            )
+
+        }
+        Spacer(Modifier.weight(1f))
+        // Amount
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = " ",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = formattedAmountSource,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = { onTransferSelected(transfer.transfer) }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = null,

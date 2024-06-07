@@ -9,6 +9,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.budgetapplication.data.transfers.Transfer
+import com.example.budgetapplication.data.transfers.TransferWithAccounts
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -46,8 +47,7 @@ interface TransactionDao {
                 date = transfer.date
             )
         )
-        Log.d("TRANSACTION DAO", "Transactions inserted")
-        // Assuming TransferDao is accessible or this method is in a Dao that also handles Transfer objects
+
         insertTransfer(
             transfer.copy(
                 sourceAccountTransactionId = sourceTransactionId,
@@ -55,6 +55,7 @@ interface TransactionDao {
             )
         )
     }
+
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertTransfer(transfer: Transfer)
@@ -70,6 +71,12 @@ interface TransactionDao {
 
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
+
+    @Query("SELECT * FROM transfers ORDER BY date DESC")
+    fun getAllTransfersStream(): Flow<List<Transfer>>
+
+    @Query("SELECT * FROM transfers ORDER BY date DESC")
+    fun getAllTransfersWithAccountsStream(): Flow<List<TransferWithAccounts>>
 
     @Transaction
     @Query("SELECT * from transactions WHERE id = :id AND categoryId IS NOT NULL")

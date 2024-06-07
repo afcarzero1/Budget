@@ -351,6 +351,10 @@ class BudgetDatabaseTest {
             )
         )
 
+        val transfers = transactionDao.getAllTransfersWithAccountsStream().first()
+
+        assertTrue(transfers.count() == 1)
+
 
         val transactions = transactionDao.getAllTransactionsStream().first()
         val fullTransactions = transactionDao.getAllFullTransactionsStream().first()
