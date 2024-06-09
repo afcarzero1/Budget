@@ -1,5 +1,6 @@
 package com.example.budgetapplication.data.transfers
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -121,13 +122,18 @@ fun TransferDetailsBody(
     onTransferValueChange: (Transfer) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Log.d(
+        "TRANSFER DETAILS",
+        "Id: ${transactionDetailsUiState.transfer.id} Amount Source: ${transactionDetailsUiState.transfer.amountSource}"
+    )
     Column(modifier = modifier.fillMaxWidth()) {
         AccountTransferForm(
             transfer = transactionDetailsUiState.transfer,
-            availableAccounts= availableAccounts,
+            availableAccounts = availableAccounts,
             onValueChange = {
                 onTransferValueChange(it)
-            }
+            },
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
         )
     }
 }

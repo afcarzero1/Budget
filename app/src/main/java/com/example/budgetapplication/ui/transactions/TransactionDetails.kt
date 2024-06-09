@@ -138,7 +138,7 @@ fun TransactionDetailsBody(
             onValueChange = { onTransactionDetailsChanged(it) },
             availableAccounts = availableAccounts.accountsList.map { it.account },
             availableCategories = availableCategories.categoriesList.map { it.category },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
         )
     }
 

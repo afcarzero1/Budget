@@ -56,6 +56,8 @@ class TransferDetailsViewModel(
     var showUpdatedState by mutableStateOf(false)
         private set
 
+    // TODO: Understand which approach is best, using this initializer or a
+    // TODO: boolean variable stating what to use
     init {
         viewModelScope.launch {
             transferDBState.collect { dbState ->
@@ -66,10 +68,6 @@ class TransferDetailsViewModel(
 
 
     fun updateUiState(transfer: Transfer) {
-        if (transfer.id != transferId) {
-            return
-        }
-
         this.transferUiState = TransferDetailsUiState(
             transfer = transfer,
             isValid = validateInput(transfer)
