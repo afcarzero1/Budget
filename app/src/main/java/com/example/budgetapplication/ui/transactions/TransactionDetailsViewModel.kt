@@ -27,11 +27,10 @@ class TransactionDetailsViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
+    private val transactionId: Int =
+        checkNotNull(savedStateHandle[TransactionDetails.transactionIdArg])
 
-
-    val transactionId: Int = checkNotNull(savedStateHandle[TransactionDetails.transactionIdArg])
-
-    var transactionDBState: StateFlow<TransactionDetailsUiState> =
+    val transactionDBState: StateFlow<TransactionDetailsUiState> =
         transactionsRepository.getTransactionStream(transactionId)
             .filterNotNull()
             .map {

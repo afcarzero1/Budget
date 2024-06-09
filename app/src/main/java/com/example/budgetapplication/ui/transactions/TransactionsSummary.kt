@@ -69,6 +69,7 @@ import com.example.budgetapplication.ui.navigation.TabbedPage
 import com.example.budgetapplication.ui.navigation.TransactionDetails
 import com.example.budgetapplication.ui.navigation.TransactionEntry
 import com.example.budgetapplication.ui.navigation.Transactions
+import com.example.budgetapplication.ui.navigation.TransferDetails
 import com.example.budgetapplication.ui.theme.InitialScreen
 import com.example.budgetapplication.use_cases.IconFromReIdUseCase
 import java.time.LocalDate
@@ -189,7 +190,9 @@ fun TransactionsSummaryBody(
                         )
                     },
                     onTransferSelected = {
-
+                        navController.navigate(
+                            TransferDetails.route + "/${it.id}"
+                        )
                     }
                 )
             }

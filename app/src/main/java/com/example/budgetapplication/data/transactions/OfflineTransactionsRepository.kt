@@ -24,11 +24,24 @@ class OfflineTransactionsRepository(
     override suspend fun update(transactionRecord: TransactionRecord) =
         transactionDao.update(transactionRecord)
 
+
+    override suspend fun updateTransfer(transfer: Transfer) {
+        transactionDao.updateTransferAndTransactions(transfer)
+    }
+
     override suspend fun delete(transactionRecord: TransactionRecord) =
-        transactionDao.delete(transactionRecord)
+        transactionDao.deleteTransaction(transactionRecord)
+
+    override suspend fun deleteTransfer(transfer: Transfer) {
+        transactionDao.deleteTransferAndTransactions(transfer)
+    }
 
     override fun getTransactionStream(id: Int): Flow<TransactionRecord> =
         transactionDao.getTransactionStream(id)
+
+    override fun getTransfersStream(id: Int): Flow<Transfer> =
+        transactionDao.getTransferStream(id)
+
 
     override fun getAllTransactionsStream(): Flow<List<TransactionRecord>> =
         transactionDao.getAllTransactionsStream()

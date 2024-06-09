@@ -93,6 +93,17 @@ fun BudgetNavHost(
         }
 
         composable(
+            route =  TransferDetails.routeWithArgs,
+            arguments = listOf(
+                navArgument(TransferDetails.transferIdArg){
+                    type = NavType.IntType
+                }
+            )
+        ){
+            TransferDetails.screen(navController)
+        }
+
+        composable(
             route = FutureTransactionEntry.route
         ) {
             FutureTransactionEntry.screen(navController)

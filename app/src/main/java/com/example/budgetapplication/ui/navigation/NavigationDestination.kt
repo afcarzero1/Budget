@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.budgetapplication.R
+import com.example.budgetapplication.data.transfers.TransferDetailsScreen
 import com.example.budgetapplication.ui.AppViewModelProvider
 import com.example.budgetapplication.ui.accounts.AccountDetailsScreen
 import com.example.budgetapplication.ui.accounts.AccountEntryScreen
@@ -255,6 +256,28 @@ object TransactionDetails : BudgetDestination {
             TransactionDetailsScreen(navigateBack = { it.popBackStack() })
         }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
+}
+
+
+object TransferDetails: BudgetDestination{
+    override val icon = @Composable { selected: Boolean ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null,
+        )
+    }
+    override val route: String = "transferDetails"
+
+    const val transferIdArg = "transferId"
+
+    val routeWithArgs = "$route/{$transferIdArg}"
+
+
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        TransferDetailsScreen(navigateBack = {it.popBackStack()})
+    }
+    override val topBar: ((NavHostController) -> Unit)? = null
+
 }
 
 

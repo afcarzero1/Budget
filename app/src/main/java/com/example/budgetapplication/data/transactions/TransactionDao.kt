@@ -1,6 +1,6 @@
 package com.example.budgetapplication.data.transactions
 
-import android.util.Log
+import androidx.compose.animation.core.updateTransition
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -23,35 +23,15 @@ interface TransactionDao {
 
     @Transaction
     suspend fun insertTransferAndTransactions(transfer: Transfer) {
-        // Insert source and destination transactions
-        val sourceTransactionId = insert(
-            TransactionRecord(
-                id = 0,  // Auto-generate the ID
-                name = transfer.destinationAccountId.toString(),
-                type = TransactionType.EXPENSE_TRANSFER,
-                accountId = transfer.sourceAccountId,
-                categoryId = null,
-                amount = transfer.amountSource,
-                date = transfer.date
-            )
-        )
+        val (sourceRecord, destinationRecord) = transactionsFromTransfer(transfer)
 
-        val destinationTransactionId = insert(
-            TransactionRecord(
-                id = 0,  // Auto-generate the ID
-                name = transfer.sourceAccountId.toString(),
-                type = TransactionType.INCOME_TRANSFER,
-                accountId = transfer.destinationAccountId,
-                categoryId = null,
-                amount = transfer.amountDestination,
-                date = transfer.date
-            )
-        )
+        val sourceRecordId = insert(sourceRecord)
+        val destinationRecordId = insert(destinationRecord)
 
         insertTransfer(
             transfer.copy(
-                sourceAccountTransactionId = sourceTransactionId,
-                destinationAccountTransactionId = destinationTransactionId
+                sourceAccountTransactionId = sourceRecordId,
+                destinationAccountTransactionId = destinationRecordId
             )
         )
     }
@@ -63,14 +43,58 @@ interface TransactionDao {
     @Update
     suspend fun update(transactionRecord: TransactionRecord)
 
+
+    @Update
+    suspend fun updateTransfer(transfer: Transfer)
+
+    @Transaction
+    suspend fun updateTransferAndTransactions(transfer: Transfer) {
+        val (sourceRecord, destinationRecord) = transactionsFromTransfer(
+            transfer,
+            transfer.sourceAccountTransactionId.toInt(),
+            transfer.destinationAccountTransactionId.toInt()
+        )
+
+        updateTransfer(transfer)
+
+        // We update the associated records
+        update(sourceRecord)
+        update(destinationRecord)
+
+    }
+
     @Delete
-    suspend fun delete(transactionRecord: TransactionRecord)
+    suspend fun deleteTransaction(transactionRecord: TransactionRecord)
+
+    @Query("DELETE FROM transactions WHERE id = :id")
+    suspend fun deleteTransaction(id: Int)
+
+    @Query("DELETE FROM transactions WHERE id = :id")
+    suspend fun deleteTransaction(id: Long)
+
+    @Delete
+    suspend fun deleteTransfer(transfer: Transfer)
+
+    @Transaction
+    suspend fun deleteTransferAndTransactions(transfer: Transfer) {
+        // Transfer deletion must happen before
+        deleteTransfer(transfer)
+
+        // Then we delete the transactions (parents)
+        deleteTransaction(transfer.sourceAccountTransactionId)
+        deleteTransaction(transfer.destinationAccountTransactionId)
+    }
 
     @Query("SELECT * from transactions WHERE id = :id")
     fun getTransactionStream(id: Int): Flow<TransactionRecord>
 
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
+
+
+    @Query("SELECT * FROM transfers WHERE :id = id")
+    fun getTransferStream(id: Int): Flow<Transfer>
+
 
     @Query("SELECT * FROM transfers ORDER BY date DESC")
     fun getAllTransfersStream(): Flow<List<Transfer>>
@@ -100,4 +124,36 @@ interface TransactionDao {
     @Transaction
     @Query("SELECT * from transactions WHERE categoryId IS NULL ORDER BY date DESC")
     fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>>
+
+
+    private fun transactionsFromTransfer(
+        transfer: Transfer,
+        sourceId: Int = 0,
+        destinationId: Int = 0
+    ): Pair<TransactionRecord, TransactionRecord> {
+        val sourceTransaction =
+            TransactionRecord(
+                id = sourceId,  // Auto-generate the ID
+                name = transfer.destinationAccountId.toString(),
+                type = TransactionType.EXPENSE_TRANSFER,
+                accountId = transfer.sourceAccountId,
+                categoryId = null,
+                amount = transfer.amountSource,
+                date = transfer.date
+            )
+
+
+        val destinationTransaction =
+            TransactionRecord(
+                id = destinationId,  // Auto-generate the ID
+                name = transfer.sourceAccountId.toString(),
+                type = TransactionType.INCOME_TRANSFER,
+                accountId = transfer.destinationAccountId,
+                categoryId = null,
+                amount = transfer.amountDestination,
+                date = transfer.date
+            )
+        return Pair(sourceTransaction, destinationTransaction)
+    }
+
 }

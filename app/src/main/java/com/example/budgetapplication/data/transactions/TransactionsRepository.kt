@@ -14,11 +14,17 @@ interface TransactionsRepository {
 
     suspend fun update(transactionRecord: TransactionRecord)
 
+    suspend fun updateTransfer(transfer: Transfer)
+
     suspend fun delete(transactionRecord: TransactionRecord)
+
+    suspend fun deleteTransfer(transfer: Transfer)
 
     fun getTransactionStream(id: Int): Flow<TransactionRecord>
 
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
+
+    fun getTransfersStream(id: Int): Flow<Transfer>
 
     fun getAllTransfersStream(): Flow<List<Transfer>>
 
