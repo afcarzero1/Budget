@@ -27,23 +27,8 @@ class TransferDetailsViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    private val transferId: Int = checkNotNull(savedStateHandle[TransferDetails.transferIdArg])
-
-    init {
-        viewModelScope.launch {
-            transferDBState.collect { dbState ->
-                updateUiState(dbState.transfer)
-            }
-        }
-    }
-
-    val accountsListState: StateFlow<List<FullAccount>> =
-        accountsRepository.getAllFullAccountsStream()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf()
-            )
+    private val transferId: Int =
+        checkNotNull(savedStateHandle[TransferDetails.transferIdArg])
 
     val transferDBState: StateFlow<TransferDetailsUiState> =
         transactionsRepository.getTransfersStream(transferId)
@@ -56,6 +41,13 @@ class TransferDetailsViewModel(
                 initialValue = TransferDetailsUiState()
             )
 
+    val accountsListState: StateFlow<List<FullAccount>> =
+        accountsRepository.getAllFullAccountsStream()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000L),
+                initialValue = listOf()
+            )
 
     var transferUiState by mutableStateOf(TransferDetailsUiState())
         private set
@@ -63,6 +55,14 @@ class TransferDetailsViewModel(
 
     var showUpdatedState by mutableStateOf(false)
         private set
+
+    init {
+        viewModelScope.launch {
+            transferDBState.collect { dbState ->
+                updateUiState(dbState.transfer)
+            }
+        }
+    }
 
 
     fun updateUiState(transfer: Transfer) {
@@ -77,14 +77,14 @@ class TransferDetailsViewModel(
         showUpdatedState = true
     }
 
-    suspend fun updateTransfer(){
-        if(transferUiState.isValid){
+    suspend fun updateTransfer() {
+        if (transferUiState.isValid) {
             transactionsRepository.updateTransfer(transferUiState.transfer)
         }
     }
 
 
-    suspend fun deleteTransfer(){
+    suspend fun deleteTransfer() {
         transactionsRepository.deleteTransfer(transferDBState.value.transfer)
     }
 

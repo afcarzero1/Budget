@@ -28,7 +28,7 @@ import com.example.budgetapplication.data.transfers.Transfer
         FutureTransaction::class,
         Transfer::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(DateConverter::class, CategoryTypeConverter::class)
@@ -52,7 +52,7 @@ abstract class BudgetDatabase : RoomDatabase() {
         fun getDatabase(context: Context): BudgetDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, BudgetDatabase::class.java, "budget_database")
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { Instance = it }
             }
@@ -84,6 +84,12 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         database.execSQL("DROP TABLE `transactions`")
         database.execSQL("ALTER TABLE `transactions_new` RENAME TO `transactions`")
         database.execSQL("PRAGMA foreign_keys=ON;")
+    }
+}
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+
     }
 }
 

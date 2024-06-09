@@ -30,13 +30,13 @@ import java.time.LocalDateTime
             entity = TransactionRecord::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("sourceAccountTransactionId"),
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.RESTRICT
         ),
         ForeignKey(
             entity = TransactionRecord::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("destinationAccountTransactionId"),
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.RESTRICT
         )
     ]
 )
