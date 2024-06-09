@@ -41,7 +41,7 @@ import java.time.LocalDateTime
     ]
 )
 data class Transfer(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val sourceAccountId: Int,
     val sourceAccountTransactionId: Long,
     val destinationAccountId: Int,
