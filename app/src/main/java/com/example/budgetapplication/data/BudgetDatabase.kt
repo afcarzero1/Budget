@@ -53,6 +53,7 @@ abstract class BudgetDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, BudgetDatabase::class.java, "budget_database")
                     .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                    .createFromAsset("database/budget_db.db")
                     .build()
                     .also { Instance = it }
             }

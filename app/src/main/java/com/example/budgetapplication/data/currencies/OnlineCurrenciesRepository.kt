@@ -69,9 +69,9 @@ class OnlineCurrenciesRepository(
     private val isFetching = AtomicBoolean(false)
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            initializeDatabaseIfNeeded()
-        }
+        //CoroutineScope(Dispatchers.IO).launch {
+        //    initializeDatabaseIfNeeded()
+        //}
     }
 
     private suspend fun initializeDatabaseIfNeeded() {
