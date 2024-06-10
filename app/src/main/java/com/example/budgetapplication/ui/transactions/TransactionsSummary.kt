@@ -84,78 +84,81 @@ fun TransactionsSummary(
     transactionsViewModel: TransactionsSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     futureTransactionsViewModel: FutureTransactionsSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var showFutureTransactions by remember { mutableStateOf(false) }
+    val showFutureTransactions = transactionsViewModel.onFutureTransactionsScreen
     val baseCurrency by transactionsViewModel.baseCurrency.collectAsState()
 
     val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
     val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
 
-    InitialScreen(navController = navController, destination = Transactions, screenBody = {
+    Log.d("TRANSACTIONS SUMMARY", "Show future: $showFutureTransactions")
 
-
-        TabbedPage(tabs = listOf(
-            TabItem(
-                title = "Present",
-                icon = {
+    InitialScreen(
+        navController = navController,
+        destination = Transactions,
+        screenBody = {
+            TabbedPage(tabs = listOf(
+                TabItem(
+                    title = "Present",
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Executed Transactions"
+                        )
+                    },
+                    screen = {
+                        if (transactionsState.groupedTransactionsAndTransfers.isEmpty()) {
+                            EmptyTransactionScreen()
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                TransactionsSummaryBody(
+                                    transactions = transactionsState.groupedTransactionsAndTransfers,
+                                    baseCurrency = baseCurrency,
+                                    navController = navController
+                                )
+                            }
+                        }
+                    },
+                ), TabItem(title = "Planned", icon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24),
-                        contentDescription = "Executed Transactions"
+                        painter = painterResource(id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24),
+                        contentDescription = "Planned Transactions"
                     )
-                },
-                screen = {
-                    if (transactionsState.groupedTransactionsAndTransfers.isEmpty()) {
+                }, screen = {
+                    if (futureTransactionsState.futureTransactionsList.isEmpty()) {
                         EmptyTransactionScreen()
                     } else {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
-                            TransactionsSummaryBody(
-                                transactions = transactionsState.groupedTransactionsAndTransfers,
-                                baseCurrency = baseCurrency,
+                            FutureTransactionsSummaryBody(
+                                futureTransactions = futureTransactionsState.futureTransactionsList,
                                 navController = navController
                             )
                         }
                     }
-                },
-            ), TabItem(title = "Planned", icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Planned Transactions"
-                )
-            }, screen = {
-                if (futureTransactionsState.futureTransactionsList.isEmpty()) {
-                    EmptyTransactionScreen()
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        FutureTransactionsSummaryBody(
-                            futureTransactions = futureTransactionsState.futureTransactionsList,
-                            navController = navController
-                        )
-                    }
-                }
+                })
+            ), onTabChanged = {
+                transactionsViewModel.toggleScreen(it == 1)
             })
-        ), onTabChanged = {
-            showFutureTransactions = it == 1
+        }, floatingButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (showFutureTransactions) {
+                        navController.navigate(FutureTransactionEntry.route)
+                    } else {
+                        navController.navigate(TransactionEntry.route)
+                    }
+                }, modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add, contentDescription = "Add Transaction"
+                )
+            }
         })
-    }, floatingButton = {
-        FloatingActionButton(
-            onClick = {
-                if (showFutureTransactions) {
-                    navController.navigate(FutureTransactionEntry.route)
-                } else {
-                    navController.navigate(TransactionEntry.route)
-                }
-            }, modifier = Modifier.padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add, contentDescription = "Add Transaction"
-            )
-        }
-    })
 }
 
 
@@ -433,7 +436,7 @@ private fun TransferRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(2f)
-        ){
+        ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = transfer.sourceAccount.account.name,
@@ -599,17 +602,16 @@ private fun FutureTransactionRow(
 }
 
 
-
 @Preview
 @Composable
-fun PreviewTransferRow(){
+fun PreviewTransferRow() {
     val transfer = TransferWithAccounts(
         transfer = Transfer(
             amountSource = 10.0f,
             amountDestination = 15.0f,
             sourceAccountId = 0,
             destinationAccountId = 1,
-            id=0,
+            id = 0,
             date = LocalDateTime.now(),
             destinationAccountTransactionId = 10,
             sourceAccountTransactionId = 11

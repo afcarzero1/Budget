@@ -1,6 +1,5 @@
 package com.example.budgetapplication.ui.overall
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.accounts.AccountsRepository
@@ -9,7 +8,6 @@ import com.example.budgetapplication.data.balances.BalancesRepository
 import com.example.budgetapplication.data.categories.Category
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
 import com.example.budgetapplication.data.currencies.Currency
-import com.example.budgetapplication.ui.components.ColorAssigner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -186,8 +184,6 @@ class OverallViewModel(
             expectedToDateFlow.value = toDate
         }
     }
-
-
 
     private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(0))
     private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(6))

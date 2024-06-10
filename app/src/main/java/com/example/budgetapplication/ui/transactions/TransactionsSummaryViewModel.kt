@@ -1,6 +1,9 @@
 package com.example.budgetapplication.ui.transactions
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetapplication.data.currencies.CurrenciesRepository
@@ -37,7 +40,7 @@ class TransactionsSummaryViewModel(
         val combinedList = mutableListOf<GroupOfTransactionsAndTransfers>()
 
         // Create a set of all unique dates from both groups, then sort them
-        val allDates = (transactionsGroupedByDate.keys union transfersGroupedByDate.keys).sorted()
+        val allDates = (transactionsGroupedByDate.keys union transfersGroupedByDate.keys).sorted().reversed()
 
 
         for (date in allDates) {
@@ -67,6 +70,17 @@ class TransactionsSummaryViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = "USD"
         )
+
+    var onFutureTransactionsScreen by mutableStateOf(false)
+        private set
+
+    fun toggleScreen(){
+        onFutureTransactionsScreen = !onFutureTransactionsScreen
+    }
+
+    fun toggleScreen(onFutureTransactions: Boolean){
+        onFutureTransactionsScreen = onFutureTransactions
+    }
 
 }
 

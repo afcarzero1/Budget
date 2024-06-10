@@ -220,7 +220,7 @@ fun CategoriesSummaryBody(
     onCategoryClicked: (Category) -> Unit
 ) {
 
-    val totalDelta = deltas.map { it.value }.sum()
+    val totalDelta = categories.sumOf { deltas[it.category]?.toDouble() ?: 0.0 }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -269,7 +269,7 @@ fun CategoriesSummaryBody(
                                 )
                             ) {
                                 append(
-                                    Currency.formatAmountStatic(baseCurrency, totalDelta)
+                                    Currency.formatAmountStatic(baseCurrency, totalDelta.toFloat())
                                 )
                             }
                         }

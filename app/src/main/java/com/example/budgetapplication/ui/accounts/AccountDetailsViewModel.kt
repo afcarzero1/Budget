@@ -1,5 +1,6 @@
 package com.example.budgetapplication.ui.accounts
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,7 +47,8 @@ class AccountDetailsViewModel(
 
 
     fun updateUiState(account: Account) {
-
+        Log.d("ACCOUNT VIEW MODEL", "The id is : $accountId")
+        Log.d("ACCOUNT VIEW MODEL", "The updated account is : $account")
         if(account.id != accountId){
             return
         }
@@ -77,6 +79,6 @@ class AccountDetailsViewModel(
 
 
 data class AccountDetailsUiState(
-    val account: Account = Account(0, "", 0.0f, "USD"),
+    val account: Account = Account(-1, "", 0.0f, "USD"),
     val isValid: Boolean = false
 )

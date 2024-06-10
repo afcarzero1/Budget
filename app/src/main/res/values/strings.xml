@@ -50,4 +50,5 @@
   <string name="delete_confirmation">This action might be irreversible</string>
   <string name="error_on_deletion_account">Error deleting account</string>
   <string name="details_transaction_title">Transaction</string>
+  <string name="overall_expenses_title">Planned</string>
 </resources>

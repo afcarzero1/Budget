@@ -36,10 +36,10 @@ class CategoriesSummaryViewModel(
 
 
     val baseCurrency = currenciesRepository.getDefaultCurrencyStream().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = "USD",
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = "USD",
+    )
 
 
     val currentMonthOfTransactions: StateFlow<YearMonth> = monthOfTransactions.stateIn(
@@ -49,7 +49,8 @@ class CategoriesSummaryViewModel(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val categoriesUiState: StateFlow<CategoriesUiState> = currentMonthOfTransactions.flatMapLatest {
+    val categoriesUiState: StateFlow<CategoriesUiState> = currentMonthOfTransactions
+        .flatMapLatest {
             categoriesRepository.getAllCategoriesWithTransactionsStream(
                 it.atDay(1).atStartOfDay(), it.atEndOfMonth().atTime(23, 59, 59)
             )
