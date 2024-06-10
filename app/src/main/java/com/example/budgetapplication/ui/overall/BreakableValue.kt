@@ -168,21 +168,21 @@ fun TemporalChartByCategory(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.Center,
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
 
                                 BreakableValue(
                                     breakedValue = expensesMap,
                                     baseCurrency = baseCurrency,
                                     color = Color(0xFFCF3B2A),
-                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 )
 
                                 BreakableValue(
                                     breakedValue = incomesMap,
                                     baseCurrency = baseCurrency,
                                     color = Color(0xFF68A462),
-                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 )
                             }
                         }
@@ -242,13 +242,13 @@ fun BreakableValue(
                 color = color,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(end=16.dp)
+                modifier = Modifier.padding(end=4.dp)
             )
             IconButton(
                 onClick = {
                     expanded = !expanded
                 },
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 4.dp)
             ) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown,
