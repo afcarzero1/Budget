@@ -207,7 +207,7 @@ fun BudgetsCard(
                 ) {
                     Text(
                         text = "Budgets",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier
                             .padding(bottom = 16.dp)
                             .weight(1f),

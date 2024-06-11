@@ -329,18 +329,18 @@ fun CategoryCard(
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(2.dp)
                 .fillMaxWidth(),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Left content with icon and text
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(4f)
                 ) {
                     val iconResourceId =
                         IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
@@ -359,15 +359,16 @@ fun CategoryCard(
                             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                             .padding(8.dp)
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column() {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Column{
                         Text(
                             text = categoryWithTransactions.category.name,
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            style = MaterialTheme.typography.titleSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
                             ),
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
                         )
                         Text(
                             text = Currency.formatAmountStatic(
@@ -383,7 +384,10 @@ fun CategoryCard(
                 }
 
                 // Expand/Collapse icon
-                IconButton(onClick = { isExpanded = !isExpanded }) {
+                IconButton(
+                    onClick = { isExpanded = !isExpanded },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(
                         imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown,
                         contentDescription = if (isExpanded) "Collapse" else "Expand"
