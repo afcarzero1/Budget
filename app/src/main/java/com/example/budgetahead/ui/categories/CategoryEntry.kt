@@ -84,7 +84,7 @@ fun CategoryEntryBody(
     ) {
         CategoryForm(
             category = categoryUiState.category,
-            availableCategories = availableCategories,
+            //availableCategories = availableCategories,
             onValueChange = onCategoryValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -103,7 +103,7 @@ fun CategoryEntryBody(
 @Composable
 fun CategoryForm(
     category: Category,
-    availableCategories: List<Category>,
+    //availableCategories: List<Category>,
     onValueChange: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
