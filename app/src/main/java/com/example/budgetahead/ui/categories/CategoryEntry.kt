@@ -42,7 +42,7 @@ fun CategoryEntryScreen(
     viewModel: CategoryEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val availableCategories by viewModel.categoriesListState.collectAsState()
+    //val availableCategories by viewModel.categoriesListState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -54,7 +54,6 @@ fun CategoryEntryScreen(
     ) { innerPadding ->
         CategoryEntryBody(
             categoryUiState = viewModel.categoryUiState,
-            availableCategories = availableCategories,
             onCategoryValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
@@ -74,7 +73,6 @@ fun CategoryEntryScreen(
 @Composable
 fun CategoryEntryBody(
     categoryUiState: CategoryUiState,
-    availableCategories: List<Category>,
     onCategoryValueChange: (Category) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -149,6 +147,7 @@ fun CategoryForm(
             initialIndex = if (category.defaultType == CategoryType.Expense) 0 else 1,
             colors = colors
         )
+        /*
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_category_parent),
             items = availableCategories.map { it.name },
@@ -156,7 +155,7 @@ fun CategoryForm(
                 onValueChange(category.copy(parentCategoryId = availableCategories[index].id))
             },
             colors = colors
-        )
+        )*/
     }
 }
 
