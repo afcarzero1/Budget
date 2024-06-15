@@ -47,7 +47,7 @@ fun InitialScreen(
                 navHostController = navController
             )
         },
-        floatingActionButton = floatingButton
+        floatingActionButton = floatingButton,
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Surface(

@@ -19,6 +19,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -65,16 +66,19 @@ fun BudgetTopBar(currentScreen: BudgetDestination, navHostController: NavHostCon
 fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> Unit)? = null) {
     TopAppBar(
         title = {
-            Text(text = currentScreen.route.lowercase().replaceFirstChar { it.titlecase() })
+            Text(
+                text = currentScreen.route.lowercase().replaceFirstChar { it.titlecase() },
+                style = MaterialTheme.typography.headlineSmall
+            )
         },
-        navigationIcon = {
+        /*navigationIcon = {
             IconButton(onClick = { }) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     contentDescription = "Menu",
                 )
             }
-        },
+        }*/
         actions = {
             actions?.invoke()
         }
