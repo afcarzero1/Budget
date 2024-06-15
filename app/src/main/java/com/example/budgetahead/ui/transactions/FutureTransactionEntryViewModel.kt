@@ -51,8 +51,8 @@ class FutureTransactionEntryViewModel(
     }
 
     private fun validateInput(futureTransaction: FutureTransaction): Boolean {
-        return with(futureTransaction){
-            amount > 0 && categoryId >= 0 && endDate > startDate
+        return with(futureTransaction) {
+            amount > 0 && categoryId >= 0 && (endDate > startDate || recurrenceType == RecurrenceType.NONE)
         }
     }
 

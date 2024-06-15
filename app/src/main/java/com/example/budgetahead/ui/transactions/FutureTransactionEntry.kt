@@ -198,22 +198,23 @@ fun FutureTransactionForm(
 
 
 
-        Row {
+        Row(modifier = Modifier.fillMaxWidth()) {
             DatePickerField(
                 label = stringResource(id = R.string.entry_future_transaction_initial_date),
                 onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
                 date = futureTransaction.startDate,
                 modifier = Modifier.weight(1f)
             )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            DatePickerField(
-                label = stringResource(id = R.string.entry_future_transaction_final_date),
-                onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
-                date = futureTransaction.endDate,
-                modifier = Modifier.weight(1f)
-            )
+            
+            if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
+                Spacer(modifier = Modifier.width(16.dp))
+                DatePickerField(
+                    label = stringResource(id = R.string.entry_future_transaction_final_date),
+                    onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
+                    date = futureTransaction.endDate,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         Row {

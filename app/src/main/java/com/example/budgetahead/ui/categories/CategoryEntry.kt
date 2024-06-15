@@ -194,7 +194,7 @@ fun PreviewCategoryForm() {
     MaterialTheme {
         CategoryForm(
             category = testCategory,
-            availableCategories = categoriesList,
+            //availableCategories = categoriesList,
             onValueChange = {},
             modifier = Modifier
                 .padding(16.dp)

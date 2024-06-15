@@ -134,7 +134,7 @@ fun CategoryDetailsBody(
     ) {
         CategoryForm(
             category = categoryDetailsUiState.category,
-            availableCategories = availableCategories.categoriesList.map { it.category },
+            //availableCategories = availableCategories.categoriesList.map { it.category },
             onValueChange = { onCategoryDetailsChanged(it) }
         )
     }
