@@ -1,7 +1,9 @@
 package com.example.budgetahead.ui.theme
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -10,10 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.budgetahead.ui.BannerAd
+import com.example.budgetahead.ui.navigation.Accounts
 import com.example.budgetahead.ui.navigation.BudgetDestination
 import com.example.budgetahead.ui.navigation.BudgetNavHost
 import com.example.budgetahead.ui.navigation.BudgetNavigationBar
 import com.example.budgetahead.ui.navigation.BudgetTopBar
+import com.example.budgetahead.ui.navigation.Currencies
+import com.example.budgetahead.ui.navigation.Overview
 import com.example.budgetahead.ui.navigation.tabDestinations
 
 
@@ -54,7 +60,16 @@ fun InitialScreen(
                 color = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxSize()
             ) {
-                screenBody()
+                Column {
+                    if (destination == Overview || destination == Accounts || destination == Currencies) {
+                        BannerAd(
+                            modifier = Modifier.fillMaxWidth(),
+                            adId = "ca-app-pub-3940256099942544/9214589741"
+                        )
+                    }
+                    screenBody()
+                }
+
             }
         }
     }
