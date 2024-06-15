@@ -112,15 +112,6 @@ fun CurrenciesScreenTopBar(
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {
-                    // Handle navigation drawer or menu expansion
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Menu",
-                    )
-                }
-
                 OutlinedTextField(
                     value = searchTerm,
                     onValueChange = { onSearchTermChanged(it) },
