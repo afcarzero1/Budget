@@ -27,6 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgetahead.R
 import com.example.budgetahead.data.categories.Category
@@ -69,7 +71,7 @@ fun TemporalChartByCategory(
     transactionsInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
     @StringRes titleResId: Int,
-    onRangeChanged: ((fromDate: YearMonth, toDate: YearMonth) -> Unit )? = null
+    onRangeChanged: ((fromDate: YearMonth, toDate: YearMonth) -> Unit)? = null
 ) {
     var showDateDialog by remember { mutableStateOf(false) }
     var showDetails by remember { mutableStateOf(false) }
@@ -141,7 +143,7 @@ fun TemporalChartByCategory(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                ){
+                ) {
                     expenses.forEach { (yearMonth, expensesMap) ->
                         val incomesMap = incomes[yearMonth] ?: mapOf()
                         Card(
@@ -149,15 +151,16 @@ fun TemporalChartByCategory(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer
                             )
-                        ){
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp),
                                 horizontalArrangement = Arrangement.Start
-                            ){
+                            ) {
                                 Text(
-                                    text = DateTimeFormatter.ofPattern("MMMM yyyy").format(yearMonth),
+                                    text = DateTimeFormatter.ofPattern("MMMM yyyy")
+                                        .format(yearMonth),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -220,7 +223,6 @@ fun TemporalChartByCategory(
 }
 
 
-
 @Composable
 fun BreakableValue(
     breakedValue: Map<Category, Float>,
@@ -237,13 +239,13 @@ fun BreakableValue(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
 
-        ) {
+            ) {
             Text(
                 text = baseCurrency.formatAmount(totalValue),
                 color = color,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(end=4.dp)
+                modifier = Modifier.padding(end = 4.dp)
             )
             IconButton(
                 onClick = {
@@ -261,10 +263,12 @@ fun BreakableValue(
         if (expanded) {
             breakedValue.forEach { (category, value) ->
                 Column(
-                    modifier = Modifier.wrapContentWidth().padding(8.dp),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center
-                ){
+                ) {
                     Text(
                         text = category.name,
                         style = MaterialTheme.typography.labelLarge
@@ -352,14 +356,21 @@ fun DateRangeDialog(
     if (isOpen) {
         AlertDialog(
             onDismissRequest = { onClose(currentSelection) },
-            title = { Text(text = "Select Date Range") },
+            title = {
+                    Text(
+                        text = "Select Date Range", color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+            },
             text = {
-                DateRangeSelector(startDate = startDate,
+                DateRangeSelector(
+                    startDate = startDate,
                     endDate = endDate,
                     onRangeChanged = { start, end ->
                         startDate = start
                         endDate = end
-                    })
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             },
             confirmButton = {
                 Button(onClick = {
@@ -368,7 +379,20 @@ fun DateRangeDialog(
                     Text("Close")
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDateRangeDialog() {
+    DateRangeDialog(
+        isOpen = true,
+        currentSelection = Pair(YearMonth.now(), YearMonth.now().plusMonths(1)),
+        onClose = {}
+    )
+}
+
+
