@@ -2,19 +2,19 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.budgetapplication.data.BudgetDatabase
-import com.example.budgetapplication.data.accounts.Account
-import com.example.budgetapplication.data.accounts.AccountDao
-import com.example.budgetapplication.data.categories.Category
-import com.example.budgetapplication.data.categories.CategoryDao
-import com.example.budgetapplication.data.categories.CategoryType
-import com.example.budgetapplication.data.currencies.Currency
-import com.example.budgetapplication.data.currencies.CurrencyDao
-import com.example.budgetapplication.data.transactions.FullTransactionRecord
-import com.example.budgetapplication.data.transactions.TransactionDao
-import com.example.budgetapplication.data.transactions.TransactionRecord
-import com.example.budgetapplication.data.transactions.TransactionType
-import com.example.budgetapplication.data.transfers.Transfer
+import com.example.budgetahead.data.BudgetDatabase
+import com.example.budgetahead.data.accounts.Account
+import com.example.budgetahead.data.accounts.AccountDao
+import com.example.budgetahead.data.categories.Category
+import com.example.budgetahead.data.categories.CategoryDao
+import com.example.budgetahead.data.categories.CategoryType
+import com.example.budgetahead.data.currencies.Currency
+import com.example.budgetahead.data.currencies.CurrencyDao
+import com.example.budgetahead.data.transactions.FullTransactionRecord
+import com.example.budgetahead.data.transactions.TransactionDao
+import com.example.budgetahead.data.transactions.TransactionRecord
+import com.example.budgetahead.data.transactions.TransactionType
+import com.example.budgetahead.data.transfers.Transfer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -24,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)

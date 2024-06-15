@@ -5,10 +5,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.budgetapplication.R
-import com.example.budgetapplication.data.BudgetDatabase
-import com.example.budgetapplication.data.currencies.CurrenciesApiService
-import com.example.budgetapplication.data.currencies.OnlineCurrenciesRepository
+import com.example.budgetahead.R
+import com.example.budgetahead.data.BudgetDatabase
+import com.example.budgetahead.data.currencies.CurrenciesApiService
+import com.example.budgetahead.data.currencies.OnlineCurrenciesRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi

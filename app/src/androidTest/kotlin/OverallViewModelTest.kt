@@ -1,13 +1,9 @@
-import androidx.compose.runtime.collectAsState
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.budgetapplication.data.accounts.Account
-import com.example.budgetapplication.data.balances.MockBalancesRepository
-import com.example.budgetapplication.data.categories.Category
-import com.example.budgetapplication.data.categories.CategoryType
-import com.example.budgetapplication.ui.overall.OverallViewModel
+import com.example.budgetahead.data.accounts.Account
+import com.example.budgetahead.data.balances.MockBalancesRepository
+import com.example.budgetahead.data.categories.Category
+import com.example.budgetahead.data.categories.CategoryType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
