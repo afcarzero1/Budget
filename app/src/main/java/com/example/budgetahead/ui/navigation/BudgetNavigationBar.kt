@@ -62,7 +62,7 @@ fun BudgetTopBar(currentScreen: BudgetDestination, navHostController: NavHostCon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefaultTopBar(currentScreen: BudgetDestination) {
+fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> Unit)? = null) {
     TopAppBar(
         title = {
             Text(text = currentScreen.route.lowercase().replaceFirstChar { it.titlecase() })
@@ -75,6 +75,9 @@ fun DefaultTopBar(currentScreen: BudgetDestination) {
                 )
             }
         },
+        actions = {
+            actions?.invoke()
+        }
     )
 }
 

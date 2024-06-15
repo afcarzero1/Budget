@@ -38,6 +38,8 @@ import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.BudgetSummary
 import com.example.budgetahead.ui.components.graphics.rememberMarker
+import com.example.budgetahead.ui.navigation.BudgetDestination
+import com.example.budgetahead.ui.navigation.DefaultTopBar
 import com.example.budgetahead.ui.navigation.Overview
 import com.example.budgetahead.ui.theme.InitialScreen
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -66,7 +68,6 @@ fun OverallScreen(
     val lastIncomes by overallViewModel.lastIncomes.collectAsState()
     val currentTransactionsInterval by overallViewModel.currentDateRange.collectAsState()
 
-
     val expectedExpenses by overallViewModel.expectedExpenses.collectAsState()
     val expectedIncomes by overallViewModel.expectedIncomes.collectAsState()
     val expectedExpensesInterval by overallViewModel.expectedDateRange.collectAsState()
@@ -74,26 +75,60 @@ fun OverallScreen(
     val balances by overallViewModel.balancesByDay.collectAsState()
     val balancesInterval by overallViewModel.balanceDateRange.collectAsState()
 
-    InitialScreen(navController = navController, destination = Overview, screenBody = {
-        OverallScreenBody(currentBalance = accountsTotalBalance,
-            lastExpenses = lastExpenses,
-            lastIncomes = lastIncomes,
-            currentTransactionsInterval = currentTransactionsInterval,
-            expectedExpenses = expectedExpenses,
-            expectedIncomes = expectedIncomes,
-            expectedExpensesInterval = expectedExpensesInterval,
-            balances = balances,
-            balancesInterval = balancesInterval,
-            onExpectedDateRangeChanged = { fromDate, toDate ->
-                overallViewModel.setExpectedRangeFlow(fromDate, toDate)
-            },
-            onCurrentDateRangeChanged = { fromDate, toDate ->
-                overallViewModel.setCurrentRangeFlow(fromDate, toDate)
-            },
-            onBalancesDateRangeChanged = { fromDate, toDate ->
-                overallViewModel.setBalanceRangeFlow(fromDate, toDate)
-            })
-    })
+    var showDateDialog by remember { mutableStateOf(false) }
+
+    Log.d("OVERVIEW", "Current Transactions $currentTransactionsInterval")
+    Log.d("OVERVIEW", "Expected Transactions $expectedExpensesInterval")
+    Log.d("OVERVIEW", "Expected balances $balancesInterval")
+
+    InitialScreen(
+        navController = navController,
+        destination = Overview,
+        screenBody = {
+            OverallScreenBody(currentBalance = accountsTotalBalance,
+                lastExpenses = lastExpenses,
+                lastIncomes = lastIncomes,
+                currentTransactionsInterval = currentTransactionsInterval,
+                expectedExpenses = expectedExpenses,
+                expectedIncomes = expectedIncomes,
+                expectedExpensesInterval = expectedExpensesInterval,
+                balances = balances,
+                balancesInterval = balancesInterval,
+                onExpectedDateRangeChanged = { fromDate, toDate ->
+
+                },
+                onCurrentDateRangeChanged = { fromDate, toDate ->
+                    overallViewModel.setCurrentRangeFlow(fromDate, toDate)
+                },
+                onBalancesDateRangeChanged = { fromDate, toDate ->
+                    overallViewModel.setBalanceRangeFlow(fromDate, toDate)
+                })
+        },
+        topBar = { budgetDestination, navHostController ->
+            DefaultTopBar(
+                currentScreen = budgetDestination,
+                actions = {
+                    IconButton(
+                        onClick = { showDateDialog = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.DateRange,
+                            contentDescription = "Select date range"
+                        )
+                    }
+                }
+            )
+        }
+    )
+
+    DateRangeDialog(
+        isOpen = showDateDialog,
+        currentSelection = currentTransactionsInterval,
+        onClose = {
+            showDateDialog = false
+            overallViewModel.setCurrentRangeFlow(fromDate = it.first, toDate = it.second)
+        },
+    )
 }
 
 @Composable
@@ -122,7 +157,6 @@ fun OverallScreenBody(
             incomes = lastIncomes,
             transactionsInterval = currentTransactionsInterval,
             baseCurrency = currentBalance.first,
-            onRangeChanged = onCurrentDateRangeChanged
         )
 
         BudgetsCard(
@@ -131,13 +165,11 @@ fun OverallScreenBody(
             baseCurrency = currentBalance.first,
         )
 
-
         OverallExpectedCard(
             expenses = expectedExpenses,
             incomes = expectedIncomes,
             expensesInterval = expectedExpensesInterval,
             baseCurrency = currentBalance.first,
-            onRangeChanged = onExpectedDateRangeChanged
         )
 
         OverallBalancesCard(
@@ -221,14 +253,12 @@ fun OverallTransactionsCard(
     incomes: Map<YearMonth, Map<Category, Float>>,
     transactionsInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
-    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
     TemporalChartByCategory(
         expenses = expenses,
         incomes = incomes,
         transactionsInterval = transactionsInterval,
         baseCurrency = baseCurrency,
-        onRangeChanged = onRangeChanged,
         titleResId = R.string.transactions_title
     )
 }
@@ -239,7 +269,6 @@ fun OverallExpectedCard(
     incomes: Map<YearMonth, Map<Category, Float>>,
     expensesInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
-    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
     TemporalChartByCategory(
         expenses = expenses,
@@ -247,7 +276,6 @@ fun OverallExpectedCard(
         transactionsInterval = expensesInterval,
         baseCurrency = baseCurrency,
         titleResId = R.string.overall_expenses_title,
-        onRangeChanged = onRangeChanged
     )
 }
 

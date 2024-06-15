@@ -69,12 +69,9 @@ fun TemporalChartByCategory(
     transactionsInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
     @StringRes titleResId: Int,
-    onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
+    onRangeChanged: ((fromDate: YearMonth, toDate: YearMonth) -> Unit )? = null
 ) {
-    var showDialog by remember { mutableStateOf(false) }
     var showDateDialog by remember { mutableStateOf(false) }
-    val selectedCategoryMap by remember { mutableStateOf<Map<Category, Float>>(mapOf()) }
-
     var showDetails by remember { mutableStateOf(false) }
 
     Card(
@@ -86,7 +83,7 @@ fun TemporalChartByCategory(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp) //TODO: make this card a template in components
+            .padding(16.dp)
     ) {
 
         Column(
@@ -124,15 +121,17 @@ fun TemporalChartByCategory(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    IconButton(
-                        onClick = { showDateDialog = true },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Calendar",
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    onRangeChanged?.let {
+                        IconButton(
+                            onClick = { showDateDialog = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "Calendar",
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -207,15 +206,17 @@ fun TemporalChartByCategory(
             }
         }
     }
+    onRangeChanged?.let {
+        DateRangeDialog(
+            isOpen = showDateDialog,
+            currentSelection = transactionsInterval,
+            onClose = {
+                showDateDialog = false
+                onRangeChanged(it.first, it.second)
+            },
+        )
+    }
 
-    DateRangeDialog(
-        isOpen = showDateDialog,
-        currentSelection = transactionsInterval,
-        onClose = {
-            showDateDialog = false
-            onRangeChanged(it.first, it.second)
-        },
-    )
 }
 
 

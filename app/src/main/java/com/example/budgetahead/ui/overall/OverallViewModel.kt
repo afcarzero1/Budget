@@ -27,7 +27,7 @@ class OverallViewModel(
     accountsRepository: AccountsRepository,
     balancesRepository: BalancesRepository,
     currenciesRepository: CurrenciesRepository
-) : ViewModel(){
+) : ViewModel() {
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -49,13 +49,10 @@ class OverallViewModel(
         )
 
 
-    private val currentFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(5))
-    private val currentToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
+    private val currentDateFlow: MutableStateFlow<Pair<YearMonth, YearMonth>> =
+        MutableStateFlow(Pair(YearMonth.now().minusMonths(5), YearMonth.now()))
 
-    private val currentDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(currentFromDateFlow, currentToDateFlow) { fromDate, toDate ->
-        Pair(fromDate, toDate)
-    }
-    val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateRangeFlow
+    val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -64,24 +61,24 @@ class OverallViewModel(
 
     fun setCurrentRangeFlow(fromDate: YearMonth, toDate: YearMonth) {
         if (fromDate.isBefore(toDate)) {
-            currentFromDateFlow.value = fromDate
-            currentToDateFlow.value = toDate
+            currentDateFlow.value = Pair(fromDate, toDate)
+
         }
     }
 
-    val lastExpenses: StateFlow<Map<YearMonth,Map<Category,Float>>> = currentDateRangeFlow
+    val lastExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateFlow
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
         }
-        .map{monthMap ->
+        .map { monthMap ->
             //TODO: Improve this code
-            val newMap: MutableMap<YearMonth,Map<Category,Float>> = mutableMapOf()
+            val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
             for ((yearMonth, categoryMap) in monthMap) {
                 // Filter categories with negative float values
                 val filteredCategoryMap = categoryMap.filter { (_, value) -> value < 0 }
                 if (filteredCategoryMap.isNotEmpty()) {
                     newMap[yearMonth] = filteredCategoryMap
-                }else{
+                } else {
                     newMap[yearMonth] = mapOf()
                 }
             }
@@ -93,12 +90,12 @@ class OverallViewModel(
             initialValue = mapOf()
         )
 
-    val lastIncomes: StateFlow<Map<YearMonth,Map<Category,Float>>> = currentDateRangeFlow
+    val lastIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateFlow
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
         }
         .map { monthMap ->
-            val newMap: MutableMap<YearMonth,Map<Category,Float>> = mutableMapOf()
+            val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
             for ((yearMonth, categoryMap) in monthMap) {
                 // Filter categories with positive float values
                 val filteredCategoryMap = categoryMap.filter { (_, value) -> value > 0 }
@@ -117,21 +114,20 @@ class OverallViewModel(
         )
 
 
-    private val expectedFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(5))
-    private val expectedToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
+    private val expectedDateFromCurrent: Flow<Pair<YearMonth, YearMonth>> =
+        currentDateFlow.map { interval ->
+            Pair(interval.second, interval.second.plusMonths(5))
+        }
 
-    private val expectedDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(expectedFromDateFlow, expectedToDateFlow) { fromDate, toDate ->
-        Pair(fromDate, toDate)
-    }
-    val expectedDateRange: StateFlow<Pair<YearMonth, YearMonth>> = expectedDateRangeFlow
+    val expectedDateRange: StateFlow<Pair<YearMonth, YearMonth>> = expectedDateFromCurrent
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = Pair(YearMonth.now().minusMonths(5), YearMonth.now())
+            initialValue = Pair(YearMonth.now(), YearMonth.now().plusMonths(5))
         )
 
 
-    val expectedExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateRangeFlow
+    val expectedExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateFromCurrent
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
         }
@@ -155,8 +151,8 @@ class OverallViewModel(
         )
 
 
-    val expectedIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateRangeFlow
-        .flatMapLatest {(fromDate, toDate) ->
+    val expectedIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = expectedDateFromCurrent
+        .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
         }
         .map { data ->
@@ -178,60 +174,56 @@ class OverallViewModel(
             initialValue = mapOf()
         )
 
-    fun setExpectedRangeFlow(fromDate: YearMonth, toDate: YearMonth){
-        if(fromDate < toDate){
-            expectedFromDateFlow.value = fromDate
-            expectedToDateFlow.value = toDate
-        }
-    }
-
-    private val balanceFromDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().minusMonths(0))
-    private val balanceToDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now().plusMonths(6))
+    private val balanceFromDateFlow: MutableStateFlow<YearMonth> =
+        MutableStateFlow(YearMonth.now().minusMonths(0))
+    private val balanceToDateFlow: MutableStateFlow<YearMonth> =
+        MutableStateFlow(YearMonth.now().plusMonths(6))
 
     private val balanceDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = combine(
         balanceFromDateFlow, balanceToDateFlow
     ) { fromDate, toDate ->
         Pair(fromDate, toDate)
     }
-    val balanceDateRange: StateFlow<Pair<YearMonth,YearMonth>> = balanceDateRangeFlow
+    val balanceDateRange: StateFlow<Pair<YearMonth, YearMonth>> = balanceDateRangeFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = Pair(YearMonth.now(), YearMonth.now().plusMonths(2))
+            initialValue = Pair(YearMonth.now().minusMonths(1), YearMonth.now().plusMonths(2))
         )
 
-    fun setBalanceRangeFlow(fromDate: YearMonth, toDate: YearMonth){
-        if(fromDate < toDate){
+    fun setBalanceRangeFlow(fromDate: YearMonth, toDate: YearMonth) {
+        if (fromDate < toDate) {
             balanceFromDateFlow.value = fromDate
             balanceToDateFlow.value = toDate
         }
     }
 
-    val balancesByDay: StateFlow<Map<LocalDate, Float>> = balanceDateRangeFlow.flatMapLatest { (fromDate, toDate) ->
-        val sundays = generateSequence(fromDate.atDay(1)) { it.plusMonths(1) }
-            .takeWhile { it <= toDate.atEndOfMonth() }
-            .flatMap { monthStart ->
-                generateSequence(monthStart) { it.plusDays(1) }
-                    .takeWhile { it.month == monthStart.month }
-            }
-            .filter { it.dayOfWeek == DayOfWeek.SUNDAY }
+    val balancesByDay: StateFlow<Map<LocalDate, Float>> =
+        balanceDateRangeFlow.flatMapLatest { (fromDate, toDate) ->
+            val sundays = generateSequence(fromDate.atDay(1)) { it.plusMonths(1) }
+                .takeWhile { it <= toDate.atEndOfMonth() }
+                .flatMap { monthStart ->
+                    generateSequence(monthStart) { it.plusDays(1) }
+                        .takeWhile { it.month == monthStart.month }
+                }
+                .filter { it.dayOfWeek == DayOfWeek.SUNDAY }
 
-        balancesRepository.getBalanceByDay(
-            fromDate = fromDate.atDay(1),
-            toDate = toDate.atEndOfMonth()
-        ).map {
-            val newMap: MutableMap<LocalDate, Float> = mutableMapOf()
-            for (day in sundays) {
-                newMap[day] = it[day] ?: 0f // This will NEVER be null
+            balancesRepository.getBalanceByDay(
+                fromDate = fromDate.atDay(1),
+                toDate = toDate.atEndOfMonth()
+            ).map {
+                val newMap: MutableMap<LocalDate, Float> = mutableMapOf()
+                for (day in sundays) {
+                    newMap[day] = it[day] ?: 0f // This will NEVER be null
+                }
+                newMap
             }
-            newMap
         }
-    }
-    .stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = mapOf()
-    )
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = mapOf()
+            )
 
 }
 

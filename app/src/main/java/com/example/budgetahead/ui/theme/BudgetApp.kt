@@ -18,8 +18,11 @@ import com.example.budgetahead.ui.navigation.tabDestinations
 
 
 @Composable
-fun BudgetApplicationApp(navController: NavHostController = rememberNavController()) {
-    BudgetNavHost(navController = navController)
+fun BudgetApplicationApp(
+    navController: NavHostController = rememberNavController(),
+    startDestination: BudgetDestination? = null
+) {
+    BudgetNavHost(navController = navController, startDestination = startDestination)
 }
 
 @Composable
@@ -27,23 +30,26 @@ fun InitialScreen(
     navController: NavHostController,
     destination: BudgetDestination,
     screenBody: @Composable () -> Unit,
-    floatingButton : @Composable () -> Unit = {},
+    floatingButton: @Composable () -> Unit = {},
     topBar: (@Composable (BudgetDestination, NavHostController) -> Unit)? = null
 ) {
     Scaffold(
         bottomBar = {
             BudgetNavigationBar(
                 allScreens = tabDestinations,
-                onTabSelected = { screen -> navController.navigate(screen.route)},
+                onTabSelected = { screen -> navController.navigate(screen.route) },
                 currentScreen = destination
             )
         },
         topBar = {
-            topBar?.invoke(destination, navController) ?: BudgetTopBar(currentScreen = destination, navHostController = navController)
+            topBar?.invoke(destination, navController) ?: BudgetTopBar(
+                currentScreen = destination,
+                navHostController = navController
+            )
         },
         floatingActionButton = floatingButton
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)){
+        Box(modifier = Modifier.padding(innerPadding)) {
             Surface(
                 color = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxSize()

@@ -19,12 +19,13 @@ import com.example.budgetahead.ui.currencies.CurrencySettingsScreen
 @Composable
 fun BudgetNavHost(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startDestination: BudgetDestination? = null
 ) {
     val entryAnimationTime = 1000
     NavHost(
         navController = navController,
-        startDestination = Overview.route,
+        startDestination = startDestination?.route ?: Overview.route,
         modifier = modifier
     ) {
         composable(route = Overview.route) {
