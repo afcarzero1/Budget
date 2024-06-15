@@ -47,6 +47,7 @@ import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.data.future_transactions.FullFutureTransaction
 import com.example.budgetahead.data.future_transactions.FutureTransaction
 import com.example.budgetahead.data.future_transactions.RecurrenceType
+import com.example.budgetahead.data.future_transactions.RecurrenceTypeDescriptions
 import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transfers.Transfer
@@ -567,16 +568,19 @@ private fun FutureTransactionRow(
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 14.sp
                     )
-                    Icon(
-                        imageVector = Icons.Filled.ArrowForward,
-                        contentDescription = "To",
-                        modifier = Modifier.size(8.dp)
-                    )
-                    Text(
-                        text = formattedFinalDate,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 14.sp
-                    )
+                    if (futureTransaction.futureTransaction.recurrenceType != RecurrenceType.NONE) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowForward,
+                            contentDescription = "To",
+                            modifier = Modifier.size(8.dp)
+                        )
+                        Text(
+                            text = formattedFinalDate,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 14.sp
+                        )
+                    }
+
                 }
 
                 if (futureTransaction.futureTransaction.recurrenceType != RecurrenceType.NONE) {
@@ -588,7 +592,9 @@ private fun FutureTransactionRow(
                             contentDescription = "Event repeated",
                             modifier = Modifier.size(16.dp)
                         )
-                        Text(text = futureTransaction.futureTransaction.recurrenceType.name.lowercase())
+                        Text(
+                            text = "Every ${futureTransaction.futureTransaction.recurrenceValue} ${RecurrenceTypeDescriptions.descriptions[futureTransaction.futureTransaction.recurrenceType]}"
+                        )
                     }
                 }
             }

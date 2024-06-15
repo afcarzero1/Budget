@@ -205,7 +205,7 @@ fun FutureTransactionForm(
                 date = futureTransaction.startDate,
                 modifier = Modifier.weight(1f)
             )
-            
+
             if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
                 Spacer(modifier = Modifier.width(16.dp))
                 DatePickerField(
