@@ -22,7 +22,7 @@ import retrofit2.Retrofit
 import java.io.IOException
 
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @RunWith(AndroidJUnit4::class)
 class onlineCurrenciesRepositoryTest {

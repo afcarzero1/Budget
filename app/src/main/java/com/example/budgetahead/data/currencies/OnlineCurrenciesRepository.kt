@@ -94,7 +94,7 @@ class OnlineCurrenciesRepository(
                     Log.d(TAG, "Fetching API data because last update is older than 1 day.")
                     CoroutineScope(Dispatchers.IO).launch {
                         try{
-                            //fetchApi()
+                            fetchApi()
                         }catch (e: Exception){
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
@@ -109,7 +109,7 @@ class OnlineCurrenciesRepository(
                 Log.d(TAG, "Fetching API data because database is empty.")
                 CoroutineScope(Dispatchers.IO).launch {
                     try{
-                        //fetchApi()
+                        fetchApi()
                     }catch (e: Exception){
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, "Error fetching currencies", Toast.LENGTH_LONG).show()
@@ -166,6 +166,18 @@ class OnlineCurrenciesRepository(
                 }
 
                 // processing and inserting into the database
+                for (rate in responses.rates) {
+
+                    val currency = Currency(
+                        name = rate.key,
+                        value = rate.value.toFloat() / currentBaseCurrencyRate,
+                        updatedTime = LocalDateTime.parse(
+                            responses.date,
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
+                        )
+                    )
+                    currencyDao.insertOrReplace(currency)
+                }
 
                 Log.d(TAG, "Data fetched from API and inserted into database.")
             } catch (e: Exception) {
