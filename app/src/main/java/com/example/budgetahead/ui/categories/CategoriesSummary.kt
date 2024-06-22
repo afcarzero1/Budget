@@ -324,8 +324,9 @@ fun CategoryCard(
                             .size(40.dp)
                             .clip(CircleShape)
                             .border(2.dp, color, CircleShape)
-                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
-                            .padding(8.dp)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer)
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Column {

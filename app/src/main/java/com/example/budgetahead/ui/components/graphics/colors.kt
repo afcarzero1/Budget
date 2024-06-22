@@ -188,7 +188,7 @@ fun IconPicker(
         onClick = { expanded = true },
         modifier = modifier
             .size(35.dp)
-            .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+            .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp))
             .border(
                 border = BorderStroke(1.dp, Color(0x80000000)),
                 shape = RoundedCornerShape(10.dp)
@@ -196,7 +196,8 @@ fun IconPicker(
     ) {
         Icon(
             painter = currentIcon,
-            contentDescription = currentIconName
+            contentDescription = currentIconName,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 
@@ -206,7 +207,7 @@ fun IconPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(
                     width = 2.dp, color = Color.Gray.copy(alpha = 0.8f)
@@ -219,7 +220,7 @@ fun IconPicker(
                     Text(
                         "Select an Icon",
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyVerticalGrid(
@@ -253,7 +254,10 @@ fun IconBox(iconName: String, onIconSelected: (String) -> Unit) {
         context.resources.getIdentifier("cat_$iconName", "drawable", context.packageName)
     val icon = painterResource(id = resourceId)
     IconButton(onClick = { onIconSelected(iconName) }) {
-        Icon(painter = icon, contentDescription = iconName)
+        Icon(
+            painter = icon,
+            contentDescription = iconName
+        )
     }
 }
 
