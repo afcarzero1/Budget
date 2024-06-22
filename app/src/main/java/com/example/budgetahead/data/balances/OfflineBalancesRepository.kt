@@ -64,7 +64,8 @@ class OfflineBalancesRepository(
 
             val balanceByDay: MutableMap<LocalDate, Float> = generateDayInterval(fromDate, toDate)
 
-            // Compute the initial balance at "fromDate" (start of the day)
+            // Compute the initial balance at "fromDate" in the
+            // base currency
             var initialBalance = 0f
             for (accountInfo in allAccounts) {
                 initialBalance += accountInfo.account.computeBalance(
@@ -92,6 +93,7 @@ class OfflineBalancesRepository(
 
             while (currentDate <= toDate){
                 if(currentDate <= realityDate){
+                    // TODO: Group before and use hash map, this is VERY inefficient
                     val dateTransactions = relevantTransactions.filter {
                         it.transactionRecord.date.toLocalDate() == currentDate
                     }

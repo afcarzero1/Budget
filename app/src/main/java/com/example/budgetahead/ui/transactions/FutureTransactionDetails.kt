@@ -93,7 +93,7 @@ fun FutureTransactionDetailsScreen(
 
         if (deleteConfirmationRequired) {
             ConfirmationDeletionDialog(
-                message = stringResource(R.string.delete_account),
+                message = stringResource(R.string.delete_future_transaction),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     coroutineScope.launch {
