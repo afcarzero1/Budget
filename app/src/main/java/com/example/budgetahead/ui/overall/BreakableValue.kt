@@ -205,7 +205,7 @@ fun TemporalChartByCategory(
                     )
                 )
             ) {
-                MonthExpensesChart(expenses = expenses, incomes = incomes)
+                MonthExpensesChart(expenses = expenses, incomes = incomes, baseCurrency = baseCurrency)
             }
         }
     }
@@ -287,7 +287,9 @@ fun BreakableValue(
 
 @Composable
 fun MonthExpensesChart(
-    expenses: Map<YearMonth, Map<Category, Float>>, incomes: Map<YearMonth, Map<Category, Float>>
+    expenses: Map<YearMonth, Map<Category, Float>>,
+    incomes: Map<YearMonth, Map<Category, Float>>,
+    baseCurrency: Currency
 ) {
     val sortedExpenses = expenses.entries.sortedBy { it.key }
     val sortedIncomes = incomes.entries.sortedBy { it.key }
@@ -317,6 +319,11 @@ fun MonthExpensesChart(
 
             date?.let { dateTimeFormatter.format(it) } ?: ""
         }
+    val startAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
+
+            baseCurrency.formatAmount(value)
+        }
 
     val columnChart = columnChart(
         columns = listOf(
@@ -333,7 +340,9 @@ fun MonthExpensesChart(
         Chart(
             chart = columnChart,
             chartModelProducer = chartEntryModelProducer,
-            startAxis = rememberStartAxis(),
+            startAxis = rememberStartAxis(
+                valueFormatter = startAxisValueFormatter
+            ),
             bottomAxis = rememberBottomAxis(
                 valueFormatter = horizontalAxisValueFormatter, labelRotationDegrees = 90f
             ),

@@ -38,6 +38,7 @@ import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.BudgetSummary
 import com.example.budgetahead.ui.components.graphics.rememberMarker
+import com.example.budgetahead.ui.components.inputs.YearMonthDialog
 import com.example.budgetahead.ui.navigation.BudgetDestination
 import com.example.budgetahead.ui.navigation.DefaultTopBar
 import com.example.budgetahead.ui.navigation.Overview
@@ -94,12 +95,6 @@ fun OverallScreen(
                 expectedExpensesInterval = expectedExpensesInterval,
                 balances = balances,
                 balancesInterval = balancesInterval,
-                onExpectedDateRangeChanged = { fromDate, toDate ->
-
-                },
-                onCurrentDateRangeChanged = { fromDate, toDate ->
-                    overallViewModel.setCurrentRangeFlow(fromDate, toDate)
-                },
                 onBalancesDateRangeChanged = { fromDate, toDate ->
                     overallViewModel.setBalanceRangeFlow(fromDate, toDate)
                 })
@@ -121,12 +116,12 @@ fun OverallScreen(
         }
     )
 
-    DateRangeDialog(
+    YearMonthDialog(
         isOpen = showDateDialog,
-        currentSelection = currentTransactionsInterval,
+        currentSelection = currentTransactionsInterval.second,
         onClose = {
             showDateDialog = false
-            overallViewModel.setCurrentRangeFlow(fromDate = it.first, toDate = it.second)
+            overallViewModel.setCentralDate(it)
         },
     )
 }
@@ -142,8 +137,6 @@ fun OverallScreenBody(
     expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
-    onCurrentDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
-    onExpectedDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
 
@@ -305,6 +298,11 @@ fun OverallBalancesCard(
                 ""
             }
         }
+    val startAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
+
+            baseCurrency.formatAmount(value)
+        }
 
     var showRangeDialog by remember { mutableStateOf(false) }
 
@@ -355,7 +353,9 @@ fun OverallBalancesCard(
                 Chart(
                     chart = lineChart(),
                     model = chartEntryModel,
-                    startAxis = rememberStartAxis(),
+                    startAxis = rememberStartAxis(
+                        valueFormatter = startAxisValueFormatter
+                    ),
                     bottomAxis = rememberBottomAxis(
                         valueFormatter = horizontalAxisValueFormatter, labelRotationDegrees = 90f
                     ),

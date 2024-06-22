@@ -112,8 +112,6 @@ fun AccountsSummaryBody(
 
     Column() {
         // TODO: Show here the total amount for each currency
-
-
         Box(
             modifier = Modifier.fillMaxSize()  // This will make the Box occupy all available space
         ) {
@@ -137,7 +135,7 @@ fun AccountsSummaryBody(
                                     withStyle(
                                         style = SpanStyle(
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.Black
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                     ) {
                                         append("Total")
@@ -149,7 +147,7 @@ fun AccountsSummaryBody(
                                     withStyle(
                                         style = SpanStyle(
                                             fontWeight = FontWeight.Normal,
-                                            color = Color.Black
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                     ) {
                                         append(
@@ -202,7 +200,7 @@ fun AccountsSummaryBody(
                                         text = it.currency.formatAmount(it.balance),
                                         fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
                                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                                        color = Color.Black
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }

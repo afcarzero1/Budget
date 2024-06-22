@@ -225,7 +225,7 @@ fun CategoriesSummaryBody(
                             withStyle(
                                 style = SpanStyle(
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
                                 append(yearMonthOfTransactions.toString())
@@ -237,7 +237,7 @@ fun CategoriesSummaryBody(
                             withStyle(
                                 style = SpanStyle(
                                     fontWeight = FontWeight.Normal,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
                                 append(
@@ -317,10 +317,8 @@ fun CategoryCard(
                             categoryWithTransactions.category.iconResId
                         )
 
-                    val icon = painterResource(id = iconResourceId)
-
-                    Image(
-                        painter = icon,
+                    Icon(
+                        painter = painterResource(id = iconResourceId),
                         contentDescription = "Category Icon",
                         modifier = Modifier
                             .size(40.dp)
@@ -330,7 +328,7 @@ fun CategoryCard(
                             .padding(8.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Column{
+                    Column {
                         Text(
                             text = categoryWithTransactions.category.name,
                             style = MaterialTheme.typography.titleSmall.copy(

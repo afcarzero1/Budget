@@ -139,10 +139,10 @@ class onlineCurrenciesRepositoryMockTest {
             }
             delay(5000)
 
-            assertTrue("No Extra requests", currenciesApiService.servedRequests == 2)
+            assertTrue(
+                "No Extra requests should be done once updated!",
+                currenciesApiService.servedRequests == 2
+            )
         }
-
-
     }
-
 }

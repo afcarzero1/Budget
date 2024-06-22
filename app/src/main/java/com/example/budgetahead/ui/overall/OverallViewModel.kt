@@ -48,9 +48,13 @@ class OverallViewModel(
             initialValue = Pair(Currency("USD", 1.0f, LocalDateTime.now()), 0f)
         )
 
+    private val centralDateFlow: MutableStateFlow<YearMonth> =
+        MutableStateFlow(YearMonth.now())
 
-    private val currentDateFlow: MutableStateFlow<Pair<YearMonth, YearMonth>> =
-        MutableStateFlow(Pair(YearMonth.now().minusMonths(5), YearMonth.now()))
+    private val currentDateFlow: Flow<Pair<YearMonth, YearMonth>> =
+        centralDateFlow.map {
+            Pair(it.minusMonths(5), it)
+        }
 
     val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateFlow
         .stateIn(
@@ -59,11 +63,8 @@ class OverallViewModel(
             initialValue = Pair(YearMonth.now().minusMonths(5), YearMonth.now())
         )
 
-    fun setCurrentRangeFlow(fromDate: YearMonth, toDate: YearMonth) {
-        if (fromDate.isBefore(toDate)) {
-            currentDateFlow.value = Pair(fromDate, toDate)
-
-        }
+    fun setCentralDate(date: YearMonth) {
+        centralDateFlow.value = date
     }
 
     val lastExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateFlow
