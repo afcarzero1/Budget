@@ -16,6 +16,8 @@ import com.example.budgetahead.data.currencies.CurrenciesRepository
 import com.example.budgetahead.data.currencies.OnlineCurrenciesRepository
 import com.example.budgetahead.data.future_transactions.FutureTransactionsRepository
 import com.example.budgetahead.data.future_transactions.OfflineFutureTransactionsRepository
+import com.example.budgetahead.data.manager.LocalUserManager
+import com.example.budgetahead.data.manager.LocalUserManagerImpl
 import com.example.budgetahead.data.transactions.OfflineTransactionsRepository
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -38,6 +40,8 @@ interface AppContainer {
     val futureTransactionsRepository: FutureTransactionsRepository
 
     val balancesRepository: BalancesRepository
+
+    val localUserManager: LocalUserManager
 }
 
 class AppDataContainer(private val context: Context) : AppContainer{
@@ -89,6 +93,12 @@ class AppDataContainer(private val context: Context) : AppContainer{
             accountsRepository = accountsRepository,
             transactionsRepository = transactionsRepository,
             futureTransactionsRepository = futureTransactionsRepository
+        )
+    }
+
+    override val localUserManager: LocalUserManager by lazy {
+        LocalUserManagerImpl(
+            context.dataStore
         )
     }
 }

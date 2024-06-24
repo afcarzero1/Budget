@@ -16,6 +16,7 @@ import com.example.budgetahead.ui.categories.CategoriesSummaryViewModel
 import com.example.budgetahead.ui.categories.CategoryDetailsViewModel
 import com.example.budgetahead.ui.categories.CategoryEntryViewModel
 import com.example.budgetahead.ui.currencies.CurrenciesViewModel
+import com.example.budgetahead.ui.onboarding.OnBoardingViewModel
 import com.example.budgetahead.ui.overall.OverallViewModel
 import com.example.budgetahead.ui.transactions.FutureTransactionDetailsViewModel
 import com.example.budgetahead.ui.transactions.FutureTransactionEntryViewModel
@@ -26,6 +27,18 @@ import com.example.budgetahead.ui.transactions.TransactionsSummaryViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+
+        initializer {
+            MainViewModel(
+                budgetApplication().container.localUserManager
+            )
+        }
+
+        initializer {
+            OnBoardingViewModel(
+                budgetApplication().container.localUserManager
+            )
+        }
 
         initializer {
             CurrenciesViewModel(budgetApplication().container.currenciesRepository)

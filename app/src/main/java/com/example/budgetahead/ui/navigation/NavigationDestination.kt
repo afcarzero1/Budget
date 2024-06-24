@@ -37,6 +37,23 @@ interface BudgetDestination {
     val topBar: (@Composable (NavHostController) -> Unit)?
 }
 
+object OnBoarding: BudgetDestination{
+    override val icon = @Composable { selected: Boolean ->
+        Icon(
+            painter = painterResource(
+                id = if (selected) R.drawable.home_24dp_fill1_wght300_grad0_opsz24 else
+                    R.drawable.home_24dp_fill0_wght300_grad0_opsz24
+            ),
+            contentDescription = null
+        )
+    }
+    override val route: String = "onboarding"
+    override val screen: (navController: NavHostController) -> Unit
+        get() = TODO("Not yet implemented")
+    override val topBar: ((NavHostController) -> Unit)? = null
+
+}
+
 object Overview : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(

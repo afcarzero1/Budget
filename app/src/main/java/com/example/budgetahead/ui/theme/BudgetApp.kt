@@ -28,7 +28,10 @@ fun BudgetApplicationApp(
     navController: NavHostController = rememberNavController(),
     startDestination: BudgetDestination? = null
 ) {
-    BudgetNavHost(navController = navController, startDestination = startDestination)
+    BudgetNavHost(
+        navController = navController,
+        startDestination = startDestination
+    )
 }
 
 @Composable

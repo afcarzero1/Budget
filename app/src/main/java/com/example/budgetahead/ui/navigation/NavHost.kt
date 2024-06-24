@@ -7,13 +7,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.currencies.CurrenciesScreen
 import com.example.budgetahead.ui.currencies.CurrencySettingsScreen
+import com.example.budgetahead.ui.onboarding.OnBoardingScreen
+import com.example.budgetahead.ui.onboarding.OnBoardingViewModel
 
 
 @Composable
@@ -22,12 +26,19 @@ fun BudgetNavHost(
     modifier: Modifier = Modifier,
     startDestination: BudgetDestination? = null
 ) {
-    val entryAnimationTime = 1000
     NavHost(
         navController = navController,
         startDestination = startDestination?.route ?: Overview.route,
         modifier = modifier
     ) {
+
+        composable(route = OnBoarding.route) {
+            val viewModel: OnBoardingViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            OnBoardingScreen(
+                onEvent = viewModel::onEvent
+            )
+        }
+
         composable(route = Overview.route) {
             Overview.screen(navController)
         }

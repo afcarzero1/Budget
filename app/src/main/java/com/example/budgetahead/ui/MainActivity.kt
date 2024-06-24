@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import com.example.budgetahead.ui.navigation.TransactionEntry
 import com.example.budgetahead.ui.theme.BudgetApplicationApp
 import com.example.budgetahead.ui.theme.BudgetApplicationTheme
@@ -30,8 +33,14 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+
+    val viewModel by viewModels<MainViewModel> { AppViewModelProvider.Factory }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen().apply {
+            setKeepOnScreenCondition(condition = {viewModel.splashCondition.value})
+        }
         //val backgroundScope = CoroutineScope(Dispatchers.IO)
         //backgroundScope.launch {
         // Initialize the Google Mobile Ads SDK on a background thread.
@@ -45,13 +54,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BudgetApplicationApp()
+                    val startDestination = viewModel.startDestination.value
+                    BudgetApplicationApp(startDestination = startDestination)
                 }
             }
         }
     }
 }
 
+
+@Composable
+fun OnboardingScreen() {
+
+}
 
 @Composable
 fun BannerAd(modifier: Modifier, adId: String) {
