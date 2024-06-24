@@ -51,4 +51,5 @@
   <string name="error_on_deletion_account">Error deleting account</string>
   <string name="details_transaction_title">Transaction</string>
   <string name="overall_expenses_title">Planned</string>
+  <string name="delete_future_transaction">Deleting Planned Transaction</string>
 </resources>

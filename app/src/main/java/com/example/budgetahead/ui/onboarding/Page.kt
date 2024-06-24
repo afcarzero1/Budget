@@ -11,18 +11,23 @@ data class Page(
 
 val pages = listOf(
     Page(
-        title = "Lorem Ipsum is simply dummy",
-        description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        title = "Welcome to AheadBudget!",
+        description =
+        "Manage your personal finances with ease and insight." +
+                " Get started to take control of your budget and optimize your spending.",
         image = R.drawable.budget
     ),
     Page(
-        title = "Lorem Ipsum is simply dummy",
-        description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image = R.drawable.budget
+        title = "Powerful Tools at Your Fingertips",
+        description =
+        "Monitor your expenses and predict future finances based on your planned incomes and outgoings.",
+        image = R.drawable.future_track
     ),
     Page(
-        title = "Lorem Ipsum is simply dummy",
-        description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image = R.drawable.budget
+        title = "All in one place!",
+        description =
+        "Easily handle multiple accounts across different currencies." +
+                " Use custom categories for precise tracking and stay updated with real-time exchange rates.",
+        image = R.drawable.all_in_one_place
     )
 )

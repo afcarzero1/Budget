@@ -39,9 +39,9 @@ import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.BudgetSummary
 import com.example.budgetahead.ui.components.graphics.rememberMarker
 import com.example.budgetahead.ui.components.inputs.YearMonthDialog
-import com.example.budgetahead.ui.navigation.BudgetDestination
 import com.example.budgetahead.ui.navigation.DefaultTopBar
 import com.example.budgetahead.ui.navigation.Overview
+import com.example.budgetahead.ui.navigation.Transactions
 import com.example.budgetahead.ui.theme.InitialScreen
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
@@ -95,9 +95,13 @@ fun OverallScreen(
                 expectedExpensesInterval = expectedExpensesInterval,
                 balances = balances,
                 balancesInterval = balancesInterval,
+                onBudgetsEmpty = {
+                    navController.navigate(Transactions.route)
+                },
                 onBalancesDateRangeChanged = { fromDate, toDate ->
                     overallViewModel.setBalanceRangeFlow(fromDate, toDate)
-                })
+                }
+            )
         },
         topBar = { budgetDestination, navHostController ->
             DefaultTopBar(
@@ -137,6 +141,7 @@ fun OverallScreenBody(
     expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
+    onBudgetsEmpty: () -> Unit,
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
 
@@ -156,6 +161,7 @@ fun OverallScreenBody(
             expenses = lastExpenses,
             expectedExpenses = expectedExpenses,
             baseCurrency = currentBalance.first,
+            onBudgetsEmpty = onBudgetsEmpty
         )
 
         OverallExpectedCard(
@@ -180,7 +186,8 @@ fun OverallScreenBody(
 fun BudgetsCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
     expectedExpenses: Map<YearMonth, Map<Category, Float>>,
-    baseCurrency: Currency
+    baseCurrency: Currency,
+    onBudgetsEmpty: () -> Unit
 ) {
     // Determine the last month available in the data
     val lastMonth = (expenses.keys).maxOrNull()
@@ -196,7 +203,9 @@ fun BudgetsCard(
             .padding(16.dp)
     ) {
         lastMonth?.let {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom,
@@ -223,14 +232,28 @@ fun BudgetsCard(
                     )
                 }
 
-                val lastMonthExpenses = expenses[lastMonth] ?: emptyMap()
+                expectedExpenses[lastMonth]?.let {
+                    val lastMonthExpenses = expenses[lastMonth] ?: emptyMap()
 
-                BudgetSummary(
-                    expenses = lastMonthExpenses,
-                    expectedExpenses = expectedExpenses[lastMonth] ?: emptyMap(),
-                    baseCurrency = baseCurrency
-                )
+                    if (it.isEmpty()) {
+                        BudgetSummaryPlaceholder(
+                            onLinkClicked = onBudgetsEmpty
+                        )
+                    } else {
+                        BudgetSummary(
+                            expenses = lastMonthExpenses,
+                            expectedExpenses = it,
+                            baseCurrency = baseCurrency
+                        )
+                    }
 
+
+                } ?: run {
+                    Log.d("BudgetCard", "Showing placeholder")
+                    BudgetSummaryPlaceholder(
+                        onLinkClicked = {}
+                    )
+                }
             }
         } ?: Text(
             text = "No data available.",
@@ -329,7 +352,7 @@ fun OverallBalancesCard(
                 Text(
                     text = stringResource(R.string.balances_title),
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                    fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 //calendar icon to the right
