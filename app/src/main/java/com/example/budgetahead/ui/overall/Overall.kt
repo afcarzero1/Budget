@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -23,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +49,7 @@ import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.BudgetSummary
+import com.example.budgetahead.ui.components.LinearProgressIndicator
 import com.example.budgetahead.ui.components.graphics.rememberMarker
 import com.example.budgetahead.ui.components.inputs.YearMonthDialog
 import com.example.budgetahead.ui.navigation.DefaultTopBar
@@ -85,7 +92,8 @@ fun OverallScreen(
     val balances by overallViewModel.balancesByDay.collectAsState()
     val balancesInterval by overallViewModel.balanceDateRange.collectAsState()
 
-    val monthCashFlow by overallViewModel.monthCashflow.collectAsState()
+    val monthCashFlow by overallViewModel.monthCashFlow.collectAsState()
+    val extraCashFlow by overallViewModel.monthExpectedExtraCashFlow.collectAsState()
 
 
     var showDateDialog by remember { mutableStateOf(false) }
@@ -111,7 +119,8 @@ fun OverallScreen(
             onBalancesDateRangeChanged = { fromDate, toDate ->
                 overallViewModel.setBalanceRangeFlow(fromDate, toDate)
             },
-            monthCashFlow = monthCashFlow
+            monthCashFlow = monthCashFlow,
+            extraCashFlow = extraCashFlow
         )
     }, topBar = { budgetDestination, navHostController ->
         DefaultTopBar(currentScreen = budgetDestination, actions = {
@@ -146,6 +155,7 @@ fun OverallScreenBody(
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
     monthCashFlow: CashFlow,
+    extraCashFlow: CashFlow,
     onBudgetsEmpty: () -> Unit,
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
@@ -161,15 +171,11 @@ fun OverallScreenBody(
             transactionsInterval = currentTransactionsInterval,
             baseCurrency = currentBalance.first,
         )
-        Row {
-            CashflowCard(
-                title = "Cashflow", cashFlow = monthCashFlow, modifier = Modifier.weight(1f)
-            )
-            CashflowCard(
-                title = "Monthly Cashflow", cashFlow = monthCashFlow, modifier = Modifier.weight(1f)
-            )
-        }
-
+        CashFlowCard(
+            title = "Cashflow",
+            registeredCashFlow = monthCashFlow,
+            extraCashFlow = extraCashFlow,
+        )
         BudgetsCard(
             expenses = lastExpenses,
             expectedExpenses = expectedExpenses,
@@ -196,8 +202,11 @@ fun OverallScreenBody(
 
 
 @Composable
-fun CashflowCard(
-    title: String, cashFlow: CashFlow, modifier: Modifier = Modifier
+fun CashFlowCard(
+    title: String,
+    registeredCashFlow: CashFlow,
+    extraCashFlow: CashFlow,
+    modifier: Modifier = Modifier
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -205,53 +214,190 @@ fun CashflowCard(
         ), elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         ), modifier = modifier
-            .wrapContentWidth()
             .padding(16.dp)
     ) {
+
+
+
+        
         Column(
             modifier = Modifier
                 .padding(16.dp)
                 .wrapContentWidth()
         ) {
             Text(
-                text = title, style = MaterialTheme.typography.headlineSmall.copy(
+                text = title, style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold
-                ), maxLines = 1, modifier = Modifier.wrapContentWidth()
+                ),
+                maxLines = 1,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(start = 16.dp)
             )
+            Spacer(Modifier.height(16.dp))
+
+
+
+
             Row(
-                horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .heightIn(max = 300.dp)
             ) {
-                Text(
-                    text = cashFlow.currency.formatAmount(cashFlow.ingoing),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = SoftGreen
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(IntrinsicSize.Min)
+                        .padding(horizontal = 4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(10.dp),
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ) {
+                    CashFlowColumn(
+                        "Ingoing",
+                        pastCashFlow = registeredCashFlow.ingoing,
+                        upcomingCashFlow = extraCashFlow.ingoing,
+                        currency = registeredCashFlow.currency,
+                        isPositive = true
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(IntrinsicSize.Min)
+                        .padding(horizontal = 4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(10.dp),
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ) {
+                    CashFlowColumn(
+                        "Outgoing",
+                        pastCashFlow = registeredCashFlow.outgoing,
+                        upcomingCashFlow = extraCashFlow.outgoing,
+                        currency = registeredCashFlow.currency,
+                        isPositive = false
+                    )
+                }
+
+
+            }
+
+
+        }
+    }
+}
+
+
+@Composable
+fun CashFlowColumn(
+    title: String,
+    pastCashFlow: Float,
+    upcomingCashFlow: Float,
+    currency: Currency,
+    isPositive: Boolean
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
+            )
+        }
+        Row {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(max = 128.dp)
+            ) {
+                ValueText(
+                    title = "Past",
+                    value = pastCashFlow,
+                    currency = currency,
+                    positive = isPositive,
+                    styleTitle = MaterialTheme.typography.titleSmall
                 )
+
+                ValueText(
+                    title = "Upcoming",
+                    value = upcomingCashFlow,
+                    currency = currency,
+                    positive = isPositive,
+                    styleTitle = MaterialTheme.typography.titleSmall
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1.5f)
+                    .heightIn(max = 128.dp)
+            ) {
+                ValueText(
+                    title = "Projected",
+                    value = (pastCashFlow + upcomingCashFlow),
+                    currency = currency,
+                    positive = isPositive,
+                    styleTitle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                    styleValue = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ValueText(
+    title: String?,
+    value: Float,
+    currency: Currency,
+    positive: Boolean,
+    modifier: Modifier = Modifier,
+    styleTitle: TextStyle = MaterialTheme.typography.titleMedium,
+    styleValue: TextStyle = MaterialTheme.typography.bodySmall
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        title?.let {
+            Text(
+                text = title,
+                style = styleTitle,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Row(modifier = Modifier.wrapContentWidth()) {
+            if (positive) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowUp,
-                    contentDescription = "Ingoing",
-                    tint = SoftGreen,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    contentDescription = "income",
+                    tint = SoftGreen
                 )
-            }
-            Row(
-                horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = cashFlow.currency.formatAmount(cashFlow.outgoing),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = WineRed,
-                )
+            } else {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Outgoing",
+                    contentDescription = "income",
                     tint = WineRed,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
+            Text(
+                text = currency.formatAmount(value),
+                style = styleValue,
+                color = if (positive) SoftGreen else WineRed,
+                modifier = Modifier.padding(end = 8.dp)
+            )
         }
     }
 }
@@ -260,10 +406,13 @@ fun CashflowCard(
 @Preview
 @Composable
 fun PreviewCashflowCard() {
-    CashflowCard(
-        title = "Month Cashflow",
-        cashFlow = CashFlow(
+    CashFlowCard(
+        title = "Cashflow",
+        registeredCashFlow = CashFlow(
             outgoing = 2000f, ingoing = 1500f, currency = Currency("USD", 1.0f, LocalDateTime.now())
+        ),
+        extraCashFlow = CashFlow(
+            outgoing = 500f, ingoing = 100f, currency = Currency("USD", 1.0f, LocalDateTime.now())
         )
     )
 }
