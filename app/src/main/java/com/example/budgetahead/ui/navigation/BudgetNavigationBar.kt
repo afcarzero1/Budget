@@ -1,10 +1,12 @@
 package com.example.budgetahead.ui.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -12,12 +14,15 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,11 +47,19 @@ fun BudgetNavigationBar(
             allScreens.forEach { screen ->
                 val isSelected = screen == currentScreen
                 IconButton(
-                    onClick = {
-                        if (!isSelected) {
-                            onTabSelected(screen)
-                        }
-                    }
+                    onClick = { if (!isSelected) onTabSelected(screen) },
+                    // Set the icon tint color based on the selection state
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier
+                        .then(
+                            if (isSelected) Modifier
+                                .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                            else Modifier
+                        )
                 ) {
                     screen.icon(isSelected)
                 }

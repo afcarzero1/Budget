@@ -55,6 +55,7 @@ import com.example.budgetahead.data.transfers.TransferWithAccounts
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.ListDivider
 import com.example.budgetahead.ui.components.VerticalBar
+import com.example.budgetahead.ui.components.buttons.BudgetFloatingButton
 import com.example.budgetahead.ui.navigation.FutureTransactionDetails
 import com.example.budgetahead.ui.navigation.FutureTransactionEntry
 import com.example.budgetahead.ui.navigation.TabItem
@@ -144,19 +145,15 @@ fun TransactionsSummary(
                 transactionsViewModel.toggleScreen(it == 1)
             })
         }, floatingButton = {
-            FloatingActionButton(
+            BudgetFloatingButton(
                 onClick = {
                     if (showFutureTransactions) {
                         navController.navigate(FutureTransactionEntry.route)
                     } else {
                         navController.navigate(TransactionEntry.route)
                     }
-                }, modifier = Modifier.padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add, contentDescription = "Add Transaction"
-                )
-            }
+                }, contentDescription = "Add Transaction"
+            )
         })
 }
 

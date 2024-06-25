@@ -3,7 +3,6 @@ package com.example.budgetahead.ui.overall
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgetahead.data.accounts.AccountsRepository
-import com.example.budgetahead.data.accounts.FullAccount
 import com.example.budgetahead.data.balances.BalancesRepository
 import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.currencies.CurrenciesRepository
@@ -51,12 +50,12 @@ class OverallViewModel(
     private val centralDateFlow: MutableStateFlow<YearMonth> =
         MutableStateFlow(YearMonth.now())
 
-    private val currentDateFlow: Flow<Pair<YearMonth, YearMonth>> =
+    private val currentDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> =
         centralDateFlow.map {
             Pair(it.minusMonths(5), it)
         }
 
-    val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateFlow
+    val currentDateRange: StateFlow<Pair<YearMonth, YearMonth>> = currentDateRangeFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -67,7 +66,7 @@ class OverallViewModel(
         centralDateFlow.value = date
     }
 
-    val lastExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateFlow
+    val lastExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateRangeFlow
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
         }
@@ -91,7 +90,7 @@ class OverallViewModel(
             initialValue = mapOf()
         )
 
-    val lastIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateFlow
+    val lastIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = currentDateRangeFlow
         .flatMapLatest { (fromDate, toDate) ->
             balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
         }
@@ -116,7 +115,7 @@ class OverallViewModel(
 
 
     private val expectedDateFromCurrent: Flow<Pair<YearMonth, YearMonth>> =
-        currentDateFlow.map { interval ->
+        currentDateRangeFlow.map { interval ->
             Pair(interval.second, interval.second.plusMonths(5))
         }
 
@@ -226,9 +225,35 @@ class OverallViewModel(
                 initialValue = mapOf()
             )
 
+
+    val monthCashflow = combine(
+        lastExpenses,
+        lastIncomes,
+        centralDateFlow,
+        currenciesRepository.getDefaultCurrencyStream()
+            .map { Currency(it, 1.0f, LocalDateTime.now()) }
+    ) { expensesByMonth, incomesByMonth, centralDate, baseCurrency ->
+
+        val centralDateExpenses = expensesByMonth[centralDate]?.values?.sum() ?: 0.0f
+        val centralDateIncomes = incomesByMonth[centralDate]?.values?.sum() ?: 0.0f
+
+        // Create the CashFlow object with the summed values and the base currency
+        CashFlow(
+            outgoing = centralDateExpenses,
+            ingoing = centralDateIncomes,
+            currency = baseCurrency
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = CashFlow(0f, 0f, Currency("USD", 1.0f, LocalDateTime.now()))
+    )
+
 }
 
-data class OverallAccountsUiState(
-    val accountsList: List<FullAccount> = listOf()
-)
 
+data class CashFlow(
+    val outgoing: Float,
+    val ingoing: Float,
+    val currency: Currency
+)

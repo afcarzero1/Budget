@@ -3,15 +3,20 @@ package com.example.budgetahead.ui.overall
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -43,6 +49,8 @@ import com.example.budgetahead.ui.navigation.DefaultTopBar
 import com.example.budgetahead.ui.navigation.Overview
 import com.example.budgetahead.ui.navigation.Transactions
 import com.example.budgetahead.ui.theme.InitialScreen
+import com.example.budgetahead.ui.theme.SoftGreen
+import com.example.budgetahead.ui.theme.WineRed
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -54,6 +62,7 @@ import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
@@ -76,49 +85,44 @@ fun OverallScreen(
     val balances by overallViewModel.balancesByDay.collectAsState()
     val balancesInterval by overallViewModel.balanceDateRange.collectAsState()
 
+    val monthCashFlow by overallViewModel.monthCashflow.collectAsState()
+
+
     var showDateDialog by remember { mutableStateOf(false) }
 
     Log.d("OVERVIEW", "Current Transactions $currentTransactionsInterval")
     Log.d("OVERVIEW", "Expected Transactions $expectedExpensesInterval")
     Log.d("OVERVIEW", "Expected balances $balancesInterval")
 
-    InitialScreen(
-        navController = navController,
-        destination = Overview,
-        screenBody = {
-            OverallScreenBody(currentBalance = accountsTotalBalance,
-                lastExpenses = lastExpenses,
-                lastIncomes = lastIncomes,
-                currentTransactionsInterval = currentTransactionsInterval,
-                expectedExpenses = expectedExpenses,
-                expectedIncomes = expectedIncomes,
-                expectedExpensesInterval = expectedExpensesInterval,
-                balances = balances,
-                balancesInterval = balancesInterval,
-                onBudgetsEmpty = {
-                    navController.navigate(Transactions.route)
-                },
-                onBalancesDateRangeChanged = { fromDate, toDate ->
-                    overallViewModel.setBalanceRangeFlow(fromDate, toDate)
-                }
-            )
-        },
-        topBar = { budgetDestination, navHostController ->
-            DefaultTopBar(
-                currentScreen = budgetDestination,
-                actions = {
-                    IconButton(
-                        onClick = { showDateDialog = true }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.DateRange,
-                            contentDescription = "Select date range"
-                        )
-                    }
-                }
-            )
-        }
-    )
+    InitialScreen(navController = navController, destination = Overview, screenBody = {
+        OverallScreenBody(
+            currentBalance = accountsTotalBalance,
+            lastExpenses = lastExpenses,
+            lastIncomes = lastIncomes,
+            currentTransactionsInterval = currentTransactionsInterval,
+            expectedExpenses = expectedExpenses,
+            expectedIncomes = expectedIncomes,
+            expectedExpensesInterval = expectedExpensesInterval,
+            balances = balances,
+            balancesInterval = balancesInterval,
+            onBudgetsEmpty = {
+                navController.navigate(Transactions.route)
+            },
+            onBalancesDateRangeChanged = { fromDate, toDate ->
+                overallViewModel.setBalanceRangeFlow(fromDate, toDate)
+            },
+            monthCashFlow = monthCashFlow
+        )
+    }, topBar = { budgetDestination, navHostController ->
+        DefaultTopBar(currentScreen = budgetDestination, actions = {
+            IconButton(onClick = { showDateDialog = true }) {
+                Icon(
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = "Select date range"
+                )
+            }
+        })
+    })
 
     YearMonthDialog(
         isOpen = showDateDialog,
@@ -141,6 +145,7 @@ fun OverallScreenBody(
     expectedExpensesInterval: Pair<YearMonth, YearMonth>,
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
+    monthCashFlow: CashFlow,
     onBudgetsEmpty: () -> Unit,
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
@@ -156,6 +161,14 @@ fun OverallScreenBody(
             transactionsInterval = currentTransactionsInterval,
             baseCurrency = currentBalance.first,
         )
+        Row {
+            CashflowCard(
+                title = "Cashflow", cashFlow = monthCashFlow, modifier = Modifier.weight(1f)
+            )
+            CashflowCard(
+                title = "Monthly Cashflow", cashFlow = monthCashFlow, modifier = Modifier.weight(1f)
+            )
+        }
 
         BudgetsCard(
             expenses = lastExpenses,
@@ -179,6 +192,80 @@ fun OverallScreenBody(
         )
     }
 
+}
+
+
+@Composable
+fun CashflowCard(
+    title: String, cashFlow: CashFlow, modifier: Modifier = Modifier
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ), elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ), modifier = modifier
+            .wrapContentWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .wrapContentWidth()
+        ) {
+            Text(
+                text = title, style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ), maxLines = 1, modifier = Modifier.wrapContentWidth()
+            )
+            Row(
+                horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = cashFlow.currency.formatAmount(cashFlow.ingoing),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = SoftGreen
+                )
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "Ingoing",
+                    tint = SoftGreen,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = cashFlow.currency.formatAmount(cashFlow.outgoing),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = WineRed,
+                )
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = "Outgoing",
+                    tint = WineRed,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun PreviewCashflowCard() {
+    CashflowCard(
+        title = "Month Cashflow",
+        cashFlow = CashFlow(
+            outgoing = 2000f, ingoing = 1500f, currency = Currency("USD", 1.0f, LocalDateTime.now())
+        )
+    )
 }
 
 
@@ -250,9 +337,7 @@ fun BudgetsCard(
 
                 } ?: run {
                     Log.d("BudgetCard", "Showing placeholder")
-                    BudgetSummaryPlaceholder(
-                        onLinkClicked = {}
-                    )
+                    BudgetSummaryPlaceholder(onLinkClicked = {})
                 }
             }
         } ?: Text(
@@ -321,11 +406,10 @@ fun OverallBalancesCard(
                 ""
             }
         }
-    val startAxisValueFormatter =
-        AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
+    val startAxisValueFormatter = AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
 
-            baseCurrency.formatAmount(value)
-        }
+        baseCurrency.formatAmount(value)
+    }
 
     var showRangeDialog by remember { mutableStateOf(false) }
 

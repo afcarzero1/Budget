@@ -62,12 +62,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun OnboardingScreen() {
-
-}
-
 @Composable
 fun BannerAd(modifier: Modifier, adId: String) {
     Column(

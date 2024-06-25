@@ -19,7 +19,7 @@ class MainViewModel(
     private val _splashCondition = mutableStateOf(true)
     val splashCondition: State<Boolean> = _splashCondition
 
-    private val _startDestination = mutableStateOf<BudgetDestination>(OnBoarding)
+    private val _startDestination = mutableStateOf<BudgetDestination>(Overview)
     val startDestination: State<BudgetDestination> = _startDestination
 
     init {
@@ -29,7 +29,7 @@ class MainViewModel(
             } else {
                 _startDestination.value = OnBoarding
             }
-            delay(300) //Without this delay, the onBoarding screen will show for a momentum.
+            delay(300)
             _splashCondition.value = false
         }.launchIn(viewModelScope)
     }
