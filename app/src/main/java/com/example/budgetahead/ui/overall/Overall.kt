@@ -215,7 +215,7 @@ fun CashFlowCard(
     val totalProjectedIngoing = (registeredCashFlow.ingoing + extraCashFlow.ingoing)
     val totalProjectedOutgoing = (registeredCashFlow.outgoing + extraCashFlow.outgoing)
 
-    val totalProjectedCashflow = totalProjectedIngoing - totalProjectedOutgoing
+    val totalProjectedCashflow = totalProjectedIngoing + totalProjectedOutgoing
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,

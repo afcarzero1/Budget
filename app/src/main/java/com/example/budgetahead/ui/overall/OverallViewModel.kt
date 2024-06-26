@@ -22,6 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import kotlin.math.max
+import kotlin.math.min
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OverallViewModel(
@@ -264,11 +265,13 @@ class OverallViewModel(
 
 
         val expectedExtraExpense = calculateExtraCashFlow(
-            currentMonthExpenses, currentMonthExpectedExpenses
+            currentMonthExpenses, currentMonthExpectedExpenses, expense = true
         )
 
         val expectedExtraIncome = calculateExtraCashFlow(
-            incomesByMonth[centralDate] ?: emptyMap(), expectedIncomesByMonth[centralDate]
+            incomesByMonth[centralDate] ?: emptyMap(),
+            expectedIncomesByMonth[centralDate],
+            expense = false
         )
 
         Pair(expectedExtraExpense, expectedExtraIncome)
@@ -289,13 +292,19 @@ class OverallViewModel(
     )
 
     private fun calculateExtraCashFlow(
-        actual: Map<Category, Float>, expected: Map<Category, Float>?
+        actual: Map<Category, Float>, expected: Map<Category, Float>?, expense: Boolean
     ): Float {
         var extraCashFlow = 0f
         expected?.let {
             for ((category, expectedAmountOfCategory) in it) {
                 val actualAmount = actual.getOrDefault(category, 0f)
-                extraCashFlow += max(expectedAmountOfCategory - actualAmount, 0f)
+                extraCashFlow += if (expense) {
+                    // If we overspent we just dont have actually plannes anymore expenses for this category
+                    min(expectedAmountOfCategory - actualAmount, 0f)
+                } else {
+                    // If we received extra money then we do not have extra planned!
+                    max(expectedAmountOfCategory - actualAmount, 0f)
+                }
             }
         }
         return extraCashFlow
