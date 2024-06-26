@@ -64,7 +64,7 @@ fun InitialScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column {
-                    if (destination == Overview || destination == Accounts || destination == Currencies) {
+                    if (destination == Accounts || destination == Currencies) {
                         BannerAd(
                             modifier = Modifier.fillMaxWidth(),
                             adId = "ca-app-pub-3940256099942544/9214589741"

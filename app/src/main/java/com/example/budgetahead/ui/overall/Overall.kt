@@ -173,18 +173,18 @@ fun OverallScreenBody(
             yearMonth = centralDate
         )
 
-        OverallTransactionsCard(
-            expenses = lastExpenses,
-            incomes = lastIncomes,
-            transactionsInterval = currentTransactionsInterval,
-            baseCurrency = currentBalance.first,
-        )
-
         BudgetsCard(
             expenses = lastExpenses,
             expectedExpenses = expectedExpenses,
             baseCurrency = currentBalance.first,
             onBudgetsEmpty = onBudgetsEmpty
+        )
+
+        OverallTransactionsCard(
+            expenses = lastExpenses,
+            incomes = lastIncomes,
+            transactionsInterval = currentTransactionsInterval,
+            baseCurrency = currentBalance.first,
         )
 
         OverallExpectedCard(
@@ -288,85 +288,6 @@ fun CashFlowCard(
     }
 }
 
-
-@Composable
-fun CashFlowColumn(
-    pastExpense: Float,
-    upcomingExpense: Float,
-    pastIncome: Float,
-    upcomingIncome: Float,
-    currency: Currency,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
-                .heightIn(max = 212.dp)
-        ) {
-            Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .padding(2.dp)
-                    .fillMaxWidth()
-            ) {
-                DoubleValueText(
-                    title = "Past",
-                    value = Pair(pastIncome, pastExpense),
-                    currency = currency,
-                    styleTitle = MaterialTheme.typography.titleLarge,
-                    styleValue = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            DoubleValueText(
-                title = "Upcoming",
-                value = Pair(upcomingIncome, upcomingExpense),
-                currency = currency,
-                styleTitle = MaterialTheme.typography.titleMedium,
-                styleValue = MaterialTheme.typography.bodyMedium
-            )
-        }
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .heightIn(max = 212.dp)
-                .weight(1f)
-                .fillMaxHeight()
-        ) {
-            val projectedCashflow = (pastIncome + upcomingIncome) - (pastExpense + upcomingExpense)
-            Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .padding(2.dp)
-                    .fillMaxWidth()
-            ) {
-                ValueText(
-                    title = "Projected",
-                    value = projectedCashflow,
-                    currency = currency,
-                    positive = projectedCashflow > 0,
-                    styleTitle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
-                    styleValue = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                    showIcon = true,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-        }
-    }
-}
-
-
 @Composable
 fun ValueText(
     title: String?,
@@ -412,44 +333,6 @@ fun ValueText(
     }
 }
 
-@Composable
-fun DoubleValueText(
-    title: String?,
-    value: Pair<Float, Float>,
-    currency: Currency,
-    modifier: Modifier = Modifier,
-    styleTitle: TextStyle = MaterialTheme.typography.titleMedium,
-    styleValue: TextStyle = MaterialTheme.typography.bodyMedium
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
-    ) {
-        title?.let {
-            Text(
-                text = title, style = styleTitle, modifier = Modifier.padding(8.dp)
-            )
-        }
-        Column(modifier = Modifier.wrapContentWidth()) {
-            ValueText(
-                title = null,
-                value = value.first,
-                currency = currency,
-                positive = true,
-                styleValue = styleValue
-            )
-
-            ValueText(
-                title = null,
-                value = value.second,
-                currency = currency,
-                positive = false,
-                styleValue = styleValue
-            )
-        }
-    }
-}
-
-
 @Preview
 @Composable
 fun PreviewCashflowCard() {
@@ -485,14 +368,14 @@ fun BudgetsCard(
     ) {
         lastMonth?.let {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Budgets",
@@ -502,14 +385,13 @@ fun BudgetsCard(
                             .weight(1f),
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.weight(1f))
+
                     Text(
                         text = lastMonth.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodySmall,
                         color = LocalContentColor.current.copy(alpha = 0.6f),
                         modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .weight(0.5f)
+                            .padding(top = 4.dp)
                     )
                 }
 
@@ -540,6 +422,18 @@ fun BudgetsCard(
             modifier = Modifier.padding(16.dp)
         )
     }
+}
+
+
+@Preview
+@Composable
+fun PreviewBudgetCard() {
+    BudgetsCard(
+        expenses = mapOf(YearMonth.now() to emptyMap()),
+        expectedExpenses = mapOf(YearMonth.now() to emptyMap()),
+        baseCurrency = Currency("USD", 1.0f, LocalDateTime.now()),
+        onBudgetsEmpty = {}
+    )
 }
 
 @Composable
