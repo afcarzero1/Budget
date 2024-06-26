@@ -127,8 +127,7 @@ fun OverallScreen(
         DefaultTopBar(currentScreen = budgetDestination, actions = {
             IconButton(onClick = { showDateDialog = true }) {
                 Icon(
-                    imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Select date range"
+                    imageVector = Icons.Filled.DateRange, contentDescription = "Select date range"
                 )
             }
         })
@@ -213,15 +212,16 @@ fun CashFlowCard(
     extraCashFlow: CashFlow,
     modifier: Modifier = Modifier
 ) {
-    val totalProjectedCashflow =
-        (registeredCashFlow.ingoing + extraCashFlow.ingoing) - (registeredCashFlow.outgoing + extraCashFlow.outgoing)
+    val totalProjectedIngoing = (registeredCashFlow.ingoing + extraCashFlow.ingoing)
+    val totalProjectedOutgoing = (registeredCashFlow.outgoing + extraCashFlow.outgoing)
+
+    val totalProjectedCashflow = totalProjectedIngoing - totalProjectedOutgoing
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ), elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        ), modifier = modifier
-            .padding(16.dp)
+        ), modifier = modifier.padding(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -251,17 +251,39 @@ fun CashFlowCard(
                         currency = registeredCashFlow.currency,
                         textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
+
+                    if (totalProjectedIngoing != 0f || totalProjectedOutgoing != 0f) {
+                        Row(
+                            modifier = Modifier.padding(start = 32.dp)
+                        ) {
+                            ValueText(
+                                title = null,
+                                value = registeredCashFlow.ingoing + extraCashFlow.ingoing,
+                                currency = registeredCashFlow.currency,
+                                positive = true,
+                                showIcon = false
+                            )
+                            ValueText(
+                                title = null,
+                                value = registeredCashFlow.outgoing + extraCashFlow.outgoing,
+                                currency = registeredCashFlow.currency,
+                                positive = false,
+                                showIcon = false
+                            )
+                        }
+                    }
                 }
 
                 Text(
                     text = yearMonth.toString(),
                     style = MaterialTheme.typography.bodySmall,
                     color = LocalContentColor.current.copy(alpha = 0.6f),
-                    modifier = Modifier
-                        .padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
             Spacer(Modifier.height(16.dp))
+
+
         }
     }
 }
@@ -276,8 +298,7 @@ fun CashFlowColumn(
     currency: Currency,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -320,8 +341,7 @@ fun CashFlowColumn(
                 .weight(1f)
                 .fillMaxHeight()
         ) {
-            val projectedCashflow =
-                (pastIncome + upcomingIncome) - (pastExpense + upcomingExpense)
+            val projectedCashflow = (pastIncome + upcomingIncome) - (pastExpense + upcomingExpense)
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -359,14 +379,11 @@ fun ValueText(
     showIcon: Boolean = false
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
     ) {
         title?.let {
             Text(
-                text = title,
-                style = styleTitle,
-                modifier = Modifier.padding(8.dp)
+                text = title, style = styleTitle, modifier = Modifier.padding(8.dp)
             )
         }
         Row(modifier = Modifier.wrapContentWidth()) {
@@ -387,12 +404,9 @@ fun ValueText(
                 }
             }
             Text(
-                text = currency.formatAmount(value),
-                style = styleValue,
-                color = if (value == 0f) {
+                text = currency.formatAmount(value), style = styleValue, color = if (value != 0f) {
                     if (positive) SoftGreen else WineRed
-                } else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(end = 8.dp)
+                } else MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(end = 8.dp)
             )
         }
     }
@@ -408,14 +422,11 @@ fun DoubleValueText(
     styleValue: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
     ) {
         title?.let {
             Text(
-                text = title,
-                style = styleTitle,
-                modifier = Modifier.padding(8.dp)
+                text = title, style = styleTitle, modifier = Modifier.padding(8.dp)
             )
         }
         Column(modifier = Modifier.wrapContentWidth()) {
@@ -445,11 +456,9 @@ fun PreviewCashflowCard() {
     CashFlowCard(
         registeredCashFlow = CashFlow(
             outgoing = 2000f, ingoing = 1500f, currency = Currency("USD", 1.0f, LocalDateTime.now())
-        ),
-        extraCashFlow = CashFlow(
+        ), extraCashFlow = CashFlow(
             outgoing = 500f, ingoing = 100f, currency = Currency("USD", 1.0f, LocalDateTime.now())
-        ),
-        yearMonth = YearMonth.now()
+        ), yearMonth = YearMonth.now()
     )
 }
 
