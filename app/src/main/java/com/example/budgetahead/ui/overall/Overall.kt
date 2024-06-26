@@ -3,7 +3,6 @@ package com.example.budgetahead.ui.overall
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,9 +47,9 @@ import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.BudgetSummary
-import com.example.budgetahead.ui.components.LinearProgressIndicator
 import com.example.budgetahead.ui.components.graphics.rememberMarker
 import com.example.budgetahead.ui.components.inputs.YearMonthDialog
+import com.example.budgetahead.ui.components.values.ValueWithIcon
 import com.example.budgetahead.ui.navigation.DefaultTopBar
 import com.example.budgetahead.ui.navigation.Overview
 import com.example.budgetahead.ui.navigation.Transactions
@@ -95,6 +93,8 @@ fun OverallScreen(
     val monthCashFlow by overallViewModel.monthCashFlow.collectAsState()
     val extraCashFlow by overallViewModel.monthExpectedExtraCashFlow.collectAsState()
 
+    val centralDate by overallViewModel.centralDateFlow.collectAsState()
+
 
     var showDateDialog by remember { mutableStateOf(false) }
 
@@ -120,7 +120,8 @@ fun OverallScreen(
                 overallViewModel.setBalanceRangeFlow(fromDate, toDate)
             },
             monthCashFlow = monthCashFlow,
-            extraCashFlow = extraCashFlow
+            extraCashFlow = extraCashFlow,
+            centralDate = centralDate
         )
     }, topBar = { budgetDestination, navHostController ->
         DefaultTopBar(currentScreen = budgetDestination, actions = {
@@ -156,6 +157,7 @@ fun OverallScreenBody(
     balancesInterval: Pair<YearMonth, YearMonth>,
     monthCashFlow: CashFlow,
     extraCashFlow: CashFlow,
+    centralDate: YearMonth,
     onBudgetsEmpty: () -> Unit,
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
 ) {
@@ -165,17 +167,20 @@ fun OverallScreenBody(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
+        CashFlowCard(
+            registeredCashFlow = monthCashFlow,
+            extraCashFlow = extraCashFlow,
+            modifier = Modifier.fillMaxWidth(),
+            yearMonth = centralDate
+        )
+
         OverallTransactionsCard(
             expenses = lastExpenses,
             incomes = lastIncomes,
             transactionsInterval = currentTransactionsInterval,
             baseCurrency = currentBalance.first,
         )
-        CashFlowCard(
-            title = "Cashflow",
-            registeredCashFlow = monthCashFlow,
-            extraCashFlow = extraCashFlow,
-        )
+
         BudgetsCard(
             expenses = lastExpenses,
             expectedExpenses = expectedExpenses,
@@ -203,90 +208,60 @@ fun OverallScreenBody(
 
 @Composable
 fun CashFlowCard(
-    title: String,
+    yearMonth: YearMonth,
     registeredCashFlow: CashFlow,
     extraCashFlow: CashFlow,
     modifier: Modifier = Modifier
 ) {
+    val totalProjectedCashflow =
+        (registeredCashFlow.ingoing + extraCashFlow.ingoing) - (registeredCashFlow.outgoing + extraCashFlow.outgoing)
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
         ), elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         ), modifier = modifier
             .padding(16.dp)
     ) {
-
-
-
-        
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .wrapContentWidth()
+                .fillMaxWidth()
         ) {
-            Text(
-                text = title, style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLines = 1,
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(start = 16.dp)
-            )
-            Spacer(Modifier.height(16.dp))
-
-
-
-
             Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .heightIn(max = 300.dp)
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(IntrinsicSize.Min)
-                        .padding(horizontal = 4.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(10.dp),
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                Column(
+                    modifier = Modifier.padding(start = 8.dp),
                 ) {
-                    CashFlowColumn(
-                        "Ingoing",
-                        pastCashFlow = registeredCashFlow.ingoing,
-                        upcomingCashFlow = extraCashFlow.ingoing,
+                    Text(
+                        text = "Projected cashflow",
+                        maxLines = 1,
+                        modifier = Modifier.padding(8.dp),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                alpha = 0.9f
+                            )
+                        )
+                    )
+                    ValueWithIcon(
+                        value = totalProjectedCashflow,
                         currency = registeredCashFlow.currency,
-                        isPositive = true
+                        textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Surface(
+                Text(
+                    text = yearMonth.toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.6f),
                     modifier = Modifier
-                        .weight(1f)
-                        .height(IntrinsicSize.Min)
-                        .padding(horizontal = 4.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(10.dp),
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ) {
-                    CashFlowColumn(
-                        "Outgoing",
-                        pastCashFlow = registeredCashFlow.outgoing,
-                        upcomingCashFlow = extraCashFlow.outgoing,
-                        currency = registeredCashFlow.currency,
-                        isPositive = false
-                    )
-                }
-
-
+                        .padding(top = 4.dp)
+                )
             }
-
-
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -294,63 +269,79 @@ fun CashFlowCard(
 
 @Composable
 fun CashFlowColumn(
-    title: String,
-    pastCashFlow: Float,
-    upcomingCashFlow: Float,
+    pastExpense: Float,
+    upcomingExpense: Float,
+    pastIncome: Float,
+    upcomingIncome: Float,
     currency: Currency,
-    isPositive: Boolean
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp)
+                .heightIn(max = 212.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
-            )
-        }
-        Row {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
-                    .weight(1f)
-                    .heightIn(max = 128.dp)
+                    .padding(2.dp)
+                    .fillMaxWidth()
             ) {
-                ValueText(
+                DoubleValueText(
                     title = "Past",
-                    value = pastCashFlow,
+                    value = Pair(pastIncome, pastExpense),
                     currency = currency,
-                    positive = isPositive,
-                    styleTitle = MaterialTheme.typography.titleSmall
-                )
-
-                ValueText(
-                    title = "Upcoming",
-                    value = upcomingCashFlow,
-                    currency = currency,
-                    positive = isPositive,
-                    styleTitle = MaterialTheme.typography.titleSmall
+                    styleTitle = MaterialTheme.typography.titleLarge,
+                    styleValue = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+
+            DoubleValueText(
+                title = "Upcoming",
+                value = Pair(upcomingIncome, upcomingExpense),
+                currency = currency,
+                styleTitle = MaterialTheme.typography.titleMedium,
+                styleValue = MaterialTheme.typography.bodyMedium
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .heightIn(max = 212.dp)
+                .weight(1f)
+                .fillMaxHeight()
+        ) {
+            val projectedCashflow =
+                (pastIncome + upcomingIncome) - (pastExpense + upcomingExpense)
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
-                    .weight(1.5f)
-                    .heightIn(max = 128.dp)
+                    .padding(2.dp)
+                    .fillMaxWidth()
             ) {
                 ValueText(
                     title = "Projected",
-                    value = (pastCashFlow + upcomingCashFlow),
+                    value = projectedCashflow,
                     currency = currency,
-                    positive = isPositive,
+                    positive = projectedCashflow > 0,
                     styleTitle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
-                    styleValue = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                    styleValue = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                    showIcon = true,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
+
         }
     }
 }
@@ -364,7 +355,8 @@ fun ValueText(
     positive: Boolean,
     modifier: Modifier = Modifier,
     styleTitle: TextStyle = MaterialTheme.typography.titleMedium,
-    styleValue: TextStyle = MaterialTheme.typography.bodySmall
+    styleValue: TextStyle = MaterialTheme.typography.bodySmall,
+    showIcon: Boolean = false
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -378,25 +370,69 @@ fun ValueText(
             )
         }
         Row(modifier = Modifier.wrapContentWidth()) {
-            if (positive) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowUp,
-                    contentDescription = "income",
-                    tint = SoftGreen
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "income",
-                    tint = WineRed,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+            if (showIcon) {
+                if (positive) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowUp,
+                        contentDescription = "income",
+                        tint = SoftGreen
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "income",
+                        tint = WineRed,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
             }
             Text(
                 text = currency.formatAmount(value),
                 style = styleValue,
-                color = if (positive) SoftGreen else WineRed,
+                color = if (value == 0f) {
+                    if (positive) SoftGreen else WineRed
+                } else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(end = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun DoubleValueText(
+    title: String?,
+    value: Pair<Float, Float>,
+    currency: Currency,
+    modifier: Modifier = Modifier,
+    styleTitle: TextStyle = MaterialTheme.typography.titleMedium,
+    styleValue: TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        title?.let {
+            Text(
+                text = title,
+                style = styleTitle,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Column(modifier = Modifier.wrapContentWidth()) {
+            ValueText(
+                title = null,
+                value = value.first,
+                currency = currency,
+                positive = true,
+                styleValue = styleValue
+            )
+
+            ValueText(
+                title = null,
+                value = value.second,
+                currency = currency,
+                positive = false,
+                styleValue = styleValue
             )
         }
     }
@@ -407,13 +443,13 @@ fun ValueText(
 @Composable
 fun PreviewCashflowCard() {
     CashFlowCard(
-        title = "Cashflow",
         registeredCashFlow = CashFlow(
             outgoing = 2000f, ingoing = 1500f, currency = Currency("USD", 1.0f, LocalDateTime.now())
         ),
         extraCashFlow = CashFlow(
             outgoing = 500f, ingoing = 100f, currency = Currency("USD", 1.0f, LocalDateTime.now())
-        )
+        ),
+        yearMonth = YearMonth.now()
     )
 }
 

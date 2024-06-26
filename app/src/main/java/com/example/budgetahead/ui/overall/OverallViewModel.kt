@@ -47,7 +47,7 @@ class OverallViewModel(
             initialValue = Pair(Currency("USD", 1.0f, LocalDateTime.now()), 0f)
         )
 
-    private val centralDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
+    val centralDateFlow: MutableStateFlow<YearMonth> = MutableStateFlow(YearMonth.now())
 
     private val currentDateRangeFlow: Flow<Pair<YearMonth, YearMonth>> = centralDateFlow.map {
         Pair(it.minusMonths(5), it)
