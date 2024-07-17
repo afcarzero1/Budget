@@ -78,7 +78,7 @@ class AccountTransferEntryViewModel(
 
 data class AccountTransferUiState(
     val transfer: Transfer = Transfer(
-        id = -1,
+        id = 0,
         sourceAccountId = -1,
         sourceAccountTransactionId = -1,
         destinationAccountId = -1,
