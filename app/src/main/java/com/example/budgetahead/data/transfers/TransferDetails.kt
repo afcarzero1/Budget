@@ -90,7 +90,7 @@ fun TransferDetailsScreen(
 
         if (deleteConfirmationRequired) {
             ConfirmationDeletionDialog(
-                message = stringResource(R.string.delete_account),
+                message = stringResource(R.string.delete_transfer),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     coroutineScope.launch {
