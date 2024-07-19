@@ -10,13 +10,13 @@ import com.example.budgetahead.data.accounts.AccountsRepository
 import com.example.budgetahead.data.accounts.FullAccount
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.ui.navigation.TransferDetails
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class TransferDetailsViewModel(
     savedStateHandle: SavedStateHandle,
@@ -31,7 +31,8 @@ class TransferDetailsViewModel(
         checkNotNull(savedStateHandle[TransferDetails.transferIdArg])
 
     val transferDBState: StateFlow<TransferDetailsUiState> =
-        transactionsRepository.getTransfersStream(transferId)
+        transactionsRepository
+            .getTransfersStream(transferId)
             .filterNotNull()
             .map {
                 TransferDetailsUiState(it, true)
@@ -42,7 +43,8 @@ class TransferDetailsViewModel(
             )
 
     val accountsListState: StateFlow<List<FullAccount>> =
-        accountsRepository.getAllFullAccountsStream()
+        accountsRepository
+            .getAllFullAccountsStream()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
@@ -51,7 +53,6 @@ class TransferDetailsViewModel(
 
     var transferUiState by mutableStateOf(TransferDetailsUiState())
         private set
-
 
     var showUpdatedState by mutableStateOf(false)
         private set
@@ -66,12 +67,12 @@ class TransferDetailsViewModel(
         }
     }
 
-
     fun updateUiState(transfer: Transfer) {
-        this.transferUiState = TransferDetailsUiState(
-            transfer = transfer,
-            isValid = validateInput(transfer)
-        )
+        this.transferUiState =
+            TransferDetailsUiState(
+                transfer = transfer,
+                isValid = validateInput(transfer)
+            )
         showUpdatedState = true
     }
 
@@ -80,7 +81,6 @@ class TransferDetailsViewModel(
             transactionsRepository.updateTransfer(transferUiState.transfer)
         }
     }
-
 
     suspend fun deleteTransfer() {
         transactionsRepository.deleteTransfer(transferDBState.value.transfer)
@@ -120,20 +120,19 @@ class TransferDetailsViewModel(
 
         return true
     }
-
 }
 
-
 data class TransferDetailsUiState(
-    val transfer: Transfer = Transfer(
-        id = -1,
-        sourceAccountId = -1,
-        sourceAccountTransactionId = -1,
-        destinationAccountId = -1,
-        destinationAccountTransactionId = -1,
-        amountDestination = 0f,
-        amountSource = 0f,
-        date = LocalDateTime.now()
-    ),
+    val transfer: Transfer =
+        Transfer(
+            id = -1,
+            sourceAccountId = -1,
+            sourceAccountTransactionId = -1,
+            destinationAccountId = -1,
+            destinationAccountTransactionId = -1,
+            amountDestination = 0f,
+            amountSource = 0f,
+            date = LocalDateTime.now()
+        ),
     val isValid: Boolean = false
 )

@@ -1,12 +1,10 @@
 package com.example.budgetahead.data.categories
 
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.LocalDateTime
 
-class OfflineCategoriesRepository(
-    private val categoryDao: CategoryDao
-) : CategoriesRepository {
+class OfflineCategoriesRepository(private val categoryDao: CategoryDao) : CategoriesRepository {
     override suspend fun insert(category: Category) = categoryDao.insert(category)
 
     override suspend fun update(category: Category) = categoryDao.update(category)
@@ -27,15 +25,18 @@ class OfflineCategoriesRepository(
     override fun getAllCategoriesWithTransactionsStream(
         start: LocalDateTime,
         end: LocalDateTime
-    ): Flow<List<CategoryWithTransactions>> =
-        categoryDao.getAllCategoriesWithTransactionsStream(start, end).map { categoriesWithTransactions ->
-            categoriesWithTransactions.map { categoryWithTransactions ->
-                CategoryWithTransactions(
-                    category = categoryWithTransactions.key,
-                    transactions = categoryWithTransactions.value.map { transaction ->
-                        transaction
-                    }
-                )
-            }
+    ): Flow<List<CategoryWithTransactions>> = categoryDao.getAllCategoriesWithTransactionsStream(
+        start,
+        end
+    ).map { categoriesWithTransactions ->
+        categoriesWithTransactions.map { categoryWithTransactions ->
+            CategoryWithTransactions(
+                category = categoryWithTransactions.key,
+                transactions =
+                categoryWithTransactions.value.map { transaction ->
+                    transaction
+                }
+            )
         }
+    }
 }

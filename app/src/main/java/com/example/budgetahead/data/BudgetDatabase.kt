@@ -27,11 +27,10 @@ import com.example.budgetahead.data.transfers.Transfer
         Transfer::class
     ],
     version = 4,
-    exportSchema = true,
+    exportSchema = true
 )
 @TypeConverters(DateConverter::class, CategoryTypeConverter::class)
 abstract class BudgetDatabase : RoomDatabase() {
-
     abstract fun currencyDao(): CurrencyDao
 
     abstract fun accountDao(): AccountDao
@@ -43,18 +42,15 @@ abstract class BudgetDatabase : RoomDatabase() {
     abstract fun futureTransactionDao(): FutureTransactionDao
 
     companion object {
-
         @Volatile
         private var Instance: BudgetDatabase? = null
 
-        fun getDatabase(context: Context): BudgetDatabase {
-            return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, BudgetDatabase::class.java, "budget_database")
-                    .createFromAsset("database/budget_db.db")
-                    .build()
-                    .also { Instance = it }
-            }
+        fun getDatabase(context: Context): BudgetDatabase = Instance ?: synchronized(this) {
+            Room
+                .databaseBuilder(context, BudgetDatabase::class.java, "budget_database")
+                .createFromAsset("database/budget_db.db")
+                .build()
+                .also { Instance = it }
         }
     }
 }
-

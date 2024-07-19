@@ -27,7 +27,8 @@ class AccountDetailsViewModel(
     val accountId: Int = checkNotNull(savedStateHandle[AccountDetails.accountIdArg])
 
     val accountState: StateFlow<AccountDetailsUiState> =
-        accountsRepository.getAccountStream(accountId)
+        accountsRepository
+            .getAccountStream(accountId)
             .filterNotNull()
             .map {
                 AccountDetailsUiState(it, true)
@@ -43,25 +44,23 @@ class AccountDetailsViewModel(
     var showUpdatedState by mutableStateOf(false)
         private set
 
-
     fun updateUiState(account: Account) {
         Log.d("ACCOUNT VIEW MODEL", "The id is : $accountId")
         Log.d("ACCOUNT VIEW MODEL", "The updated account is : $account")
-        if(account.id != accountId){
+        if (account.id != accountId) {
             return
         }
 
-        this.accountUiState = AccountDetailsUiState(
-            account = account,
-            isValid = validateInput(account)
-        )
+        this.accountUiState =
+            AccountDetailsUiState(
+                account = account,
+                isValid = validateInput(account)
+            )
         showUpdatedState = true
     }
 
-    private fun validateInput(account: Account): Boolean {
-        return with(account) {
-            name.isNotBlank() && currency.isNotBlank()
-        }
+    private fun validateInput(account: Account): Boolean = with(account) {
+        name.isNotBlank() && currency.isNotBlank()
     }
 
     suspend fun updateAccount() {
@@ -74,7 +73,6 @@ class AccountDetailsViewModel(
         accountsRepository.deleteAccount(accountState.value.account)
     }
 }
-
 
 data class AccountDetailsUiState(
     val account: Account = Account(-1, "", 0.0f, "USD"),

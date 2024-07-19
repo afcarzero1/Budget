@@ -44,15 +44,17 @@ interface AppContainer {
     val localUserManager: LocalUserManager
 }
 
-class AppDataContainer(private val context: Context) : AppContainer{
-
+class AppDataContainer(private val context: Context) : AppContainer {
     private val currenciesBaseUrl = "https://api.currencyfreaks.com/v2.0/"
     private val currenciesApiKey: String = context.getString(R.string.CURRENCY_API_KEY)
+
     @OptIn(ExperimentalSerializationApi::class)
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(currenciesBaseUrl)
-        .build()
+    private val retrofit: Retrofit =
+        Retrofit
+            .Builder()
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .baseUrl(currenciesBaseUrl)
+            .build()
 
     private val currenciesApiService: CurrenciesApiService by lazy {
         retrofit.create(CurrenciesApiService::class.java)
@@ -85,7 +87,9 @@ class AppDataContainer(private val context: Context) : AppContainer{
     }
 
     override val futureTransactionsRepository: FutureTransactionsRepository by lazy {
-        OfflineFutureTransactionsRepository(BudgetDatabase.getDatabase(context).futureTransactionDao())
+        OfflineFutureTransactionsRepository(
+            BudgetDatabase.getDatabase(context).futureTransactionDao()
+        )
     }
 
     override val balancesRepository: BalancesRepository by lazy {

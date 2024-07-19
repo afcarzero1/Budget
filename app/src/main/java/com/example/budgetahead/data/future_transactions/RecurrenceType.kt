@@ -8,13 +8,13 @@ enum class RecurrenceType {
     YEARLY
 }
 
-
 object RecurrenceTypeDescriptions {
-    val descriptions: Map<RecurrenceType, String> = mapOf(
-        RecurrenceType.NONE to "None",
-        RecurrenceType.DAILY to "Days",
-        RecurrenceType.WEEKLY to "Weeks",
-        RecurrenceType.MONTHLY to "Months",
-        RecurrenceType.YEARLY to "Years"
-    )
+    val descriptions: Map<RecurrenceType, String> =
+        mapOf(
+            RecurrenceType.NONE to "None",
+            RecurrenceType.DAILY to "Days",
+            RecurrenceType.WEEKLY to "Weeks",
+            RecurrenceType.MONTHLY to "Months",
+            RecurrenceType.YEARLY to "Years"
+        )
 }

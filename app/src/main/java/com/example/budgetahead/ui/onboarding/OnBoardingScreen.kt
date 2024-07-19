@@ -27,31 +27,31 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnBoardingScreen(
-    onEvent: (OnBoardingEvent) -> Unit
-) {
-
+fun OnBoardingScreen(onEvent: (OnBoardingEvent) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        val pagerState = rememberPagerState(initialPage = 0) {
-            pages.size
-        }
-        val buttonsState = remember {
-            derivedStateOf {
-                when (pagerState.currentPage) {
-                    0 -> listOf("", "Next")
-                    1 -> listOf("Back", "Next")
-                    2 -> listOf("Back", "Get Started")
-                    else -> listOf("", "")
+        val pagerState =
+            rememberPagerState(initialPage = 0) {
+                pages.size
+            }
+        val buttonsState =
+            remember {
+                derivedStateOf {
+                    when (pagerState.currentPage) {
+                        0 -> listOf("", "Next")
+                        1 -> listOf("Back", "Next")
+                        2 -> listOf("Back", "Get Started")
+                        else -> listOf("", "")
+                    }
                 }
             }
-        }
         HorizontalPager(state = pagerState) { index ->
             OnBoardingPage(page = pages[index])
         }
         Spacer(modifier = Modifier.weight(1f))
 
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .navigationBarsPadding(),

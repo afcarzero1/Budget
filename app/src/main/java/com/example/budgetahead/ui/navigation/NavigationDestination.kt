@@ -37,12 +37,17 @@ interface BudgetDestination {
     val topBar: (@Composable (NavHostController) -> Unit)?
 }
 
-object OnBoarding: BudgetDestination{
+object OnBoarding : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
-            painter = painterResource(
-                id = if (selected) R.drawable.home_24dp_fill1_wght300_grad0_opsz24 else
+            painter =
+            painterResource(
+                id =
+                if (selected) {
+                    R.drawable.home_24dp_fill1_wght300_grad0_opsz24
+                } else {
                     R.drawable.home_24dp_fill0_wght300_grad0_opsz24
+                }
             ),
             contentDescription = null
         )
@@ -51,15 +56,19 @@ object OnBoarding: BudgetDestination{
     override val screen: (navController: NavHostController) -> Unit
         get() = TODO("Not yet implemented")
     override val topBar: ((NavHostController) -> Unit)? = null
-
 }
 
 object Overview : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
-            painter = painterResource(
-                id = if (selected) R.drawable.home_24dp_fill1_wght300_grad0_opsz24 else
+            painter =
+            painterResource(
+                id =
+                if (selected) {
+                    R.drawable.home_24dp_fill1_wght300_grad0_opsz24
+                } else {
                     R.drawable.home_24dp_fill0_wght300_grad0_opsz24
+                }
             ),
             contentDescription = null
         )
@@ -74,11 +83,16 @@ object Overview : BudgetDestination {
 object Accounts : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
-            painter = painterResource(
-                id = if (selected) R.drawable.account_balance_wallet_24dp_fill0_wght300_grad200_opsz24 else
+            painter =
+            painterResource(
+                id =
+                if (selected) {
+                    R.drawable.account_balance_wallet_24dp_fill0_wght300_grad200_opsz24
+                } else {
                     R.drawable.account_balance_wallet_24dp_fill0_wght300_grad0_opsz24
+                }
             ),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route = "accounts"
@@ -92,7 +106,7 @@ object AccountEntry : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route = "accountEntry"
@@ -110,7 +124,7 @@ object AccountTransferEntry : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route = "transferEntry"
@@ -121,7 +135,6 @@ object AccountTransferEntry : BudgetDestination {
     }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
-
 
 object AccountDetails : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
@@ -141,17 +154,21 @@ object AccountDetails : BudgetDestination {
             AccountDetailsScreen(navigateBack = { it.popBackStack() })
         }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
-
 }
 
 object Currencies : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
-            painter = painterResource(
-                id = if (selected) R.drawable.currency_exchange_24dp_fill0_wght300_grad200_opsz24 else
+            painter =
+            painterResource(
+                id =
+                if (selected) {
+                    R.drawable.currency_exchange_24dp_fill0_wght300_grad200_opsz24
+                } else {
                     R.drawable.currency_exchange_24dp_fill0_wght300_grad0_opsz24
+                }
             ),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route = "currencies"
@@ -159,14 +176,12 @@ object Currencies : BudgetDestination {
         CurrenciesScreen(navHostController = it, viewModel(factory = AppViewModelProvider.Factory))
     }
     override val topBar: (@Composable (NavHostController) -> Unit) = @Composable {
-
     }
 }
 
-
-object CurrenciesSettings: BudgetDestination{
-    override val icon =  @Composable{ selected: Boolean ->
-        Icon(imageVector = Icons.Filled.Check , contentDescription = "yes")
+object CurrenciesSettings : BudgetDestination {
+    override val icon = @Composable { selected: Boolean ->
+        Icon(imageVector = Icons.Filled.Check, contentDescription = "yes")
     }
     override val route: String = "currencies settings"
     override val screen: @Composable (navController: NavHostController) -> Unit = {
@@ -178,11 +193,16 @@ object CurrenciesSettings: BudgetDestination{
 object Categories : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
-            painter = painterResource(
-                id = if (selected) R.drawable.category_24dp_fill0_wght300_grad200_opsz24 else
+            painter =
+            painterResource(
+                id =
+                if (selected) {
+                    R.drawable.category_24dp_fill0_wght300_grad200_opsz24
+                } else {
                     R.drawable.category_24dp_fill0_wght300_grad0_opsz24
+                }
             ),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route = "categories"
@@ -223,7 +243,6 @@ object CategoryDetails : BudgetDestination {
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
-
 object Transactions : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
@@ -243,7 +262,7 @@ object TransactionEntry : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.transactions),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route: String = "transactionEntry"
@@ -257,7 +276,7 @@ object TransactionDetails : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route: String = "transactionDetails"
@@ -273,12 +292,11 @@ object TransactionDetails : BudgetDestination {
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
-
-object TransferDetails: BudgetDestination{
+object TransferDetails : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route: String = "transferDetails"
@@ -287,20 +305,17 @@ object TransferDetails: BudgetDestination{
 
     val routeWithArgs = "$route/{$transferIdArg}"
 
-
     override val screen: @Composable (navController: NavHostController) -> Unit = {
-        TransferDetailsScreen(navigateBack = {it.popBackStack()})
+        TransferDetailsScreen(navigateBack = { it.popBackStack() })
     }
     override val topBar: ((NavHostController) -> Unit)? = null
-
 }
-
 
 object FutureTransactionEntry : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.transactions),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route: String = "futureTransactionEntry"
@@ -310,12 +325,11 @@ object FutureTransactionEntry : BudgetDestination {
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
-
 object FutureTransactionDetails : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
             painter = painterResource(id = R.drawable.bank),
-            contentDescription = null,
+            contentDescription = null
         )
     }
     override val route: String = "futureTransactionDetails"
@@ -330,6 +344,5 @@ object FutureTransactionDetails : BudgetDestination {
         }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
-
 
 val tabDestinations = listOf(Overview, Accounts, Transactions, Currencies, Categories)

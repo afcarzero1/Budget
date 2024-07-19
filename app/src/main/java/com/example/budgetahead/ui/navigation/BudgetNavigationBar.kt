@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -39,7 +36,8 @@ fun BudgetNavigationBar(
         containerColor = MaterialTheme.colorScheme.surface
     ) {
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(14.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -49,16 +47,24 @@ fun BudgetNavigationBar(
                 IconButton(
                     onClick = { if (!isSelected) onTabSelected(screen) },
                     // Set the icon tint color based on the selection state
-                    colors = IconButtonDefaults.iconButtonColors(
+                    colors =
+                    IconButtonDefaults.iconButtonColors(
                         contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     ),
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .then(
-                            if (isSelected) Modifier
-                                .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                            else Modifier
+                            if (isSelected) {
+                                Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                        CircleShape
+                                    )
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                            } else {
+                                Modifier
+                            }
                         )
                 ) {
                     screen.icon(isSelected)
@@ -67,7 +73,6 @@ fun BudgetNavigationBar(
         }
     }
 }
-
 
 @Composable
 fun BudgetTopBar(currentScreen: BudgetDestination, navHostController: NavHostController) {
@@ -98,7 +103,6 @@ fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> 
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondaryScreenTopBar(
@@ -126,12 +130,12 @@ fun SecondaryScreenTopBar(
             actions?.invoke() // Render actions only if non-null
         },
         modifier = Modifier.fillMaxWidth(),
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+        colors =
+        TopAppBarDefaults.smallTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary
         )
     )
 }
-
 
 @Composable
 @Preview(showBackground = true, name = "Budget Navigation Bar Preview")
@@ -147,7 +151,6 @@ fun PreviewBudgetNavigationBar() {
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

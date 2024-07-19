@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,15 +21,12 @@ import com.example.budgetahead.R
 import com.example.budgetahead.ui.onboarding.Page
 import com.example.budgetahead.ui.theme.BudgetApplicationTheme
 
-
 @Composable
-fun OnBoardingPage(
-    modifier: Modifier = Modifier,
-    page: Page,
-) {
+fun OnBoardingPage(modifier: Modifier = Modifier, page: Page) {
     Column(modifier = modifier) {
         Image(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.60f),
             painter = painterResource(id = page.image),
@@ -59,7 +55,8 @@ fun OnBoardingPage(
 fun OnBoardingPagePreview() {
     BudgetApplicationTheme {
         OnBoardingPage(
-            page = Page(
+            page =
+            Page(
                 title = "Lorem Ipsum is simply dummy",
                 description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
                 image = R.drawable.budget

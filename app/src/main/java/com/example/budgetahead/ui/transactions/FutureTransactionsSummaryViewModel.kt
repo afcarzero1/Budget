@@ -10,19 +10,20 @@ import kotlinx.coroutines.flow.stateIn
 
 class FutureTransactionsSummaryViewModel(
     futureTransactionsRepository: FutureTransactionsRepository
-) : ViewModel(){
+) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    val futureTransactionsUiState = futureTransactionsRepository
-        .getAllFutureFullTransactionsStream()
-        .map { FutureTransactionsUiState(it) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = FutureTransactionsUiState()
-        )
+    val futureTransactionsUiState =
+        futureTransactionsRepository
+            .getAllFutureFullTransactionsStream()
+            .map { FutureTransactionsUiState(it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = FutureTransactionsUiState()
+            )
 }
 
 data class FutureTransactionsUiState(

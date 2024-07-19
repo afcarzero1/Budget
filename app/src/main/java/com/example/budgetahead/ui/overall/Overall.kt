@@ -5,15 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -25,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -95,7 +91,6 @@ fun OverallScreen(
 
     val centralDate by overallViewModel.centralDateFlow.collectAsState()
 
-
     var showDateDialog by remember { mutableStateOf(false) }
 
     Log.d("OVERVIEW", "Current Transactions $currentTransactionsInterval")
@@ -127,7 +122,8 @@ fun OverallScreen(
         DefaultTopBar(currentScreen = budgetDestination, actions = {
             IconButton(onClick = { showDateDialog = true }) {
                 Icon(
-                    imageVector = Icons.Filled.DateRange, contentDescription = "Select date range"
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = "Select date range"
                 )
             }
         })
@@ -139,7 +135,7 @@ fun OverallScreen(
         onClose = {
             showDateDialog = false
             overallViewModel.setCentralDate(it)
-        },
+        }
     )
 }
 
@@ -158,11 +154,11 @@ fun OverallScreenBody(
     extraCashFlow: CashFlow,
     centralDate: YearMonth,
     onBudgetsEmpty: () -> Unit,
-    onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
+    onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
-
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
@@ -184,14 +180,14 @@ fun OverallScreenBody(
             expenses = lastExpenses,
             incomes = lastIncomes,
             transactionsInterval = currentTransactionsInterval,
-            baseCurrency = currentBalance.first,
+            baseCurrency = currentBalance.first
         )
 
         OverallExpectedCard(
             expenses = expectedExpenses,
             incomes = expectedIncomes,
             expensesInterval = expectedExpensesInterval,
-            baseCurrency = currentBalance.first,
+            baseCurrency = currentBalance.first
         )
 
         OverallBalancesCard(
@@ -201,9 +197,7 @@ fun OverallScreenBody(
             onRangeChanged = onBalancesDateRangeChanged
         )
     }
-
 }
-
 
 @Composable
 fun CashFlowCard(
@@ -217,14 +211,19 @@ fun CashFlowCard(
 
     val totalProjectedCashflow = totalProjectedIngoing + totalProjectedOutgoing
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-        ), elevation = CardDefaults.cardElevation(
+        colors =
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        elevation =
+        CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        ), modifier = modifier.padding(16.dp)
+        ),
+        modifier = modifier.padding(16.dp)
     ) {
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
@@ -234,14 +233,16 @@ fun CashFlowCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
                     Text(
                         text = "Projected cashflow",
                         maxLines = 1,
                         modifier = Modifier.padding(8.dp),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                        style =
+                        MaterialTheme.typography.labelMedium.copy(
+                            color =
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(
                                 alpha = 0.9f
                             )
                         )
@@ -249,7 +250,9 @@ fun CashFlowCard(
                     ValueWithIcon(
                         value = totalProjectedCashflow,
                         currency = registeredCashFlow.currency,
-                        textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold)
+                        textStyle = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
                     )
 
                     if (totalProjectedIngoing != 0f || totalProjectedOutgoing != 0f) {
@@ -282,8 +285,6 @@ fun CashFlowCard(
                 )
             }
             Spacer(Modifier.height(16.dp))
-
-
         }
     }
 }
@@ -300,11 +301,14 @@ fun ValueText(
     showIcon: Boolean = false
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
         title?.let {
             Text(
-                text = title, style = styleTitle, modifier = Modifier.padding(8.dp)
+                text = title,
+                style = styleTitle,
+                modifier = Modifier.padding(8.dp)
             )
         }
         Row(modifier = Modifier.wrapContentWidth()) {
@@ -325,9 +329,15 @@ fun ValueText(
                 }
             }
             Text(
-                text = currency.formatAmount(value), style = styleValue, color = if (value != 0f) {
+                text = currency.formatAmount(value),
+                style = styleValue,
+                color =
+                if (value != 0f) {
                     if (positive) SoftGreen else WineRed
-                } else MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(end = 8.dp)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier.padding(end = 8.dp)
             )
         }
     }
@@ -337,14 +347,21 @@ fun ValueText(
 @Composable
 fun PreviewCashflowCard() {
     CashFlowCard(
-        registeredCashFlow = CashFlow(
-            outgoing = 2000f, ingoing = 1500f, currency = Currency("USD", 1.0f, LocalDateTime.now())
-        ), extraCashFlow = CashFlow(
-            outgoing = 500f, ingoing = 100f, currency = Currency("USD", 1.0f, LocalDateTime.now())
-        ), yearMonth = YearMonth.now()
+        registeredCashFlow =
+        CashFlow(
+            outgoing = 2000f,
+            ingoing = 1500f,
+            currency = Currency("USD", 1.0f, LocalDateTime.now())
+        ),
+        extraCashFlow =
+        CashFlow(
+            outgoing = 500f,
+            ingoing = 100f,
+            currency = Currency("USD", 1.0f, LocalDateTime.now())
+        ),
+        yearMonth = YearMonth.now()
     )
 }
-
 
 @Composable
 fun BudgetsCard(
@@ -358,17 +375,23 @@ fun BudgetsCard(
     Log.d("OverallScreen", "Attempting to show budgets of: $lastMonth")
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ), elevation = CardDefaults.cardElevation(
+        colors =
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation =
+        CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        ), modifier = Modifier
+        ),
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         lastMonth?.let {
             Column(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
@@ -380,7 +403,8 @@ fun BudgetsCard(
                     Text(
                         text = "Budgets",
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .padding(bottom = 16.dp)
                             .weight(1f),
                         fontWeight = FontWeight.Bold
@@ -390,7 +414,8 @@ fun BudgetsCard(
                         text = lastMonth.toString(),
                         style = MaterialTheme.typography.bodySmall,
                         color = LocalContentColor.current.copy(alpha = 0.6f),
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .padding(top = 4.dp)
                     )
                 }
@@ -409,8 +434,6 @@ fun BudgetsCard(
                             baseCurrency = baseCurrency
                         )
                     }
-
-
                 } ?: run {
                     Log.d("BudgetCard", "Showing placeholder")
                     BudgetSummaryPlaceholder(onLinkClicked = {})
@@ -423,7 +446,6 @@ fun BudgetsCard(
         )
     }
 }
-
 
 @Preview
 @Composable
@@ -441,7 +463,7 @@ fun OverallTransactionsCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
     incomes: Map<YearMonth, Map<Category, Float>>,
     transactionsInterval: Pair<YearMonth, YearMonth>,
-    baseCurrency: Currency,
+    baseCurrency: Currency
 ) {
     TemporalChartByCategory(
         expenses = expenses,
@@ -457,14 +479,14 @@ fun OverallExpectedCard(
     expenses: Map<YearMonth, Map<Category, Float>>,
     incomes: Map<YearMonth, Map<Category, Float>>,
     expensesInterval: Pair<YearMonth, YearMonth>,
-    baseCurrency: Currency,
+    baseCurrency: Currency
 ) {
     TemporalChartByCategory(
         expenses = expenses,
         incomes = incomes,
         transactionsInterval = expensesInterval,
         baseCurrency = baseCurrency,
-        titleResId = R.string.overall_expenses_title,
+        titleResId = R.string.overall_expenses_title
     )
 }
 
@@ -476,9 +498,10 @@ fun OverallBalancesCard(
     onRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> }
 ) {
     val sortedBalances = balances.entries.sortedBy { it.key }
-    val transformedData = sortedBalances.associate {
-        it.key.toEpochDay().toFloat() to it.value
-    }
+    val transformedData =
+        sortedBalances.associate {
+            it.key.toEpochDay().toFloat() to it.value
+        }
     val chartEntryModel = entryModelOf(transformedData.keys.zip(transformedData.values, ::entryOf))
     val epochDaysList = transformedData.keys.toList()
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM")
@@ -494,32 +517,38 @@ fun OverallBalancesCard(
                 ""
             }
         }
-    val startAxisValueFormatter = AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
+    val startAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Vertical.Start> { value, _ ->
 
-        baseCurrency.formatAmount(value)
-    }
+            baseCurrency.formatAmount(value)
+        }
 
     var showRangeDialog by remember { mutableStateOf(false) }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ), elevation = CardDefaults.cardElevation(
+        colors =
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation =
+        CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        ), modifier = Modifier
+        ),
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
-                .padding(16.dp), horizontalAlignment = Alignment.Start
+                .padding(16.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = stringResource(R.string.balances_title),
@@ -527,20 +556,18 @@ fun OverallBalancesCard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                //calendar icon to the right
+                // calendar icon to the right
                 IconButton(
                     onClick = {
                         showRangeDialog = true
-                    },
+                    }
                 ) {
-
                     Icon(
                         imageVector = Icons.Default.DateRange,
                         contentDescription = "Calendar",
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(24.dp)
                     )
-
                 }
             }
 
@@ -548,13 +575,16 @@ fun OverallBalancesCard(
                 Chart(
                     chart = lineChart(),
                     model = chartEntryModel,
-                    startAxis = rememberStartAxis(
+                    startAxis =
+                    rememberStartAxis(
                         valueFormatter = startAxisValueFormatter
                     ),
-                    bottomAxis = rememberBottomAxis(
-                        valueFormatter = horizontalAxisValueFormatter, labelRotationDegrees = 90f
+                    bottomAxis =
+                    rememberBottomAxis(
+                        valueFormatter = horizontalAxisValueFormatter,
+                        labelRotationDegrees = 90f
                     ),
-                    marker = rememberMarker(),
+                    marker = rememberMarker()
                 )
             }
         }

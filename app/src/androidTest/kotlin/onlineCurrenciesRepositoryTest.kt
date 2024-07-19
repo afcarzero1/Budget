@@ -10,6 +10,7 @@ import com.example.budgetahead.data.BudgetDatabase
 import com.example.budgetahead.data.currencies.CurrenciesApiService
 import com.example.budgetahead.data.currencies.OnlineCurrenciesRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -19,23 +20,21 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
-import java.io.IOException
-
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @RunWith(AndroidJUnit4::class)
 class onlineCurrenciesRepositoryTest {
-
-
     private lateinit var budgetDatabase: BudgetDatabase
     private val currenciesBaseUrl = "https://api.currencyfreaks.com/v2.0/"
 
     @OptIn(ExperimentalSerializationApi::class)
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(currenciesBaseUrl)
-        .build()
+    private val retrofit: Retrofit =
+        Retrofit
+            .Builder()
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .baseUrl(currenciesBaseUrl)
+            .build()
 
     private lateinit var currenciesApiService: CurrenciesApiService
     private lateinit var onlineCurrenciesRepository: OnlineCurrenciesRepository
@@ -47,20 +46,23 @@ class onlineCurrenciesRepositoryTest {
         apiKey = context.getString(R.string.CURRENCY_API_KEY)
         // Using an in-memory database because the information stored here disappears when the
         // process is killed.
-        budgetDatabase = Room.inMemoryDatabaseBuilder(context, BudgetDatabase::class.java)
-            // Allowing main thread queries, just for testing.
-            .allowMainThreadQueries()
-            .build()
+        budgetDatabase =
+            Room
+                .inMemoryDatabaseBuilder(context, BudgetDatabase::class.java)
+                // Allowing main thread queries, just for testing.
+                .allowMainThreadQueries()
+                .build()
 
         currenciesApiService = retrofit.create(CurrenciesApiService::class.java)
 
-        onlineCurrenciesRepository = OnlineCurrenciesRepository(
-            context,
-            BudgetDatabase.getDatabase(context).currencyDao(),
-            currenciesApiService,
-            apiKey,
-            context.dataStore
-        )
+        onlineCurrenciesRepository =
+            OnlineCurrenciesRepository(
+                context,
+                BudgetDatabase.getDatabase(context).currencyDao(),
+                currenciesApiService,
+                apiKey,
+                context.dataStore
+            )
     }
 
     @After
@@ -69,14 +71,13 @@ class onlineCurrenciesRepositoryTest {
         budgetDatabase.close()
     }
 
-
     @Test
     fun queryApiCurrencies() {
-        val currenciesResponse = runBlocking {
-            currenciesApiService.getCurrencies(apiKey)
-        }
+        val currenciesResponse =
+            runBlocking {
+                currenciesApiService.getCurrencies(apiKey)
+            }
 
         assert(currenciesResponse.rates.isNotEmpty())
     }
-
 }

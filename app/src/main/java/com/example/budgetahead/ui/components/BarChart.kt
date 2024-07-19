@@ -29,12 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.round
 
-
 enum class BarType {
     CIRCULAR_TYPE,
     TOP_CURVED
 }
-
 
 @Composable
 fun BarGraph(
@@ -47,9 +45,8 @@ fun BarGraph(
     barColor: Color,
     barArrangement: Arrangement.Horizontal
 ) {
-
     val barData by remember {
-        mutableStateOf(barData_+0)
+        mutableStateOf(barData_ + 0)
     }
 
     // for getting screen width and height you can use LocalConfiguration
@@ -76,13 +73,14 @@ fun BarGraph(
 
     val density = LocalDensity.current
     // y-axis scale text paint
-    val textPaint = remember(density) {
-        Paint().apply {
-            color = Color.Black.hashCode()
-            textAlign = Paint.Align.CENTER
-            textSize = density.run { 12.sp.toPx() }
+    val textPaint =
+        remember(density) {
+            Paint().apply {
+                color = Color.Black.hashCode()
+                textAlign = Paint.Align.CENTER
+                textSize = density.run { 12.sp.toPx() }
+            }
         }
-    }
 
     // for y coordinates of y-axis scale to create horizontal dotted line indicating y-axis scale
     val yCoordinates = mutableListOf<Float>()
@@ -97,18 +95,16 @@ fun BarGraph(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.TopStart
     ) {
-
         // y-axis scale and horizontal dotted lines on graph indicating y-axis scale
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(top = xAxisScaleHeight, end = 3.dp)
                 .height(height)
                 .fillMaxWidth(),
             horizontalAlignment = CenterHorizontally
         ) {
-
             Canvas(modifier = Modifier.padding(bottom = 10.dp).fillMaxSize()) {
-
                 // Y-Axis Scale Text
                 val yAxisScaleText = (barData.max()) / 3f
                 (0..3).forEach { i ->
@@ -126,34 +122,32 @@ fun BarGraph(
                 // horizontal dotted lines on graph indicating y-axis scale
                 (1..3).forEach {
                     drawLine(
-                        start = Offset(x = yAxisScaleSpacing +30f, y = yCoordinates[it]),
-                        end = Offset(x= size.width, y = yCoordinates[it]),
+                        start = Offset(x = yAxisScaleSpacing + 30f, y = yCoordinates[it]),
+                        end = Offset(x = size.width, y = yCoordinates[it]),
                         color = Color.Gray,
                         strokeWidth = 5f,
                         pathEffect = pathEffect
                     )
                 }
-
             }
-
         }
 
         // Graph with Bar Graph and X-Axis Scale
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(start = 50.dp)
                 .width(width - yAxisTextWidth)
                 .height(height + xAxisScaleHeight),
             contentAlignment = Alignment.BottomCenter
         ) {
-
             Row(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .width(width - yAxisTextWidth),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = barArrangement
             ) {
-
                 // Graph
                 graphBarData.forEachIndexed { index, value ->
 
@@ -162,7 +156,8 @@ fun BarGraph(
                     }
                     val graphBarHeight by animateFloatAsState(
                         targetValue = if (animationTriggered) value else 0f,
-                        animationSpec = tween(
+                        animationSpec =
+                        tween(
                             durationMillis = 1000,
                             delayMillis = 0
                         )
@@ -176,10 +171,10 @@ fun BarGraph(
                         verticalArrangement = Top,
                         horizontalAlignment = CenterHorizontally
                     ) {
-
                         // Each Graph
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .padding(bottom = 5.dp)
                                 .clip(barShap)
                                 .width(barWidth)
@@ -188,7 +183,8 @@ fun BarGraph(
                             contentAlignment = BottomCenter
                         ) {
                             Box(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .clip(barShap)
                                     .fillMaxWidth()
                                     .fillMaxHeight(graphBarHeight)
@@ -198,22 +194,22 @@ fun BarGraph(
 
                         // scale x-axis and bottom part of graph
                         Column(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .height(xAxisScaleHeight),
                             verticalArrangement = Top,
                             horizontalAlignment = CenterHorizontally
                         ) {
-
                             // small vertical line joining the horizontal x-axis line
                             Box(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .clip(
                                         RoundedCornerShape(
                                             bottomStart = 2.dp,
                                             bottomEnd = 2.dp
                                         )
-                                    )
-                                    .width(horizontalLineHeight)
+                                    ).width(horizontalLineHeight)
                                     .height(lineHeightXAxis)
                                     .background(color = Color.Gray)
                             )
@@ -226,38 +222,29 @@ fun BarGraph(
                                 textAlign = TextAlign.Center,
                                 color = Color.Black
                             )
-
                         }
-
                     }
-
                 }
-
             }
 
             // horizontal line on x-axis below the graph
             Column(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent),
                 horizontalAlignment = CenterHorizontally
             ) {
-
                 Box(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .padding(bottom = xAxisScaleHeight + 3.dp)
                         .clip(RoundedCornerShape(2.dp))
                         .fillMaxWidth()
                         .height(horizontalLineHeight)
                         .background(Color.Gray)
                 )
-
             }
-
-
         }
-
-
     }
-
 }

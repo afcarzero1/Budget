@@ -9,8 +9,8 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.budgetahead.data.transfers.Transfer
 import com.example.budgetahead.data.transfers.TransferWithAccounts
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
@@ -35,31 +35,29 @@ interface TransactionDao {
         )
     }
 
-
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertTransfer(transfer: Transfer)
 
     @Update
     suspend fun update(transactionRecord: TransactionRecord)
 
-
     @Update
     suspend fun updateTransfer(transfer: Transfer)
 
     @Transaction
     suspend fun updateTransferAndTransactions(transfer: Transfer) {
-        val (sourceRecord, destinationRecord) = transactionsFromTransfer(
-            transfer,
-            transfer.sourceAccountTransactionId.toInt(),
-            transfer.destinationAccountTransactionId.toInt()
-        )
+        val (sourceRecord, destinationRecord) =
+            transactionsFromTransfer(
+                transfer,
+                transfer.sourceAccountTransactionId.toInt(),
+                transfer.destinationAccountTransactionId.toInt()
+            )
 
         updateTransfer(transfer)
 
         // We update the associated records
         update(sourceRecord)
         update(destinationRecord)
-
     }
 
     @Delete
@@ -90,10 +88,8 @@ interface TransactionDao {
     @Query("SELECT * from transactions ORDER BY date DESC")
     fun getAllTransactionsStream(): Flow<List<TransactionRecord>>
 
-
     @Query("SELECT * FROM transfers WHERE :id = id")
     fun getTransferStream(id: Int): Flow<Transfer>
-
 
     @Query("SELECT * FROM transfers ORDER BY date DESC")
     fun getAllTransfersStream(): Flow<List<Transfer>>
@@ -112,8 +108,8 @@ interface TransactionDao {
     @Transaction
     @Query(
         "SELECT * from transactions " +
-                "WHERE date >= :startDateTime AND date <= :endDateTime AND categoryId IS NOT NULL " +
-                "ORDER BY date DESC"
+            "WHERE date >= :startDateTime AND date <= :endDateTime AND categoryId IS NOT NULL " +
+            "ORDER BY date DESC"
     )
     fun getFullTransactionsByDateStream(
         startDateTime: LocalDateTime,
@@ -124,7 +120,6 @@ interface TransactionDao {
     @Query("SELECT * from transactions WHERE categoryId IS NULL ORDER BY date DESC")
     fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>>
 
-
     private fun transactionsFromTransfer(
         transfer: Transfer,
         sourceId: Int = 0,
@@ -132,7 +127,7 @@ interface TransactionDao {
     ): Pair<TransactionRecord, TransactionRecord> {
         val sourceTransaction =
             TransactionRecord(
-                id = sourceId,  // Auto-generate the ID
+                id = sourceId, // Auto-generate the ID
                 name = transfer.destinationAccountId.toString(),
                 type = TransactionType.EXPENSE_TRANSFER,
                 accountId = transfer.sourceAccountId,
@@ -141,10 +136,9 @@ interface TransactionDao {
                 date = transfer.date
             )
 
-
         val destinationTransaction =
             TransactionRecord(
-                id = destinationId,  // Auto-generate the ID
+                id = destinationId, // Auto-generate the ID
                 name = transfer.sourceAccountId.toString(),
                 type = TransactionType.INCOME_TRANSFER,
                 accountId = transfer.destinationAccountId,
@@ -154,5 +148,4 @@ interface TransactionDao {
             )
         return Pair(sourceTransaction, destinationTransaction)
     }
-
 }

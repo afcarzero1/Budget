@@ -18,7 +18,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository) : ViewModel() {
-
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -28,16 +27,16 @@ class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository
     private val currenciesListFlow = currenciesRepository.getAllCurrenciesStream()
     private val baseCurrencyFlow = currenciesRepository.getDefaultCurrencyStream()
 
-    val currenciesUiState: StateFlow<CurrenciesUiState> = combine(
-        currenciesListFlow,
-        baseCurrencyFlow
-    ) { currenciesList, baseCurrency ->
-        CurrenciesUiState(
-            currenciesList = currenciesList,
-            baseCurrency = baseCurrency
-        )
-    }
-        .stateIn(
+    val currenciesUiState: StateFlow<CurrenciesUiState> =
+        combine(
+            currenciesListFlow,
+            baseCurrencyFlow
+        ) { currenciesList, baseCurrency ->
+            CurrenciesUiState(
+                currenciesList = currenciesList,
+                baseCurrency = baseCurrency
+            )
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = CurrenciesUiState()
@@ -49,15 +48,16 @@ class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository
     private val _searchResult = MutableStateFlow<Currency?>(null)
     val searchResult = _searchResult.asStateFlow()
 
-    fun updateSeachQuery(query: String){
+    fun updateSeachQuery(query: String) {
         Log.d("TextFieldViewModel", "Text updated to: $query")
         searchQuery.value = query
 
-        if (query.isNotEmpty()){
+        if (query.isNotEmpty()) {
             viewModelScope.launch {
-                val matchedCurrency = currenciesListFlow.first().firstOrNull { currency ->
-                    currency.name.contains(query, ignoreCase = true)
-                }
+                val matchedCurrency =
+                    currenciesListFlow.first().firstOrNull { currency ->
+                        currency.name.contains(query, ignoreCase = true)
+                    }
                 _searchResult.value = matchedCurrency
             }
         }
@@ -78,7 +78,6 @@ class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository
         }
     }
 }
-
 
 data class CurrenciesUiState(
     val currenciesList: List<Currency> = listOf(),

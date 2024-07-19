@@ -9,14 +9,14 @@ import com.example.budgetahead.data.categories.Category
 data class FullTransactionRecord(
     @Embedded val transactionRecord: TransactionRecord,
     @Relation(
-            entity = Account::class,
-            parentColumn = "accountId",
-            entityColumn = "id"
+        entity = Account::class,
+        parentColumn = "accountId",
+        entityColumn = "id"
     )
     val account: AccountWithCurrency,
     @Relation(
-            parentColumn = "categoryId",
-            entityColumn = "id"
+        parentColumn = "categoryId",
+        entityColumn = "id"
     )
     val category: Category?
 )

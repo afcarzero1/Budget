@@ -10,7 +10,6 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 
-
 @Dao
 interface CurrencyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

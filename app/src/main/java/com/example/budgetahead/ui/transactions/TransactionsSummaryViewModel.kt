@@ -10,78 +10,81 @@ import com.example.budgetahead.data.currencies.CurrenciesRepository
 import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.data.transfers.TransferWithAccounts
+import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
 
 class TransactionsSummaryViewModel(
     transactionsRepository: TransactionsRepository,
     currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
-
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    val transactionsUiState = combine(
-        transactionsRepository.getAllFullTransactionsStream(),
-        transactionsRepository.getAllTransfersWithAccountsStream()
-    ) { transactions, transfers ->
-        // Group transactions and transfers by date
-        Log.d("VIEW MODEL TRANSACTIONS", "Transactions: ${transactions.count()}, Transfers: ${transfers.count()}")
-        val transactionsGroupedByDate =
-            transactions.groupBy { it.transactionRecord.date.toLocalDate() }
-        val transfersGroupedByDate = transfers.groupBy { it.transfer.date.toLocalDate() }
-
-        // Create a list to hold the combined data
-        val combinedList = mutableListOf<GroupOfTransactionsAndTransfers>()
-
-        // Create a set of all unique dates from both groups, then sort them
-        val allDates = (transactionsGroupedByDate.keys union transfersGroupedByDate.keys).sorted().reversed()
-
-
-        for (date in allDates) {
-            val dailyTransactions = transactionsGroupedByDate[date] ?: emptyList()
-            val dailyTransfers = transfersGroupedByDate[date] ?: emptyList()
-            combinedList.add(
-                GroupOfTransactionsAndTransfers(
-                    transactions = dailyTransactions,
-                    transfers = dailyTransfers,
-                    date = date
-                )
+    val transactionsUiState =
+        combine(
+            transactionsRepository.getAllFullTransactionsStream(),
+            transactionsRepository.getAllTransfersWithAccountsStream()
+        ) { transactions, transfers ->
+            // Group transactions and transfers by date
+            Log.d(
+                "VIEW MODEL TRANSACTIONS",
+                "Transactions: ${transactions.count()}, Transfers: ${transfers.count()}"
             )
-        }
+            val transactionsGroupedByDate = transactions.groupBy {
+                it.transactionRecord.date.toLocalDate()
+            }
+            val transfersGroupedByDate = transfers.groupBy { it.transfer.date.toLocalDate() }
 
-        TransactionsUiState(
-            combinedList
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = TransactionsUiState()
-    )
+            // Create a list to hold the combined data
+            val combinedList = mutableListOf<GroupOfTransactionsAndTransfers>()
 
-    val baseCurrency = currenciesRepository.getDefaultCurrencyStream()
-        .stateIn(
+            // Create a set of all unique dates from both groups, then sort them
+            val allDates = (transactionsGroupedByDate.keys union transfersGroupedByDate.keys).sorted().reversed()
+
+            for (date in allDates) {
+                val dailyTransactions = transactionsGroupedByDate[date] ?: emptyList()
+                val dailyTransfers = transfersGroupedByDate[date] ?: emptyList()
+                combinedList.add(
+                    GroupOfTransactionsAndTransfers(
+                        transactions = dailyTransactions,
+                        transfers = dailyTransfers,
+                        date = date
+                    )
+                )
+            }
+
+            TransactionsUiState(
+                combinedList
+            )
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = "USD"
+            initialValue = TransactionsUiState()
         )
+
+    val baseCurrency =
+        currenciesRepository
+            .getDefaultCurrencyStream()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = "USD"
+            )
 
     var onFutureTransactionsScreen by mutableStateOf(false)
         private set
 
-    fun toggleScreen(){
+    fun toggleScreen() {
         onFutureTransactionsScreen = !onFutureTransactionsScreen
     }
 
-    fun toggleScreen(onFutureTransactions: Boolean){
+    fun toggleScreen(onFutureTransactions: Boolean) {
         onFutureTransactionsScreen = onFutureTransactions
     }
-
 }
-
 
 data class GroupOfTransactionsAndTransfers(
     val transactions: List<FullTransactionRecord>,

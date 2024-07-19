@@ -15,26 +15,24 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetahead.R
 import com.example.budgetahead.data.categories.Category
+import com.example.budgetahead.data.categories.CategoryType
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.LargeDropdownMenu
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.budgetahead.data.categories.CategoryType
 import com.example.budgetahead.ui.components.graphics.AvailableIcons
 import com.example.budgetahead.ui.components.graphics.IconPicker
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun CategoryEntryScreen(
@@ -42,7 +40,7 @@ fun CategoryEntryScreen(
     viewModel: CategoryEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    //val availableCategories by viewModel.categoriesListState.collectAsState()
+    // val availableCategories by viewModel.categoriesListState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -61,14 +59,14 @@ fun CategoryEntryScreen(
                     navigateBack()
                 }
             },
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
         )
     }
 }
-
 
 @Composable
 fun CategoryEntryBody(
@@ -77,14 +75,13 @@ fun CategoryEntryBody(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
     ) {
         CategoryForm(
             category = categoryUiState.category,
-            //availableCategories = availableCategories,
+            // availableCategories = availableCategories,
             onValueChange = onCategoryValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -99,19 +96,21 @@ fun CategoryEntryBody(
     }
 }
 
-
 @Composable
 fun CategoryForm(
     category: Category,
-    //availableCategories: List<Category>,
+    // availableCategories: List<Category>,
     onValueChange: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-        unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f),
-        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-    )
+    val colors =
+        OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+            unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                alpha = 0.05f
+            ),
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+        )
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
@@ -159,44 +158,46 @@ fun CategoryForm(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewCategoryForm() {
     // Create a test category object
-    val testCategory = Category(
-        id = 1,
-        name = "Groceries",
-        iconResId = "groceries",
-        defaultType = CategoryType.Expense,
-        parentCategoryId = null
-    )
-
-    // Create a list of categories for the dropdown
-    val categoriesList = listOf(
+    val testCategory =
         Category(
             id = 1,
             name = "Groceries",
             iconResId = "groceries",
             defaultType = CategoryType.Expense,
             parentCategoryId = null
-        ),
-        Category(
-            id = 2,
-            name = "Utilities",
-            iconResId = "bar",
-            defaultType = CategoryType.Expense,
-            parentCategoryId = null
         )
-    )
+
+    // Create a list of categories for the dropdown
+    val categoriesList =
+        listOf(
+            Category(
+                id = 1,
+                name = "Groceries",
+                iconResId = "groceries",
+                defaultType = CategoryType.Expense,
+                parentCategoryId = null
+            ),
+            Category(
+                id = 2,
+                name = "Utilities",
+                iconResId = "bar",
+                defaultType = CategoryType.Expense,
+                parentCategoryId = null
+            )
+        )
 
     // Provide necessary Theme and Modifier
     MaterialTheme {
         CategoryForm(
             category = testCategory,
-            //availableCategories = categoriesList,
+            // availableCategories = categoriesList,
             onValueChange = {},
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(16.dp)
                 .fillMaxHeight()
         )

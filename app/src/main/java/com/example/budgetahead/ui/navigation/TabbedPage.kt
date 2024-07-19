@@ -21,7 +21,6 @@ data class TabItem(
     val screen: @Composable () -> Unit
 )
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabbedPage(
@@ -29,18 +28,19 @@ fun TabbedPage(
     modifier: Modifier = Modifier,
     onTabChanged: (Int) -> Unit = {}
 ) {
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f,
-        pageCount = { tabs.size }
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = 0,
+            initialPageOffsetFraction = 0f,
+            pageCount = { tabs.size }
+        )
     val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
         TabRow(
-            selectedTabIndex = pagerState.currentPage,
+            selectedTabIndex = pagerState.currentPage
         ) {
             tabs.forEachIndexed { index, item ->
                 Tab(
@@ -54,7 +54,7 @@ fun TabbedPage(
                             )
                         }
                         onTabChanged(index)
-                    },
+                    }
                 )
             }
         }

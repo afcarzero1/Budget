@@ -36,13 +36,9 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-//https://github.com/developerchunk/Custom-Bar-Chart-Jetpack-Compose/tree/main/app
+// https://github.com/developerchunk/Custom-Bar-Chart-Jetpack-Compose/tree/main/app
 
-
-data class TextPiece(
-    val text: AnnotatedString,
-    val alignToCenter: Boolean = true
-)
+data class TextPiece(val text: AnnotatedString, val alignToCenter: Boolean = true)
 
 @Composable
 fun <T> PieChart(
@@ -69,7 +65,8 @@ fun <T> PieChart(
 
     val animateSize by animateFloatAsState(
         targetValue = if (animationPlayed) radiusOuter.value * 2f else radiusOuter.value * 0.1f,
-        animationSpec = tween(
+        animationSpec =
+        tween(
             durationMillis = animDuration,
             delayMillis = 0,
             easing = LinearOutSlowInEasing
@@ -78,7 +75,8 @@ fun <T> PieChart(
 
     val animateRotation by animateFloatAsState(
         targetValue = if (animationPlayed) 90f * 4f else 0f,
-        animationSpec = tween(
+        animationSpec =
+        tween(
             durationMillis = animDuration,
             delayMillis = 0,
             easing = LinearOutSlowInEasing
@@ -92,22 +90,24 @@ fun <T> PieChart(
 
     val textMeasurer = rememberTextMeasurer()
 
-
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .wrapContentWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .size(animateSize.dp)
                 .padding(top = 32.dp)
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(radiusOuter * 2f)
                     .rotate(animateRotation)
             ) {
@@ -124,7 +124,6 @@ fun <T> PieChart(
                         lastValue += value
                     }
                 }
-
 
                 // Initial vertical offset for text drawing
                 var totalTextHeight = 0f
@@ -146,7 +145,8 @@ fun <T> PieChart(
                     drawText(
                         textMeasurer = textMeasurer,
                         text = text,
-                        topLeft = Offset(
+                        topLeft =
+                        Offset(
                             (canvasWidth - textSize.width) / 2f,
                             yOffset
                         )
@@ -155,43 +155,42 @@ fun <T> PieChart(
                     // Update yOffset to the next line
                     yOffset += textSize.height
                 }
-
-
             }
         }
         itemDetails?.let {
             DetailsPieChart(data = data, itemToColor = itemToColor, itemDetails = it)
         }
-
     }
 }
-
 
 @Composable
 fun <T> DetailsPieChart(
     data: List<T>,
     itemToColor: (T) -> Color,
-    itemDetails: @Composable (T) -> Unit,
+    itemDetails: @Composable (T) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .padding(top = 36.dp)
             .fillMaxWidth()
             .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(horizontal = 10.dp)
                 .padding(bottom = 8.dp)
         )
 
         data.forEachIndexed { index, item ->
             Surface(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(vertical = 10.dp, horizontal = 16.dp),
                 color = Color.Transparent
             ) {
@@ -200,12 +199,12 @@ fun <T> DetailsPieChart(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .background(
                                 color = itemToColor(item),
                                 shape = RoundedCornerShape(10.dp)
-                            )
-                            .size(25.dp)
+                            ).size(25.dp)
                     )
                     itemDetails(item)
                 }

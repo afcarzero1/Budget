@@ -1,10 +1,9 @@
 package com.example.budgetahead.data.currencies
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class MockCurrenciesRepository : CurrenciesRepository {
     override fun getAllCurrenciesStream(): Flow<List<Currency>> {
@@ -17,11 +16,12 @@ class MockCurrenciesRepository : CurrenciesRepository {
         val localDateTime = LocalDateTime.parse(input, formatter)
 
         // Create a mock list of currencies
-        val mockCurrencies = listOf(
-            Currency("USD", 1.0f, localDateTime),
-            Currency("EUR", 1.1f, localDateTime),
-            Currency("SEK", 0.1f, localDateTime),
-        )
+        val mockCurrencies =
+            listOf(
+                Currency("USD", 1.0f, localDateTime),
+                Currency("EUR", 1.1f, localDateTime),
+                Currency("SEK", 0.1f, localDateTime)
+            )
 
         // Emit the mock currencies list as a Flow
         return flow {
@@ -29,17 +29,11 @@ class MockCurrenciesRepository : CurrenciesRepository {
         }
     }
 
-    override fun getDefaultCurrencyStream(): Flow<String> {
-        return flow {
-            emit("USD")
-        }
+    override fun getDefaultCurrencyStream(): Flow<String> = flow {
+        emit("USD")
     }
 
     override suspend fun setDefaultCurrency(newBaseCurrency: String) {
         TODO("Not yet implemented")
     }
 }
-
-
-
-

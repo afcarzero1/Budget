@@ -36,11 +36,11 @@ import com.example.budgetahead.ui.currencies.CurrenciesViewModel
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun AccountDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: AccountDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: AccountDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
     val accountDetails by viewModel.accountState.collectAsState()
@@ -80,7 +80,9 @@ fun AccountDetailsScreen(
                         enabled = accountDetails.isValid
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24),
+                            painter = painterResource(
+                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
+                            ),
                             contentDescription = stringResource(R.string.save),
                             tint = if (accountDetails.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                         )
@@ -106,14 +108,13 @@ fun AccountDetailsScreen(
                         try {
                             viewModel.deleteAccount()
                         } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                "Error deleting account",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Error deleting account",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                         }
-
                     }
                     navigateBack()
                 },
@@ -124,6 +125,7 @@ fun AccountDetailsScreen(
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun AccountDetailsBody(
     accountDetailsUiState: AccountDetailsUiState,
@@ -139,7 +141,7 @@ fun AccountDetailsBody(
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-            modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
+            modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
         ) {
             AccountForm(
                 account = accountDetailsUiState.account,
@@ -149,4 +151,3 @@ fun AccountDetailsBody(
         }
     }
 }
-

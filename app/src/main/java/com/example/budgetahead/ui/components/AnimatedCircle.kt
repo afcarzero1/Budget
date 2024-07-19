@@ -39,15 +39,12 @@ private const val DividerLengthInDegrees = 1.8f
  * A donut chart that animates when loaded.
  */
 @Composable
-fun AnimatedCircle(
-    proportions: List<Float>,
-    colors: List<Color>,
-    modifier: Modifier = Modifier
-) {
-    val currentState = remember {
-        MutableTransitionState(AnimatedCircleProgress.START)
-            .apply { targetState = AnimatedCircleProgress.END }
-    }
+fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modifier = Modifier) {
+    val currentState =
+        remember {
+            MutableTransitionState(AnimatedCircleProgress.START)
+                .apply { targetState = AnimatedCircleProgress.END }
+        }
     val stroke = with(LocalDensity.current) { Stroke(5.dp.toPx()) }
     val transition = updateTransition(currentState)
     val angleOffset by transition.animateFloat(
@@ -84,10 +81,11 @@ fun AnimatedCircle(
     Canvas(modifier) {
         val innerRadius = (size.minDimension - stroke.width) / 2
         val halfSize = size / 2.0f
-        val topLeft = Offset(
-            halfSize.width - innerRadius,
-            halfSize.height - innerRadius
-        )
+        val topLeft =
+            Offset(
+                halfSize.width - innerRadius,
+                halfSize.height - innerRadius
+            )
         val size = Size(innerRadius * 2, innerRadius * 2)
         var startAngle = shift - 90f
         proportions.forEachIndexed { index, proportion ->
@@ -105,4 +103,5 @@ fun AnimatedCircle(
         }
     }
 }
+
 private enum class AnimatedCircleProgress { START, END }

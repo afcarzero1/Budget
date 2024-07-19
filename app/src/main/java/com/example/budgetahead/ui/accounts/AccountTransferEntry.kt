@@ -34,7 +34,6 @@ import com.example.budgetahead.ui.components.inputs.FloatOutlinedText
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun TransferEntryScreen(
     navigateBack: () -> Unit,
@@ -60,7 +59,8 @@ fun TransferEntryScreen(
                     navigateBack()
                 }
             },
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
@@ -95,7 +95,6 @@ fun TransferEntryBody(
             Text(text = stringResource(R.string.transfer_entry_save_transfer))
         }
     }
-
 }
 
 @Composable
@@ -137,7 +136,8 @@ fun AccountTransferForm(
 
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_source_account),
-            items = availableAccounts.map {
+            items =
+            availableAccounts.map {
                 it.account.name
             },
             onItemSelected = { index, item ->
@@ -145,13 +145,15 @@ fun AccountTransferForm(
                     transfer.copy(sourceAccountId = availableAccounts[index].account.id)
                 )
             },
-            initialIndex = availableAccounts.indexOfFirst {
+            initialIndex =
+            availableAccounts.indexOfFirst {
                 it.account.id == transfer.sourceAccountId
             }
         )
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_destination_account),
-            items = availableAccounts.map {
+            items =
+            availableAccounts.map {
                 it.account.name
             },
             onItemSelected = { index, item ->
@@ -159,7 +161,8 @@ fun AccountTransferForm(
                     transfer.copy(destinationAccountId = availableAccounts[index].account.id)
                 )
             },
-            initialIndex = availableAccounts.indexOfFirst {
+            initialIndex =
+            availableAccounts.indexOfFirst {
                 it.account.id == transfer.destinationAccountId
             }
         )

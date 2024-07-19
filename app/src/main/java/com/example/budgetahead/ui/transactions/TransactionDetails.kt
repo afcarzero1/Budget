@@ -38,13 +38,11 @@ import com.example.budgetahead.ui.components.dialogs.ConfirmationDeletionDialog
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun TransactionDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
     val transactionDBState by viewModel.transactionDBState.collectAsState()
     val transactionUiState = viewModel.transactionUiState
     Log.d("TransactionDetailsScreen", "Transaction in DB: ${transactionDBState.transaction.id}")
@@ -56,7 +54,8 @@ fun TransactionDetailsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
-        SecondaryScreenTopBar(navigateBack = navigateBack,
+        SecondaryScreenTopBar(
+            navigateBack = navigateBack,
             titleResId = R.string.details_transaction_title,
             actions = {
                 IconButton(
@@ -70,20 +69,25 @@ fun TransactionDetailsScreen(
                     )
                 }
                 IconButton(
-                    modifier = Modifier.padding(horizontal = 8.dp), onClick = {
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = {
                         coroutineScope.launch {
                             viewModel.updateTransaction()
                         }
                         navigateBack()
-                    }, enabled = transactionUiState.isValid
+                    },
+                    enabled = transactionUiState.isValid
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24),
+                        painter = painterResource(
+                            id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
+                        ),
                         contentDescription = stringResource(R.string.save),
                         tint = if (transactionUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                     )
                 }
-            })
+            }
+        )
     }) { innerPadding ->
         TransactionDetailsBody(
             transactionDetailsUiState = viewModel.transactionUiState,
@@ -94,18 +98,21 @@ fun TransactionDetailsScreen(
         )
 
         if (deleteConfirmationRequired) {
-            ConfirmationDeletionDialog(message = stringResource(R.string.delete_account),
+            ConfirmationDeletionDialog(
+                message = stringResource(R.string.delete_account),
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     coroutineScope.launch {
                         try {
                             viewModel.deleteTransaction()
                         } catch (e: Exception) {
-                            Toast.makeText(
-                                context, "Error deleting account", Toast.LENGTH_SHORT
-                            ).show()
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Error deleting account",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                         }
-
                     }
                     navigateBack()
                 },
@@ -114,7 +121,6 @@ fun TransactionDetailsScreen(
             )
         }
     }
-
 }
 
 @Composable
@@ -122,10 +128,10 @@ fun TransactionDetailsBody(
     transactionDetailsUiState: TransactionDetailsUiState,
     onTransactionDetailsChanged: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier,
-    categoriesViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
-
-    ) {
+    categoriesViewModel: CategoriesSummaryViewModel =
+        viewModel(factory = AppViewModelProvider.Factory),
+    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
     val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()
     val availableAccounts by accountsViewModel.accountsUiState.collectAsState()
 
@@ -138,14 +144,16 @@ fun TransactionDetailsBody(
             modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
         )
     }
-
 }
 
 @Composable
 private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit, onDeleteCancel: () -> Unit, modifier: Modifier = Modifier
+    onDeleteConfirm: () -> Unit,
+    onDeleteCancel: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    AlertDialog(onDismissRequest = { /* Do nothing */ },
+    AlertDialog(
+        onDismissRequest = { /* Do nothing */ },
         title = { Text(stringResource(R.string.attention)) },
         text = { Text(stringResource(R.string.delete_transaction)) },
         modifier = modifier,
@@ -158,5 +166,6 @@ private fun DeleteConfirmationDialog(
             TextButton(onClick = onDeleteConfirm) {
                 Text(stringResource(R.string.yes))
             }
-        })
+        }
+    )
 }

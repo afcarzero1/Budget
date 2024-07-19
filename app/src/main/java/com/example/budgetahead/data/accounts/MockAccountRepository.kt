@@ -4,9 +4,7 @@ import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.data.transfers.Transfer
 import kotlinx.coroutines.flow.Flow
 
-class MockAccountRepository(
-    private val accounts: List<Account>
-): AccountsRepository {
+class MockAccountRepository(private val accounts: List<Account>) : AccountsRepository {
     override suspend fun insertAccount(account: Account) {
         TODO("Not yet implemented")
     }

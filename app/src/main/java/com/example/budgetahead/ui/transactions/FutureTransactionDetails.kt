@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,6 +24,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetahead.R
 import com.example.budgetahead.data.future_transactions.FutureTransaction
 import com.example.budgetahead.ui.AppViewModelProvider
@@ -37,7 +37,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun FutureTransactionDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: FutureTransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: FutureTransactionDetailsViewModel =
+        viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val transactionState by viewModel.transactionState.collectAsState()
     val useUpdatedUiState = viewModel.showUpdatedState
@@ -45,7 +46,6 @@ fun FutureTransactionDetailsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
-
 
     Scaffold(
         topBar = {
@@ -74,7 +74,9 @@ fun FutureTransactionDetailsScreen(
                         enabled = transactionState.isValid
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24),
+                            painter = painterResource(
+                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
+                            ),
                             contentDescription = stringResource(R.string.save),
                             tint = if (transactionState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                         )
@@ -100,14 +102,13 @@ fun FutureTransactionDetailsScreen(
                         try {
                             viewModel.deleteTransaction()
                         } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                "Error deleting transaction",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Error deleting transaction",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                         }
-
                     }
                     navigateBack()
                 },
@@ -123,10 +124,10 @@ fun FutureTransactionDetailsBody(
     futureTransactionDetailsUiState: FutureTransactionDetailsUiState,
     onTransactionDetailsChanged: (FutureTransaction) -> Unit,
     modifier: Modifier = Modifier,
-    categoryViewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    categoryViewModel: CategoriesSummaryViewModel =
+        viewModel(factory = AppViewModelProvider.Factory),
+    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
     val availableCategories by categoryViewModel.categoriesUiState.collectAsState()
     val availableCurrencies by currenciesViewModel.currenciesUiState.collectAsState()
 

@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
@@ -67,11 +66,10 @@ import com.example.budgetahead.ui.navigation.Currencies
 import com.example.budgetahead.ui.navigation.CurrenciesSettings
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import com.example.budgetahead.ui.theme.InitialScreen
-import kotlinx.coroutines.delay
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
+import kotlinx.coroutines.delay
 
 @Composable
 fun CurrenciesScreen(
@@ -99,23 +97,24 @@ fun CurrenciesScreen(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrenciesScreenTopBar(
     navController: NavHostController,
     searchTerm: String,
-    onSearchTermChanged: (String) -> Unit,
+    onSearchTermChanged: (String) -> Unit
 ) {
     TopAppBar(
         title = {
             Row(
-                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = searchTerm,
                     onValueChange = { onSearchTermChanged(it) },
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .weight(1f) // Takes up all available space between the icons
                         .padding(horizontal = 8.dp)
                         .padding(top = 16.dp)
@@ -123,11 +122,14 @@ fun CurrenciesScreenTopBar(
                         .height(IntrinsicSize.Min),
                     placeholder = { Text("Search currency") },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text, imeAction = ImeAction.Search
+                    keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Search
                     ),
                     shape = RoundedCornerShape(16.dp),
-                    textStyle = TextStyle(
+                    textStyle =
+                    TextStyle(
                         fontSize = 16.sp
                     ),
                     leadingIcon = {
@@ -141,14 +143,14 @@ fun CurrenciesScreenTopBar(
                     navController.navigate(CurrenciesSettings.route)
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Settings, contentDescription = "Search"
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Search"
                     )
                 }
             }
-        },
+        }
     )
 }
-
 
 @Composable
 fun CurrenciesSummary(
@@ -164,10 +166,11 @@ fun CurrenciesSummary(
         searchResult?.let { result ->
             val index = currenciesState.currenciesList.indexOf(result)
             if (index != -1) {
-                val animationSpec: AnimationSpec<Int> = TweenSpec(
-                    durationMillis = 600,  // Duration of the animation in milliseconds
-                    easing = FastOutSlowInEasing  // Easing function for the animation
-                )
+                val animationSpec: AnimationSpec<Int> =
+                    TweenSpec(
+                        durationMillis = 600, // Duration of the animation in milliseconds
+                        easing = FastOutSlowInEasing // Easing function for the animation
+                    )
                 delay(300)
                 listState.animateScrollToItem(index)
             }
@@ -183,7 +186,6 @@ fun CurrenciesSummary(
         )
     }
 }
-
 
 @Composable
 fun CurrenciesSummaryBody(
@@ -202,7 +204,6 @@ fun CurrenciesSummaryBody(
     }
 }
 
-
 @Composable
 fun CurrenciesList(
     currenciesList: List<Currency>,
@@ -216,71 +217,90 @@ fun CurrenciesList(
     ) {
         items(items = currenciesList, itemContent = { currency ->
             CurrencyItem(
-                currency = currency, baseCurrency = baseCurrency, modifier = modifier
+                currency = currency,
+                baseCurrency = baseCurrency,
+                modifier = modifier
             )
         })
     }
 }
 
-
 @Composable
-fun CurrencyItem(
-    currency: Currency, baseCurrency: String, modifier: Modifier = Modifier
-) {
+fun CurrencyItem(currency: Currency, baseCurrency: String, modifier: Modifier = Modifier) {
     var referenceCurrencyFirst by remember { mutableStateOf(false) }
     val decimalFormat = DecimalFormat("#,##0.00###")
 
     Card(
-        modifier = modifier.padding(
-            horizontal = 16.dp, vertical = 4.dp
-        ), colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier =
+        modifier.padding(
+            horizontal = 16.dp,
+            vertical = 4.dp
+        ),
+        colors =
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val styledText =
+                buildAnnotatedString {
+                    val firstCurrencyText = if (referenceCurrencyFirst) baseCurrency else currency.name
+                    val secondCurrencyText = if (referenceCurrencyFirst) currency.name else baseCurrency
 
+                    withStyle(
+                        style =
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize
+                        )
+                    ) {
+                        append(firstCurrencyText)
+                    }
 
-            val styledText = buildAnnotatedString {
-                val firstCurrencyText = if (referenceCurrencyFirst) baseCurrency else currency.name
-                val secondCurrencyText = if (referenceCurrencyFirst) currency.name else baseCurrency
+                    append(" /")
 
-                withStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize
-                    )
-                ) {
-                    append(firstCurrencyText)
+                    withStyle(
+                        style =
+                        SpanStyle(
+                            color = Color.Gray,
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        )
+                    ) {
+                        append(secondCurrencyText)
+                    }
                 }
-
-                append(" /")
-
-                withStyle(
-                    style = SpanStyle(
-                        color = Color.Gray, fontSize = MaterialTheme.typography.bodySmall.fontSize
-                    )
-                ) {
-                    append(secondCurrencyText)
-                }
-            }
             Text(
-                text = styledText, modifier = Modifier.padding(start = 20.dp, end = 60.dp)
+                text = styledText,
+                modifier = Modifier.padding(start = 20.dp, end = 60.dp)
             )
 
             Spacer(Modifier.weight(1f))
 
             Text(
-                text = if (referenceCurrencyFirst) decimalFormat.format(currency.value) else decimalFormat.format(
-                    1 / currency.value
-                ), modifier = Modifier.padding(
-                    start = 20.dp, end = 20.dp
-                ), fontSize = MaterialTheme.typography.labelMedium.fontSize, style = TextStyle(
+                text =
+                if (referenceCurrencyFirst) {
+                    decimalFormat.format(currency.value)
+                } else {
+                    decimalFormat.format(
+                        1 / currency.value
+                    )
+                },
+                modifier =
+                Modifier.padding(
+                    start = 20.dp,
+                    end = 20.dp
+                ),
+                fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                style =
+                TextStyle(
                     fontWeight = FontWeight.Bold, // Setting the font weight to bold
                     fontSize = MaterialTheme.typography.labelMedium.fontSize
                 )
@@ -288,22 +308,23 @@ fun CurrencyItem(
 
             IconButton(
                 onClick = { referenceCurrencyFirst = !referenceCurrencyFirst },
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(
-                        start = 20.dp, end = 2.dp, top = 2.dp
-                    )
-                    .size(18.dp)
+                        start = 20.dp,
+                        end = 2.dp,
+                        top = 2.dp
+                    ).size(18.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.switch_icon),
                     contentDescription = "Refresh",
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun CurrencySettingsScreen(
@@ -320,18 +341,23 @@ fun CurrencySettingsScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()) {
+        Column(
+            modifier =
+            Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             Row(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .weight(1f)
                         .padding(16.dp)
                 ) {
@@ -352,22 +378,23 @@ fun CurrencySettingsScreen(
                     onItemSelected = { _, item ->
                         viewModel.updateBaseCurrencySafe(item)
                     },
-                    initialIndex = currenciesState.currenciesList.indexOfFirst {
+                    initialIndex =
+                    currenciesState.currenciesList.indexOfFirst {
                         it.name == currenciesState.baseCurrency
                     },
                     modifier = Modifier.width(160.dp)
                 )
             }
-            Spacer(Modifier.weight(1f))  // This spacer pushes the Row to the bottom
+            Spacer(Modifier.weight(1f)) // This spacer pushes the Row to the bottom
             if (currenciesState.currenciesList.isNotEmpty()) {
                 Row(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-
                     Text(
                         "Last Updated: ${
                             currenciesState.currenciesList.first().updatedTime.format(
@@ -375,7 +402,7 @@ fun CurrencySettingsScreen(
                             )
                         }",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
+                        fontWeight = FontWeight.Light
                     )
                 }
             }
@@ -383,15 +410,15 @@ fun CurrencySettingsScreen(
     }
 }
 
-
 @Preview
 @Composable
 fun CurrenciesItemPreview() {
     CurrencyItem(
-        currency = currencies[0], baseCurrency = "USD", modifier = Modifier.fillMaxSize()
+        currency = currencies[0],
+        baseCurrency = "USD",
+        modifier = Modifier.fillMaxSize()
     )
 }
-
 
 @Preview
 @Composable
@@ -403,7 +430,6 @@ fun CurrenciesListPreview() {
         modifier = Modifier.fillMaxSize(),
         listState
     )
-
 }
 
 @Preview
@@ -411,10 +437,11 @@ fun CurrenciesListPreview() {
 fun CurrenciesSummaryPreview() {
     val listState = rememberLazyListState()
     CurrenciesSummaryBody(
-        currenciesList = listOf(currencies[0]), baseCurrency = "USD", listState = listState
+        currenciesList = listOf(currencies[0]),
+        baseCurrency = "USD",
+        listState = listState
     )
 }
-
 
 private val input = "2023-03-21 12:43:00+00"
 
@@ -424,12 +451,21 @@ private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
 // Parse the input string to a LocalDateTime
 private val localDateTime = LocalDateTime.parse(input, formatter)
 
-private val currencies = listOf(
-    Currency(
-        name = "USD", value = 1.0f, updatedTime = localDateTime
-    ), Currency(
-        name = "EUR", value = 1.1f, updatedTime = localDateTime
-    ), Currency(
-        name = "SEK", value = 0.1f, updatedTime = localDateTime
+private val currencies =
+    listOf(
+        Currency(
+            name = "USD",
+            value = 1.0f,
+            updatedTime = localDateTime
+        ),
+        Currency(
+            name = "EUR",
+            value = 1.1f,
+            updatedTime = localDateTime
+        ),
+        Currency(
+            name = "SEK",
+            value = 0.1f,
+            updatedTime = localDateTime
+        )
     )
-)
