@@ -22,6 +22,7 @@ import com.example.budgetahead.ui.accounts.TransferEntryScreen
 import com.example.budgetahead.ui.categories.CategoriesSummary
 import com.example.budgetahead.ui.categories.CategoryDetailsScreen
 import com.example.budgetahead.ui.categories.CategoryEntryScreen
+import com.example.budgetahead.ui.categories.CategoryOverviewScreen
 import com.example.budgetahead.ui.currencies.CurrenciesScreen
 import com.example.budgetahead.ui.currencies.CurrencySettingsScreen
 import com.example.budgetahead.ui.overall.OverallScreen
@@ -241,6 +242,26 @@ object CategoryEntry : BudgetDestination {
     override val screen: @Composable (navController: NavHostController) -> Unit = {
         CategoryEntryScreen(navigateBack = { it.popBackStack() })
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
+}
+
+object CategoryOverview : BudgetDestination {
+    override val icon = @Composable { selected: Boolean ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null
+        )
+    }
+    override val route: String = "categorySummary"
+
+    const val categoryIdArg = "categoryId"
+
+    val routeWithArgs = "$route/{$categoryIdArg}"
+
+    override val screen: @Composable (navController: NavHostController) -> Unit =
+        {
+            CategoryOverviewScreen(navController = it)
+        }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 

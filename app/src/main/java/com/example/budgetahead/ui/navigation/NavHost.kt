@@ -90,6 +90,17 @@ fun BudgetNavHost(
         }
 
         composable(
+            route = CategoryOverview.routeWithArgs,
+            arguments = listOf(
+                navArgument(CategoryOverview.categoryIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            CategoryOverview.screen(navController)
+        }
+
+        composable(
             route = CategoryDetails.routeWithArgs,
             arguments =
             listOf(

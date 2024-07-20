@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -108,16 +109,18 @@ fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> 
 @Composable
 fun SecondaryScreenTopBar(
     navigateBack: () -> Unit,
-    @StringRes titleResId: Int?,
+    title: String?,
     actions: @Composable (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     TopAppBar(
         title = {
-            titleResId?.let {
+            title?.let {
                 Text(
-                    text = stringResource(id = it),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    text = it,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         },
@@ -137,6 +140,22 @@ fun SecondaryScreenTopBar(
         colors = TopAppBarDefaults.smallTopAppBarColors(
             containerColor = containerColor
         )
+    )
+}
+
+@Composable
+fun SecondaryScreenTopBar(
+    navigateBack: () -> Unit,
+    @StringRes titleResId: Int?,
+    actions: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primary
+) {
+    val title = titleResId?.let { stringResource(id = it) }
+    SecondaryScreenTopBar(
+        navigateBack = navigateBack,
+        title = title,
+        actions = actions,
+        containerColor = containerColor
     )
 }
 

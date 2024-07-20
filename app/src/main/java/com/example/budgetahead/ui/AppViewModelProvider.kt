@@ -15,6 +15,7 @@ import com.example.budgetahead.ui.accounts.AccountsViewModel
 import com.example.budgetahead.ui.categories.CategoriesSummaryViewModel
 import com.example.budgetahead.ui.categories.CategoryDetailsViewModel
 import com.example.budgetahead.ui.categories.CategoryEntryViewModel
+import com.example.budgetahead.ui.categories.CategoryOverviewViewModel
 import com.example.budgetahead.ui.currencies.CurrenciesViewModel
 import com.example.budgetahead.ui.onboarding.OnBoardingViewModel
 import com.example.budgetahead.ui.overall.OverallViewModel
@@ -80,6 +81,14 @@ object AppViewModelProvider {
 
             initializer {
                 CategoryEntryViewModel(budgetApplication().container.categoriesRepository)
+            }
+
+            initializer {
+                CategoryOverviewViewModel(
+                    this.createSavedStateHandle(),
+                    budgetApplication().container.categoriesRepository,
+                    budgetApplication().container.currenciesRepository
+                )
             }
 
             initializer {

@@ -54,8 +54,8 @@ import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.PieChart
 import com.example.budgetahead.ui.components.TextPiece
 import com.example.budgetahead.ui.navigation.Categories
-import com.example.budgetahead.ui.navigation.CategoryDetails
 import com.example.budgetahead.ui.navigation.CategoryEntry
+import com.example.budgetahead.ui.navigation.CategoryOverview
 import com.example.budgetahead.ui.navigation.TabItem
 import com.example.budgetahead.ui.navigation.TabbedPage
 import com.example.budgetahead.ui.theme.InitialScreen
@@ -102,7 +102,7 @@ fun CategoriesSummary(
                                     },
                                     onCategoryClicked = {
                                         navController.navigate(
-                                            "${CategoryDetails.route}/${it.id}"
+                                            "${CategoryOverview.route}/${it.id}"
                                         )
                                     },
                                     onNextMonth = {
@@ -147,7 +147,7 @@ fun CategoriesSummary(
                                     },
                                     onCategoryClicked = {
                                         navController.navigate(
-                                            "${CategoryDetails.route}/${it.id}"
+                                            "${CategoryOverview.route}/${it.id}"
                                         )
                                     },
                                     onNextMonth = {
