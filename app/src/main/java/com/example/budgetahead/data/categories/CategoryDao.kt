@@ -47,4 +47,8 @@ interface CategoryDao {
         start: LocalDateTime,
         end: LocalDateTime
     ): Flow<Map<Category, List<TransactionWithCurrency>>>
+
+    @Transaction
+    @Query("SELECT * from categories WHERE id = :id")
+    fun getCategoryWithPlannedTransactionsStream(id: Int): Flow<CategoryWithPlannedTransactions>
 }

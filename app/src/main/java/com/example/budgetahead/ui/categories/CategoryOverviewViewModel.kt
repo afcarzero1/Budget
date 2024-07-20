@@ -7,13 +7,14 @@ import com.example.budgetahead.data.categories.CategoriesRepository
 import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.categories.CategoryType
 import com.example.budgetahead.data.currencies.CurrenciesRepository
+import com.example.budgetahead.data.future_transactions.FullFutureTransaction
 import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.ui.navigation.CategoryOverview
 import com.example.budgetahead.ui.transactions.GroupOfTransactionsAndTransfers
 import com.example.budgetahead.use_cases.GroupTransactionsAndTransfersByDateUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -37,42 +38,53 @@ class CategoryOverviewViewModel(
             initialValue = "USD"
         )
 
-    val categoryState: StateFlow<CategorySummaryUiState> =
-        categoriesRepository
-            .getCategoryWithTransactionsStream(categoryId)
-            .filterNotNull()
-            .map { categoryWithTransactions ->
-                CategorySummaryUiState(
-                    category = categoryWithTransactions.category,
-                    transactions = GroupTransactionsAndTransfersByDateUseCase().execute(
-                        transactions = categoryWithTransactions.transactions.map {
-                            FullTransactionRecord(
-                                transactionRecord = it.transactionRecord,
-                                account = it.account,
-                                category = categoryWithTransactions.category
-                            )
-                        },
-                        transfers = listOf()
+    private val categoryWithTransactionsFlow = categoriesRepository.getCategoryWithTransactionsStream(
+        categoryId
+    )
+    private val categoryWithPlannedFlow = categoriesRepository.getCategoryWithPlannedTransactionsStream(
+        categoryId
+    )
+
+    val categoryState: StateFlow<CategorySummaryUiState> = combine(
+        categoryWithTransactionsFlow,
+        categoryWithPlannedFlow
+    ) {
+            categoryWithTransactions,
+            categoryWithPlanned
+        ->
+        CategorySummaryUiState(
+            category = categoryWithTransactions.category,
+            transactions = GroupTransactionsAndTransfersByDateUseCase().execute(
+                transactions = categoryWithTransactions.transactions.map {
+                    FullTransactionRecord(
+                        transactionRecord = it.transactionRecord,
+                        account = it.account,
+                        category = categoryWithTransactions.category
                     )
-                )
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = CategorySummaryUiState(
-                    category = Category(
-                        id = 0,
-                        name = "Category",
-                        CategoryType.Expense,
-                        parentCategoryId = null,
-                        iconResId = null
-                    ),
-                    transactions = listOf()
-                )
-            )
+                },
+                transfers = listOf()
+            ),
+            plannedTransactions = categoryWithPlanned.transactions
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = CategorySummaryUiState(
+            category = Category(
+                id = 0,
+                name = "Category",
+                CategoryType.Expense,
+                parentCategoryId = null,
+                iconResId = null
+            ),
+            transactions = listOf(),
+            plannedTransactions = listOf()
+        )
+    )
 }
 
 data class CategorySummaryUiState(
     val category: Category,
-    val transactions: List<GroupOfTransactionsAndTransfers>
+    val transactions: List<GroupOfTransactionsAndTransfers> = listOf(),
+    val plannedTransactions: List<FullFutureTransaction> = listOf()
 )

@@ -19,6 +19,11 @@ class OfflineCategoriesRepository(private val categoryDao: CategoryDao) : Catego
     override fun getCategoryWithTransactionsStream(id: Int): Flow<CategoryWithTransactions> =
         categoryDao.getCategoryWithTransactionsStream(id)
 
+    override fun getCategoryWithPlannedTransactionsStream(
+        id: Int
+    ): Flow<CategoryWithPlannedTransactions> =
+        categoryDao.getCategoryWithPlannedTransactionsStream(id)
+
     override fun getAllCategoriesWithTransactionsStream(): Flow<List<CategoryWithTransactions>> =
         categoryDao.getAllCategoriesWithTransactionsStream()
 

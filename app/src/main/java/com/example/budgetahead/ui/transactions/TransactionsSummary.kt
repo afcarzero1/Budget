@@ -82,79 +82,20 @@ fun TransactionsSummary(
 ) {
     val showFutureTransactions = transactionsViewModel.onFutureTransactionsScreen
     val baseCurrency by transactionsViewModel.baseCurrency.collectAsState()
-
+    val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
+    val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
     Log.d("TRANSACTIONS SUMMARY", "Show future: $showFutureTransactions")
 
     InitialScreen(
         navController = navController,
         destination = Transactions,
         screenBody = {
-            TabbedPage(
-                tabs =
-                listOf(
-                    TabItem(
-                        title = "Present",
-                        icon = {
-                            Icon(
-                                painter = painterResource(
-                                    id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24
-                                ),
-                                contentDescription = "Executed Transactions"
-                            )
-                        },
-                        screen = {
-                            val transactionsState by transactionsViewModel.transactionsUiState.collectAsState()
-                            if (transactionsState.groupedTransactionsAndTransfers.isEmpty()) {
-                                EmptyTransactionScreen()
-                            } else {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    TransactionsSummaryBody(
-                                        transactions = transactionsState.groupedTransactionsAndTransfers,
-                                        baseCurrency = baseCurrency,
-                                        navController = navController
-                                    )
-                                }
-                            }
-                        }
-                    ),
-                    TabItem(
-                        title = "Planned",
-                        icon = {
-                            Icon(
-                                painter = painterResource(
-                                    id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24
-                                ),
-                                contentDescription = "Planned Transactions"
-                            )
-                        },
-                        screen = {
-                            val futureTransactionsState by futureTransactionsViewModel.futureTransactionsUiState.collectAsState()
-
-                            if (futureTransactionsState.futureTransactionsList.isEmpty()) {
-                                EmptyTransactionScreen()
-                            } else {
-                                Column(
-                                    modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(4.dp),
-                                    verticalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    FutureTransactionsSummaryBody(
-                                        futureTransactions = futureTransactionsState.futureTransactionsList,
-                                        navController = navController
-                                    )
-                                }
-                            }
-                        }
-                    )
-                ),
-                onTabChanged = {
-                    transactionsViewModel.toggleScreen(it == 1)
-                }
+            TransactionsAndPlannedSummaryBody(
+                transactions = transactionsState.groupedTransactionsAndTransfers,
+                futureTransactions = futureTransactionsState.futureTransactionsList,
+                baseCurrency = baseCurrency,
+                navController = navController,
+                onTabChanged = { transactionsViewModel.toggleScreen(it == 1) }
             )
         },
         floatingButton = {
@@ -169,6 +110,82 @@ fun TransactionsSummary(
                 contentDescription = "Add Transaction"
             )
         }
+    )
+}
+
+@Composable
+fun TransactionsAndPlannedSummaryBody(
+    transactions: List<GroupOfTransactionsAndTransfers>,
+    futureTransactions: List<FullFutureTransaction>,
+    baseCurrency: String,
+    navController: NavHostController,
+    onTabChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    dividerColor: Color = MaterialTheme.colorScheme.background
+) {
+    TabbedPage(
+        tabs =
+        listOf(
+            TabItem(
+                title = "Present",
+                icon = {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24
+                        ),
+                        contentDescription = "Executed Transactions"
+                    )
+                },
+                screen = {
+                    if (transactions.isEmpty()) {
+                        EmptyTransactionScreen()
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TransactionsSummaryBody(
+                                transactions = transactions,
+                                baseCurrency = baseCurrency,
+                                navController = navController,
+                                dividerColor = dividerColor
+                            )
+                        }
+                    }
+                }
+            ),
+            TabItem(
+                title = "Planned",
+                icon = {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24
+                        ),
+                        contentDescription = "Planned Transactions"
+                    )
+                },
+                screen = {
+                    if (futureTransactions.isEmpty()) {
+                        EmptyTransactionScreen()
+                    } else {
+                        Column(
+                            modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            FutureTransactionsSummaryBody(
+                                futureTransactions = futureTransactions,
+                                navController = navController
+                            )
+                        }
+                    }
+                }
+            )
+        ),
+        onTabChanged = onTabChanged,
+        modifier = modifier
     )
 }
 

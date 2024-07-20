@@ -16,6 +16,8 @@ interface CategoriesRepository {
 
     fun getCategoryWithTransactionsStream(id: Int): Flow<CategoryWithTransactions>
 
+    fun getCategoryWithPlannedTransactionsStream(id: Int): Flow<CategoryWithPlannedTransactions>
+
     fun getAllCategoriesWithTransactionsStream(): Flow<List<CategoryWithTransactions>>
 
     fun getAllCategoriesWithTransactionsStream(
