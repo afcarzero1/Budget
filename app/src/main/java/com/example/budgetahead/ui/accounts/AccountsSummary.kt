@@ -42,8 +42,8 @@ import com.example.budgetahead.ui.components.ColorAssigner
 import com.example.budgetahead.ui.components.PieChart
 import com.example.budgetahead.ui.components.TextPiece
 import com.example.budgetahead.ui.components.graphics.convertLongToColor
-import com.example.budgetahead.ui.navigation.AccountDetails
 import com.example.budgetahead.ui.navigation.AccountEntry
+import com.example.budgetahead.ui.navigation.AccountSummary
 import com.example.budgetahead.ui.navigation.AccountTransferEntry
 import com.example.budgetahead.ui.navigation.Accounts
 import com.example.budgetahead.ui.theme.InitialScreen
@@ -72,7 +72,7 @@ fun AccountsSummary(
                     accountsTotalBalance = accountsTotalBalance,
                     accountColorAssigner = viewModel.accountsColorAssigner,
                     onAccountClick = {
-                        navController.navigate("${AccountDetails.route}/${it.id}")
+                        navController.navigate("${AccountSummary.route}/${it.id}")
                     },
                     onAccountTransfer = {
                         navController.navigate(AccountTransferEntry.route)

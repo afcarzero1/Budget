@@ -1,6 +1,7 @@
 package com.example.budgetahead.ui.transactions
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -175,7 +177,8 @@ fun TransactionsSummaryBody(
     transactions: List<GroupOfTransactionsAndTransfers>,
     baseCurrency: String,
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dividerColor: Color = MaterialTheme.colorScheme.background
 ) {
     // Remember the scroll state
     val scrollState = rememberLazyListState()
@@ -205,7 +208,8 @@ fun TransactionsSummaryBody(
                         navController.navigate(
                             TransferDetails.route + "/${it.id}"
                         )
-                    }
+                    },
+                    dividerColor = dividerColor
                 )
             }
         }
@@ -220,7 +224,8 @@ fun DayTransactionsGroup(
     date: LocalDate,
     onTransactionSelected: (FullTransactionRecord) -> Unit,
     onTransferSelected: (Transfer) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dividerColor: Color = MaterialTheme.colorScheme.background
 ) {
     val totalAmount =
         transactions.sumOf {
@@ -268,7 +273,7 @@ fun DayTransactionsGroup(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items.forEach { item ->
+                items.forEachIndexed { index, item ->
                     if (item.isTransaction) {
                         TransactionRow(
                             transaction = item.data as FullTransactionRecord,
@@ -280,7 +285,9 @@ fun DayTransactionsGroup(
                             onTransferSelected = { onTransferSelected(it) }
                         )
                     }
-                    ListDivider()
+                    if (index < items.size - 1) {
+                        Divider(color = dividerColor, thickness = 1.dp)
+                    }
                 }
             }
         }
@@ -409,7 +416,7 @@ private fun TransactionRow(
             )
         }
     }
-    ListDivider()
+    // ListDivider()
 }
 
 @Composable
@@ -486,7 +493,7 @@ private fun TransferRow(transfer: TransferWithAccounts, onTransferSelected: (Tra
             )
         }
     }
-    ListDivider()
+    // ListDivider()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

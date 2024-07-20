@@ -94,6 +94,7 @@ interface TransactionDao {
     @Query("SELECT * FROM transfers ORDER BY date DESC")
     fun getAllTransfersStream(): Flow<List<Transfer>>
 
+    @Transaction
     @Query("SELECT * FROM transfers ORDER BY date DESC")
     fun getAllTransfersWithAccountsStream(): Flow<List<TransferWithAccounts>>
 

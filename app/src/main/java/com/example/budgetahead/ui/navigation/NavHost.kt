@@ -59,6 +59,18 @@ fun BudgetNavHost(
         composable(route = AccountTransferEntry.route) {
             AccountTransferEntry.screen(navController)
         }
+
+        composable(
+            route = AccountSummary.routeWithArgs,
+            arguments = listOf(
+                navArgument(AccountSummary.accountIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            AccountSummary.screen(navController)
+        }
+
         composable(
             route = AccountDetails.routeWithArgs,
             arguments =

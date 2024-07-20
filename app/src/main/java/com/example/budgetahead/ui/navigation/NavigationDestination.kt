@@ -16,6 +16,7 @@ import com.example.budgetahead.data.transfers.TransferDetailsScreen
 import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.accounts.AccountDetailsScreen
 import com.example.budgetahead.ui.accounts.AccountEntryScreen
+import com.example.budgetahead.ui.accounts.AccountSummaryScreen
 import com.example.budgetahead.ui.accounts.AccountsSummary
 import com.example.budgetahead.ui.accounts.TransferEntryScreen
 import com.example.budgetahead.ui.categories.CategoriesSummary
@@ -133,6 +134,26 @@ object AccountTransferEntry : BudgetDestination {
             navigateBack = { it.popBackStack() }
         )
     }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
+}
+
+object AccountSummary : BudgetDestination {
+    override val icon = @Composable { selected: Boolean ->
+        Icon(
+            painter = painterResource(id = R.drawable.bank),
+            contentDescription = null
+        )
+    }
+    override val route: String = "accountSummary"
+
+    const val accountIdArg = "accountId"
+
+    val routeWithArgs = "$route/{$accountIdArg}"
+
+    override val screen: @Composable (navController: NavHostController) -> Unit =
+        {
+            AccountSummaryScreen(navController = it)
+        }
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 

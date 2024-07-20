@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -107,15 +108,18 @@ fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> 
 @Composable
 fun SecondaryScreenTopBar(
     navigateBack: () -> Unit,
-    @StringRes titleResId: Int,
-    actions: @Composable (() -> Unit)? = null
+    @StringRes titleResId: Int?,
+    actions: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(id = titleResId),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            titleResId?.let {
+                Text(
+                    text = stringResource(id = it),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         },
         navigationIcon = {
             IconButton(onClick = { navigateBack() }) {
@@ -130,9 +134,8 @@ fun SecondaryScreenTopBar(
             actions?.invoke() // Render actions only if non-null
         },
         modifier = Modifier.fillMaxWidth(),
-        colors =
-        TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = containerColor
         )
     )
 }

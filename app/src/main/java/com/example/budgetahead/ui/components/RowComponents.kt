@@ -86,7 +86,7 @@ fun <T> BaseRow(
         }
         Spacer(Modifier.width(16.dp))
     }
-    ListDivider()
+    // ListDivider()
 }
 
 @Composable

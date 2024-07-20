@@ -52,7 +52,8 @@ object AppViewModelProvider {
             initializer {
                 AccountSummaryViewModel(
                     this.createSavedStateHandle(),
-                    budgetApplication().container.accountsRepository
+                    budgetApplication().container.accountsRepository,
+                    budgetApplication().container.currenciesRepository
                 )
             }
 

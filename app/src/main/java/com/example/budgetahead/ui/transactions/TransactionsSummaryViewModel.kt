@@ -1,6 +1,5 @@
 package com.example.budgetahead.ui.transactions
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +9,7 @@ import com.example.budgetahead.data.currencies.CurrenciesRepository
 import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.data.transfers.TransferWithAccounts
+import com.example.budgetahead.use_cases.GroupTransactionsAndTransfersByDateUseCase
 import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -28,36 +28,8 @@ class TransactionsSummaryViewModel(
             transactionsRepository.getAllFullTransactionsStream(),
             transactionsRepository.getAllTransfersWithAccountsStream()
         ) { transactions, transfers ->
-            // Group transactions and transfers by date
-            Log.d(
-                "VIEW MODEL TRANSACTIONS",
-                "Transactions: ${transactions.count()}, Transfers: ${transfers.count()}"
-            )
-            val transactionsGroupedByDate = transactions.groupBy {
-                it.transactionRecord.date.toLocalDate()
-            }
-            val transfersGroupedByDate = transfers.groupBy { it.transfer.date.toLocalDate() }
-
-            // Create a list to hold the combined data
-            val combinedList = mutableListOf<GroupOfTransactionsAndTransfers>()
-
-            // Create a set of all unique dates from both groups, then sort them
-            val allDates = (transactionsGroupedByDate.keys union transfersGroupedByDate.keys).sorted().reversed()
-
-            for (date in allDates) {
-                val dailyTransactions = transactionsGroupedByDate[date] ?: emptyList()
-                val dailyTransfers = transfersGroupedByDate[date] ?: emptyList()
-                combinedList.add(
-                    GroupOfTransactionsAndTransfers(
-                        transactions = dailyTransactions,
-                        transfers = dailyTransfers,
-                        date = date
-                    )
-                )
-            }
-
             TransactionsUiState(
-                combinedList
+                GroupTransactionsAndTransfersByDateUseCase().execute(transactions, transfers)
             )
         }.stateIn(
             scope = viewModelScope,
