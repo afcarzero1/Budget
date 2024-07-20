@@ -99,7 +99,7 @@ fun CategorySummaryBody(
                     bottom = 16.dp
                 )
                 .background(
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.primary
                 ),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -109,7 +109,7 @@ fun CategorySummaryBody(
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = category.name,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge
             )
 
