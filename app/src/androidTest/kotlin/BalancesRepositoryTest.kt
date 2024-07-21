@@ -27,6 +27,7 @@ import com.example.budgetahead.data.future_transactions.OfflineFutureTransaction
 import com.example.budgetahead.data.future_transactions.RecurrenceType
 import com.example.budgetahead.data.transactions.OfflineTransactionsRepository
 import com.example.budgetahead.data.transactions.TransactionDao
+import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import kotlinx.coroutines.flow.first
@@ -259,5 +260,86 @@ class BalancesRepositoryTest{
             LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
             LocalDateTime.parse("2024-09-07T12:00:00").toLocalDate()
         ).first().size == 4)
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun testContinuousTransactions() = runBlocking {
+        currenciesRepository.getAllCurrenciesStream().first().forEach{
+            currencyDao.insert(it)
+        }
+
+        accountRepository.insertAccount(
+            Account(
+                id = 1,
+                name = "JPMorgan Chase",
+                currency = "USD",
+                initialBalance = 100.0f,
+            )
+        )
+
+        assertTrue("Account must be inserted into the repository",accountRepository.getAllAccountsStream().first().size == 1)
+
+        for(category in fakeCategories){
+            categoriesRepository.insert(
+                category
+            )
+        }
+
+        assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
+
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id=0, // auto-generate
+                name = "First budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 20f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-08-31T12:00:00"),
+                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                recurrenceValue = 1
+            )
+        )
+
+        var pendingTransaction = offlineBalancesRepository.getPendingTransactions(
+            LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+            LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+        ).first()
+
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        for(pending in pendingTransaction){
+            assertTrue(pending.transactionRecord.amount == 20f)
+        }
+
+
+        transactionsRepository.insert(
+            TransactionRecord(
+                id=0,
+                name="Fake transaction",
+                type = TransactionType.EXPENSE,
+                amount = 5f,
+                accountId = 1,
+                categoryId = 1,
+                date = LocalDateTime.parse("2024-08-05T12:00:00")
+            )
+        )
+
+        pendingTransaction = offlineBalancesRepository.getPendingTransactions(
+            LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+            LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+        ).first()
+        assertTrue("Weekly transactions", pendingTransaction.size == 4)
+        assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
+
+
+
+
+
+
+
+
     }
 }

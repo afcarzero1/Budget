@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import java.lang.IllegalStateException
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.math.max
 
 class OfflineBalancesRepository(
     private val accountsRepository: AccountsRepository,
@@ -380,6 +381,9 @@ class OfflineBalancesRepository(
                                 relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date >= currentDate &&
                                 !alreadyCounted[currentExpectedTransactionIndex]
                             ) {
+                                if(relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.type != futureTransaction.futureTransaction.type){
+                                    throw IllegalStateException("This is not supported yet!!")
+                                }
                                 periodExecutedTransactions.add(relevantExecutedTransactions[currentExpectedTransactionIndex])
                                 alreadyCounted[currentExpectedTransactionIndex] = true
                             }
@@ -402,7 +406,7 @@ class OfflineBalancesRepository(
                             )
 
                         // Subtract the value from the expected transaction for this period.
-                        val totalPending = futureTransaction.futureTransaction.amount - totalExecutedInCurrency
+                        val totalPending = max(futureTransaction.futureTransaction.amount - totalExecutedInCurrency, 0f)
 
                         // Add the "planned" modified transaction at the end of the period
                         pendingTransactions.add(
