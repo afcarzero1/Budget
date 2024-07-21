@@ -10,17 +10,17 @@ import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.ui.navigation.TransactionDetails
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class TransactionDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val transactionsRepository: TransactionsRepository
+    private val transactionsRepository: TransactionsRepository,
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -38,7 +38,7 @@ class TransactionDetailsViewModel(
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = TransactionDetailsUiState()
+                initialValue = TransactionDetailsUiState(),
             )
 
     var transactionUiState by mutableStateOf(TransactionDetailsUiState())
@@ -56,13 +56,14 @@ class TransactionDetailsViewModel(
         this.transactionUiState =
             TransactionDetailsUiState(
                 transaction = transaction,
-                isValid = validateInput(transaction)
+                isValid = validateInput(transaction),
             )
     }
 
-    private fun validateInput(transaction: TransactionRecord): Boolean = with(transaction) {
-        amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
-    }
+    private fun validateInput(transaction: TransactionRecord): Boolean =
+        with(transaction) {
+            amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
+        }
 
     suspend fun updateTransaction() {
         if (transactionUiState.isValid) {
@@ -84,7 +85,7 @@ data class TransactionDetailsUiState(
             amount = 0f,
             date = LocalDateTime.now(),
             name = "",
-            type = TransactionType.EXPENSE
+            type = TransactionType.EXPENSE,
         ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

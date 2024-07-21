@@ -19,46 +19,55 @@ import androidx.compose.ui.unit.dp
 import com.example.budgetahead.ui.theme.PurpleGrey80
 
 @Composable
-fun BudgetButton(text: String, onClick: () -> Unit) {
+fun BudgetButton(
+    text: String,
+    onClick: () -> Unit,
+) {
     Button(
         onClick = onClick,
         colors =
-        ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White
-        ),
-        shape = RoundedCornerShape(size = 6.dp)
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White,
+            ),
+        shape = RoundedCornerShape(size = 6.dp),
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = Color.White
+            color = Color.White,
         )
     }
 }
 
 @Composable
-fun BudgetTextButton(text: String, onClick: () -> Unit) {
+fun BudgetTextButton(
+    text: String,
+    onClick: () -> Unit,
+) {
     TextButton(onClick = onClick) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = PurpleGrey80
+            color = PurpleGrey80,
         )
     }
 }
 
 @Composable
-fun BudgetFloatingButton(onClick: () -> Unit, contentDescription: String?) {
+fun BudgetFloatingButton(
+    onClick: () -> Unit,
+    contentDescription: String?,
+) {
     FloatingActionButton(
         onClick = onClick,
         modifier = Modifier.padding(16.dp),
         containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary
+        contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
-            contentDescription = contentDescription
+            contentDescription = contentDescription,
         )
     }
 }

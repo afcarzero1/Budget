@@ -10,9 +10,9 @@ data class AccountWithTransactions(
     @Relation(
         entity = TransactionRecord::class,
         parentColumn = "id",
-        entityColumn = "accountId"
+        entityColumn = "accountId",
     )
-    val transactionRecords: List<TransactionRecord>
+    val transactionRecords: List<TransactionRecord>,
 ) {
     @get:Ignore val balance: Float
         get() {

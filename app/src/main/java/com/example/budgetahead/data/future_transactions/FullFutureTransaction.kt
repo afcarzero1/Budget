@@ -9,12 +9,12 @@ data class FullFutureTransaction(
     @Embedded val futureTransaction: FutureTransaction,
     @Relation(
         parentColumn = "categoryId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
     val category: Category,
     @Relation(
         parentColumn = "currency",
-        entityColumn = "name"
+        entityColumn = "name",
     )
-    val currency: Currency
+    val currency: Currency,
 )

@@ -8,8 +8,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.budgetahead.data.transactions.TransactionWithCurrency
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface CategoryDao {
@@ -41,11 +41,11 @@ interface CategoryDao {
         """
     SELECT * FROM categories 
     LEFT JOIN transactions ON categories.id = transactions.categoryId AND transactions.date > :start AND transactions.date < :end
-    """
+    """,
     )
     fun getAllCategoriesWithTransactionsStream(
         start: LocalDateTime,
-        end: LocalDateTime
+        end: LocalDateTime,
     ): Flow<Map<Category, List<TransactionWithCurrency>>>
 
     @Transaction

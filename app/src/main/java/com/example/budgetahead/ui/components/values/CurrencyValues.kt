@@ -30,12 +30,12 @@ fun ValueWithIcon(
     value: Float,
     currency: Currency,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Row(
         modifier = modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.SpaceAround,
     ) {
         when {
             value > 0f -> {
@@ -43,7 +43,7 @@ fun ValueWithIcon(
                     imageVector = Icons.Filled.KeyboardArrowUp,
                     contentDescription = "income",
                     tint = SoftGreen,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
 
@@ -52,24 +52,25 @@ fun ValueWithIcon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = "expense",
                     tint = WineRed,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
 
             else -> {
                 Icon(
-                    painter = painterResource(
-                        id = R.drawable.equal_24dp_fill0_wght400_grad0_opsz24
-                    ),
+                    painter =
+                        painterResource(
+                            id = R.drawable.equal_24dp_fill0_wght400_grad0_opsz24,
+                        ),
                     contentDescription = "neutral",
-                    modifier = Modifier.padding(start = 8.dp).size(16.dp)
+                    modifier = Modifier.padding(start = 8.dp).size(16.dp),
                 )
             }
         }
         Text(
             text = currency.formatAmount(amount = value.absoluteValue),
             style = textStyle,
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         )
     }
 }
@@ -79,7 +80,7 @@ fun ValueWithIcon(
 fun PreviewValueWIthIcon() {
     ValueWithIcon(
         value = 1000f,
-        currency = Currency("USD", 1.0f, LocalDateTime.now())
+        currency = Currency("USD", 1.0f, LocalDateTime.now()),
     )
 }
 
@@ -88,7 +89,7 @@ fun PreviewValueWIthIcon() {
 fun PreviewNegValueWIthIcon() {
     ValueWithIcon(
         value = -1000f,
-        currency = Currency("USD", 1.0f, LocalDateTime.now())
+        currency = Currency("USD", 1.0f, LocalDateTime.now()),
     )
 }
 
@@ -97,6 +98,6 @@ fun PreviewNegValueWIthIcon() {
 fun PreviewZeroValueWIthIcon() {
     ValueWithIcon(
         value = -0.0f,
-        currency = Currency("USD", 1.0f, LocalDateTime.now())
+        currency = Currency("USD", 1.0f, LocalDateTime.now()),
     )
 }

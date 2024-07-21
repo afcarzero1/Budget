@@ -10,7 +10,7 @@ data class CategoryWithPlannedTransactions(
     @Relation(
         entity = FutureTransaction::class,
         parentColumn = "id",
-        entityColumn = "categoryId"
+        entityColumn = "categoryId",
     )
-    val transactions: List<FullFutureTransaction>
+    val transactions: List<FullFutureTransaction>,
 )

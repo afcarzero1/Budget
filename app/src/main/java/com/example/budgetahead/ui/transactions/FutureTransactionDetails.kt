@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 fun FutureTransactionDetailsScreen(
     navigateBack: () -> Unit,
     viewModel: FutureTransactionDetailsViewModel =
-        viewModel(factory = AppViewModelProvider.Factory)
+        viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val transactionState by viewModel.transactionState.collectAsState()
     val useUpdatedUiState = viewModel.showUpdatedState
@@ -55,12 +55,12 @@ fun FutureTransactionDetailsScreen(
                 actions = {
                     IconButton(
                         onClick = { deleteConfirmationRequired = true },
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = stringResource(R.string.delete),
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                     IconButton(
@@ -71,26 +71,27 @@ fun FutureTransactionDetailsScreen(
                             }
                             navigateBack()
                         },
-                        enabled = transactionState.isValid
+                        enabled = transactionState.isValid,
                     ) {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
-                            ),
+                            painter =
+                                painterResource(
+                                    id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24,
+                                ),
                             contentDescription = stringResource(R.string.save),
-                            tint = if (transactionState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
+                            tint = if (transactionState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray,
                         )
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         FutureTransactionDetailsBody(
             futureTransactionDetailsUiState = if (useUpdatedUiState) viewModel.transactionUiState else transactionState,
             onTransactionDetailsChanged = {
                 viewModel.updateUiState(it)
             },
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         )
 
         if (deleteConfirmationRequired) {
@@ -106,14 +107,14 @@ fun FutureTransactionDetailsScreen(
                                 .makeText(
                                     context,
                                     "Error deleting transaction",
-                                    Toast.LENGTH_SHORT
+                                    Toast.LENGTH_SHORT,
                                 ).show()
                         }
                     }
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
             )
         }
     }
@@ -126,7 +127,7 @@ fun FutureTransactionDetailsBody(
     modifier: Modifier = Modifier,
     categoryViewModel: CategoriesSummaryViewModel =
         viewModel(factory = AppViewModelProvider.Factory),
-    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val availableCategories by categoryViewModel.categoriesUiState.collectAsState()
     val availableCurrencies by currenciesViewModel.currenciesUiState.collectAsState()
@@ -137,7 +138,7 @@ fun FutureTransactionDetailsBody(
             availableCategories = availableCategories.categoriesList.map { it.category },
             availableCurrencies = availableCurrencies.currenciesList,
             onValueChange = { onTransactionDetailsChanged(it) },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

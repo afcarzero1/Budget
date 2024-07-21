@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun FutureTransactionEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: FutureTransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: FutureTransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val availableCategories by viewModel.categoriesListState.collectAsState()
@@ -58,9 +58,9 @@ fun FutureTransactionEntryScreen(
         topBar = {
             SecondaryScreenTopBar(
                 navigateBack = navigateBack,
-                titleResId = R.string.entry_transaction_title
+                titleResId = R.string.entry_transaction_title,
             )
-        }
+        },
     ) { paddingValue ->
         FutureTransactionEntryBody(
             futureTransactionUiState = viewModel.transactionUiState,
@@ -75,7 +75,7 @@ fun FutureTransactionEntryScreen(
                     navigateBack()
                 }
             },
-            modifier = Modifier.padding(paddingValue)
+            modifier = Modifier.padding(paddingValue),
         )
     }
 }
@@ -87,23 +87,23 @@ fun FutureTransactionEntryBody(
     availableCurrencies: List<Currency>,
     onFutureTransactionValueChanged: (FutureTransaction) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
+        modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
     ) {
         FutureTransactionForm(
             futureTransaction = futureTransactionUiState.futureTransaction,
             availableCategories = availableCategories,
             availableCurrencies = availableCurrencies,
-            onValueChange = onFutureTransactionValueChanged
+            onValueChange = onFutureTransactionValueChanged,
         )
         Button(
             onClick = onSaveClick,
             enabled = futureTransactionUiState.isValid,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = stringResource(R.string.entry_transaction_save))
         }
@@ -117,11 +117,11 @@ fun FutureTransactionForm(
     availableCategories: List<Category>,
     availableCurrencies: List<Currency>,
     onValueChange: (FutureTransaction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium)),
     ) {
         Row {
             FloatOutlinedText(
@@ -135,7 +135,7 @@ fun FutureTransactionForm(
                 recordToFloat = {
                     it.amount
                 },
-                modifier = Modifier.weight(1.5f)
+                modifier = Modifier.weight(1.5f),
             )
             Spacer(modifier = Modifier.width(16.dp))
             LargeDropdownMenu(
@@ -144,15 +144,16 @@ fun FutureTransactionForm(
                 onItemSelected = { index, item ->
                     onValueChange(
                         futureTransaction.copy(
-                            currency = availableCurrencies[index].name
-                        )
+                            currency = availableCurrencies[index].name,
+                        ),
                     )
                 },
-                initialIndex = availableCurrencies.indexOfFirst {
-                    it.name ==
-                        futureTransaction.currency
-                },
-                modifier = Modifier.weight(1f)
+                initialIndex =
+                    availableCurrencies.indexOfFirst {
+                        it.name ==
+                            futureTransaction.currency
+                    },
+                modifier = Modifier.weight(1f),
             )
         }
 
@@ -164,12 +165,12 @@ fun FutureTransactionForm(
                     futureTransaction.copy(
                         categoryId = availableCategories[index].id,
                         type =
-                        if (item.defaultType == CategoryType.Expense) {
-                            TransactionType.EXPENSE
-                        } else {
-                            TransactionType.INCOME
-                        }
-                    )
+                            if (item.defaultType == CategoryType.Expense) {
+                                TransactionType.EXPENSE
+                            } else {
+                                TransactionType.INCOME
+                            },
+                    ),
                 )
             },
             selectedItemToString = {
@@ -178,29 +179,30 @@ fun FutureTransactionForm(
             leadingIcon = {
                 val iconResourceId =
                     IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                        it.iconResId
+                        it.iconResId,
                     )
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Category Icon",
                     modifier =
-                    Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
-                        .border(
-                            2.dp,
-                            if (it.defaultType == CategoryType.Expense) {
-                                Color.Red.copy(alpha = 0.3f)
-                            } else {
-                                Color.Green.copy(alpha = 0.3f)
-                            },
-                            CircleShape
-                        ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+                        Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .border(
+                                2.dp,
+                                if (it.defaultType == CategoryType.Expense) {
+                                    Color.Red.copy(alpha = 0.3f)
+                                } else {
+                                    Color.Green.copy(alpha = 0.3f)
+                                },
+                                CircleShape,
+                            ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
                 )
             },
-            initialIndex = availableCategories.indexOfFirst {
-                it.id == futureTransaction.categoryId
-            }
+            initialIndex =
+                availableCategories.indexOfFirst {
+                    it.id == futureTransaction.categoryId
+                },
         )
 
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -208,7 +210,7 @@ fun FutureTransactionForm(
                 label = stringResource(id = R.string.entry_future_transaction_initial_date),
                 onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
                 date = futureTransaction.startDate,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
@@ -217,7 +219,7 @@ fun FutureTransactionForm(
                     label = stringResource(id = R.string.entry_future_transaction_final_date),
                     onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
                     date = futureTransaction.endDate,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -229,15 +231,15 @@ fun FutureTransactionForm(
                 onItemSelected = { index, item ->
                     onValueChange(
                         futureTransaction.copy(
-                            recurrenceType = item
-                        )
+                            recurrenceType = item,
+                        ),
                     )
                 },
                 initialIndex =
-                enumValues<RecurrenceType>()
-                    .toList()
-                    .indexOfFirst { it == futureTransaction.recurrenceType },
-                modifier = Modifier.weight(1f)
+                    enumValues<RecurrenceType>()
+                        .toList()
+                        .indexOfFirst { it == futureTransaction.recurrenceType },
+                modifier = Modifier.weight(1f),
             )
 
             if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
@@ -248,12 +250,12 @@ fun FutureTransactionForm(
                     onItemSelected = { index, item ->
                         onValueChange(
                             futureTransaction.copy(
-                                recurrenceValue = item.toInt()
-                            )
+                                recurrenceValue = item.toInt(),
+                            ),
                         )
                     },
                     initialIndex = futureTransaction.recurrenceValue - 1,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

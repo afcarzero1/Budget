@@ -10,18 +10,18 @@ import com.example.budgetahead.data.accounts.AccountsRepository
 import com.example.budgetahead.data.accounts.FullAccount
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.ui.navigation.TransferDetails
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class TransferDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val transactionsRepository: TransactionsRepository,
-    private val accountsRepository: AccountsRepository
+    private val accountsRepository: AccountsRepository,
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -39,7 +39,7 @@ class TransferDetailsViewModel(
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = TransferDetailsUiState()
+                initialValue = TransferDetailsUiState(),
             )
 
     val accountsListState: StateFlow<List<FullAccount>> =
@@ -48,7 +48,7 @@ class TransferDetailsViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf()
+                initialValue = listOf(),
             )
 
     var transferUiState by mutableStateOf(TransferDetailsUiState())
@@ -71,7 +71,7 @@ class TransferDetailsViewModel(
         this.transferUiState =
             TransferDetailsUiState(
                 transfer = transfer,
-                isValid = validateInput(transfer)
+                isValid = validateInput(transfer),
             )
         showUpdatedState = true
     }
@@ -132,7 +132,7 @@ data class TransferDetailsUiState(
             destinationAccountTransactionId = -1,
             amountDestination = 0f,
             amountSource = 0f,
-            date = LocalDateTime.now()
+            date = LocalDateTime.now(),
         ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

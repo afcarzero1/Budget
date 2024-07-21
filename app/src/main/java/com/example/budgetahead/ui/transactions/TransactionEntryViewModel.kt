@@ -12,15 +12,15 @@ import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDateTime
 
 class TransactionEntryViewModel(
     private val transactionsRepository: TransactionsRepository,
     private val accountsRepository: AccountsRepository,
-    private val categoriesRepository: CategoriesRepository
+    private val categoriesRepository: CategoriesRepository,
 ) : ViewModel() {
     val accountsListState: StateFlow<List<Account>> =
         accountsRepository
@@ -28,7 +28,7 @@ class TransactionEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf()
+                initialValue = listOf(),
             )
 
     val categoriesListState: StateFlow<List<Category>> =
@@ -37,7 +37,7 @@ class TransactionEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf()
+                initialValue = listOf(),
             )
 
     var transactionUiState by mutableStateOf(TransactionUiState())
@@ -47,13 +47,14 @@ class TransactionEntryViewModel(
         this.transactionUiState =
             TransactionUiState(
                 transaction = transaction,
-                isValid = validateInput(transaction)
+                isValid = validateInput(transaction),
             )
     }
 
-    private fun validateInput(transaction: TransactionRecord): Boolean = with(transaction) {
-        amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
-    }
+    private fun validateInput(transaction: TransactionRecord): Boolean =
+        with(transaction) {
+            amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
+        }
 
     suspend fun saveTransaction() {
         if (validateInput(transactionUiState.transaction)) {
@@ -71,7 +72,7 @@ data class TransactionUiState(
             accountId = -1,
             categoryId = -1,
             amount = 0f,
-            date = LocalDateTime.now()
+            date = LocalDateTime.now(),
         ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

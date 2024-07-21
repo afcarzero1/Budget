@@ -5,9 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.budgetahead.data.BudgetDatabase
 import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.data.currencies.CurrencyDao
-import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -15,6 +12,9 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
 class currencyDaoTest {
@@ -34,18 +34,18 @@ class currencyDaoTest {
             Currency(
                 name = "USD",
                 value = 1.0f,
-                updatedTime = localDateTime
+                updatedTime = localDateTime,
             ),
             Currency(
                 name = "EUR",
                 value = 1.1f,
-                updatedTime = localDateTime
+                updatedTime = localDateTime,
             ),
             Currency(
                 name = "SEK",
                 value = 0.1f,
-                updatedTime = localDateTime
-            )
+                updatedTime = localDateTime,
+            ),
         )
 
     @Before
@@ -80,12 +80,13 @@ class currencyDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoGetAllItems_returnsAllItemsFromDB() = runBlocking {
-        addAllItemsToDb()
-        val allItems = currencyDao.getAllCurrencies().first()
+    fun daoGetAllItems_returnsAllItemsFromDB() =
+        runBlocking {
+            addAllItemsToDb()
+            val allItems = currencyDao.getAllCurrencies().first()
 
-        for (currency in currencies) {
-            Assert.assertTrue(allItems.contains(currency))
+            for (currency in currencies) {
+                Assert.assertTrue(allItems.contains(currency))
+            }
         }
-    }
 }

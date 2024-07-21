@@ -23,17 +23,17 @@ import com.example.budgetahead.ui.onboarding.OnBoardingViewModel
 fun BudgetNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: BudgetDestination? = null
+    startDestination: BudgetDestination? = null,
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination?.route ?: Overview.route,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable(route = OnBoarding.route) {
             val viewModel: OnBoardingViewModel = viewModel(factory = AppViewModelProvider.Factory)
             OnBoardingScreen(
-                onEvent = viewModel::onEvent
+                onEvent = viewModel::onEvent,
             )
         }
 
@@ -47,12 +47,12 @@ fun BudgetNavHost(
             CurrencySettingsScreen(navController = navController)
         }
         composable(
-            route = Accounts.route
+            route = Accounts.route,
         ) {
             Accounts.screen(navController)
         }
         composable(
-            route = AccountEntry.route
+            route = AccountEntry.route,
         ) {
             AccountEntry.screen(navController)
         }
@@ -62,11 +62,12 @@ fun BudgetNavHost(
 
         composable(
             route = AccountSummary.routeWithArgs,
-            arguments = listOf(
-                navArgument(AccountSummary.accountIdArg) {
-                    type = NavType.IntType
-                }
-            )
+            arguments =
+                listOf(
+                    navArgument(AccountSummary.accountIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             AccountSummary.screen(navController)
         }
@@ -74,11 +75,11 @@ fun BudgetNavHost(
         composable(
             route = AccountDetails.routeWithArgs,
             arguments =
-            listOf(
-                navArgument(AccountDetails.accountIdArg) {
-                    type = NavType.IntType
-                }
-            )
+                listOf(
+                    navArgument(AccountDetails.accountIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             AccountDetails.screen(navController)
         }
@@ -91,11 +92,12 @@ fun BudgetNavHost(
 
         composable(
             route = CategoryOverview.routeWithArgs,
-            arguments = listOf(
-                navArgument(CategoryOverview.categoryIdArg) {
-                    type = NavType.IntType
-                }
-            )
+            arguments =
+                listOf(
+                    navArgument(CategoryOverview.categoryIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             CategoryOverview.screen(navController)
         }
@@ -103,11 +105,11 @@ fun BudgetNavHost(
         composable(
             route = CategoryDetails.routeWithArgs,
             arguments =
-            listOf(
-                navArgument(CategoryDetails.categoryIdArg) {
-                    type = NavType.IntType
-                }
-            )
+                listOf(
+                    navArgument(CategoryDetails.categoryIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             CategoryDetails.screen(navController)
         }
@@ -123,11 +125,11 @@ fun BudgetNavHost(
         composable(
             route = TransactionDetails.routeWithArgs,
             arguments =
-            listOf(
-                navArgument(TransactionDetails.transactionIdArg) {
-                    type = NavType.IntType
-                }
-            )
+                listOf(
+                    navArgument(TransactionDetails.transactionIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             TransactionDetails.screen(navController)
         }
@@ -135,17 +137,17 @@ fun BudgetNavHost(
         composable(
             route = TransferDetails.routeWithArgs,
             arguments =
-            listOf(
-                navArgument(TransferDetails.transferIdArg) {
-                    type = NavType.IntType
-                }
-            )
+                listOf(
+                    navArgument(TransferDetails.transferIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
         ) {
             TransferDetails.screen(navController)
         }
 
         composable(
-            route = FutureTransactionEntry.route
+            route = FutureTransactionEntry.route,
         ) {
             FutureTransactionEntry.screen(navController)
         }
@@ -153,24 +155,24 @@ fun BudgetNavHost(
         composable(
             route = FutureTransactionDetails.routeWithArgs,
             arguments =
-            listOf(
-                navArgument(FutureTransactionDetails.futureTransactionIdArg) {
-                    type = NavType.IntType
-                }
-            ),
+                listOf(
+                    navArgument(FutureTransactionDetails.futureTransactionIdArg) {
+                        type = NavType.IntType
+                    },
+                ),
             enterTransition = {
                 fadeIn(
                     animationSpec =
-                    tween(
-                        1000,
-                        easing = LinearEasing
-                    )
+                        tween(
+                            1000,
+                            easing = LinearEasing,
+                        ),
                 ) +
                     slideIntoContainer(
                         animationSpec = tween(1000, easing = LinearOutSlowInEasing),
-                        towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        towards = AnimatedContentTransitionScope.SlideDirection.Start,
                     )
-            }
+            },
         ) {
             FutureTransactionDetails.screen(navController)
         }

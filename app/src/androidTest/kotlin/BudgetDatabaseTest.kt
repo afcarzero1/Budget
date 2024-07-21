@@ -15,9 +15,6 @@ import com.example.budgetahead.data.transactions.TransactionDao
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transfers.Transfer
-import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -25,6 +22,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
 class BudgetDatabaseTest {
@@ -46,18 +46,18 @@ class BudgetDatabaseTest {
             Currency(
                 name = "USD",
                 value = 1.0f,
-                updatedTime = localDateTime
+                updatedTime = localDateTime,
             ),
             Currency(
                 name = "EUR",
                 value = 1.1f,
-                updatedTime = localDateTime
+                updatedTime = localDateTime,
             ),
             Currency(
                 name = "SEK",
                 value = 0.1f,
-                updatedTime = localDateTime
-            )
+                updatedTime = localDateTime,
+            ),
         )
     private val accounts =
         listOf(
@@ -65,20 +65,20 @@ class BudgetDatabaseTest {
                 id = 1,
                 name = "JPMorgan Chase",
                 currency = "USD",
-                initialBalance = 100.0f
+                initialBalance = 100.0f,
             ),
             Account(
                 id = 2,
                 name = "Deutsche Bank",
                 currency = "EUR",
-                initialBalance = 200.0f
+                initialBalance = 200.0f,
             ),
             Account(
                 id = 3,
                 name = "SEB",
                 currency = "SEK",
-                initialBalance = 30000f
-            )
+                initialBalance = 30000f,
+            ),
         )
     private val categories =
         listOf(
@@ -86,26 +86,26 @@ class BudgetDatabaseTest {
                 id = 1,
                 name = "Food",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null
+                parentCategoryId = null,
             ),
             Category(
                 id = 2,
                 name = "Transportation",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null
+                parentCategoryId = null,
             ),
             Category(
                 id = 3,
                 name = "Rent",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null
+                parentCategoryId = null,
             ),
             Category(
                 id = 4,
                 name = "Salary",
                 defaultType = CategoryType.Income,
-                parentCategoryId = null
-            )
+                parentCategoryId = null,
+            ),
         )
     private val transactions =
         listOf(
@@ -116,7 +116,7 @@ class BudgetDatabaseTest {
                 accountId = 1,
                 categoryId = 1,
                 amount = 10.0f,
-                date = localDateTime
+                date = localDateTime,
             ),
             TransactionRecord(
                 id = 2,
@@ -125,7 +125,7 @@ class BudgetDatabaseTest {
                 accountId = 1,
                 categoryId = 2,
                 amount = 20.0f,
-                date = localDateTime.plusHours(1)
+                date = localDateTime.plusHours(1),
             ),
             TransactionRecord(
                 id = 3,
@@ -134,7 +134,7 @@ class BudgetDatabaseTest {
                 accountId = 1,
                 categoryId = 3,
                 amount = 1000.0f,
-                date = localDateTime.plusDays(3)
+                date = localDateTime.plusDays(3),
             ),
             TransactionRecord(
                 id = 4,
@@ -143,7 +143,7 @@ class BudgetDatabaseTest {
                 accountId = 1,
                 categoryId = 4,
                 amount = 10000.0f,
-                date = localDateTime.plusDays(5)
+                date = localDateTime.plusDays(5),
             ),
             TransactionRecord(
                 id = 5,
@@ -152,7 +152,7 @@ class BudgetDatabaseTest {
                 accountId = 2,
                 categoryId = 1,
                 amount = 15.0f,
-                date = localDateTime.plusDays(7)
+                date = localDateTime.plusDays(7),
             ),
             // Late transactions
             TransactionRecord(
@@ -162,7 +162,7 @@ class BudgetDatabaseTest {
                 accountId = 1,
                 categoryId = 3,
                 amount = 1000.0f,
-                date = localDateTime.plusDays(35)
+                date = localDateTime.plusDays(35),
             ),
             TransactionRecord(
                 id = 7,
@@ -171,8 +171,8 @@ class BudgetDatabaseTest {
                 accountId = 2,
                 categoryId = 1,
                 amount = 20.0f,
-                date = localDateTime.plusDays(40)
-            )
+                date = localDateTime.plusDays(40),
+            ),
         )
 
     @Before
@@ -219,47 +219,51 @@ class BudgetDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoGetAllAccountsTest() = runBlocking {
-        addAllItemsToDb()
-        val allAccounts = accountDao.getAllAccounts().first()
-        for (account in allAccounts) {
-            assertTrue(accounts.contains(account))
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun daoGetAllCategoriesTest() = runBlocking {
-        addAllItemsToDb()
-        val allCategories = categoryDao.getAllCategoriesStream().first()
-        for (category in allCategories) {
-            assertTrue(categories.contains(category))
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun daoGetAllTransactionsTest() = runBlocking {
-        addAllItemsToDb()
-        val allTransactions = transactionDao.getAllTransactionsStream().first()
-        for (transaction in allTransactions) {
-            assertTrue(transactions.contains(transaction))
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun daoGetAllCategoriesWithTransactionsTest() = runBlocking {
-        addAllItemsToDb()
-        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
-        for (category in allCategories) {
-            assertTrue(categories.contains(category.category))
-            for (transaction in category.transactions) {
-                assertTrue(transaction.transactionRecord.categoryId == category.category.id)
-                assertTrue(transactions.contains(transaction.transactionRecord))
+    fun daoGetAllAccountsTest() =
+        runBlocking {
+            addAllItemsToDb()
+            val allAccounts = accountDao.getAllAccounts().first()
+            for (account in allAccounts) {
+                assertTrue(accounts.contains(account))
             }
         }
-    }
+
+    @Test
+    @Throws(Exception::class)
+    fun daoGetAllCategoriesTest() =
+        runBlocking {
+            addAllItemsToDb()
+            val allCategories = categoryDao.getAllCategoriesStream().first()
+            for (category in allCategories) {
+                assertTrue(categories.contains(category))
+            }
+        }
+
+    @Test
+    @Throws(Exception::class)
+    fun daoGetAllTransactionsTest() =
+        runBlocking {
+            addAllItemsToDb()
+            val allTransactions = transactionDao.getAllTransactionsStream().first()
+            for (transaction in allTransactions) {
+                assertTrue(transactions.contains(transaction))
+            }
+        }
+
+    @Test
+    @Throws(Exception::class)
+    fun daoGetAllCategoriesWithTransactionsTest() =
+        runBlocking {
+            addAllItemsToDb()
+            val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
+            for (category in allCategories) {
+                assertTrue(categories.contains(category.category))
+                for (transaction in category.transactions) {
+                    assertTrue(transaction.transactionRecord.categoryId == category.category.id)
+                    assertTrue(transactions.contains(transaction.transactionRecord))
+                }
+            }
+        }
 
     @Test
     @Throws(Exception::class)
@@ -277,7 +281,7 @@ class BudgetDatabaseTest {
                 if (account.account.name == "JPMorgan Chase") {
                     assertTrue(
                         account.transactionRecords.size ==
-                            transactions.filter { it.accountId == 1 }.size
+                            transactions.filter { it.accountId == 1 }.size,
                     )
 
                     assertTrue(
@@ -292,8 +296,7 @@ class BudgetDatabaseTest {
                                     } else {
                                         it.amount
                                     }
-                                }
-                                .sum()
+                                }.sum(),
                     )
                 }
             }
@@ -318,62 +321,65 @@ class BudgetDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun getCategoriesWithTransactions() = runBlocking {
-        addAllItemsToDb()
+    fun getCategoriesWithTransactions() =
+        runBlocking {
+            addAllItemsToDb()
 
-        val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
+            val allCategories = categoryDao.getAllCategoriesWithTransactionsStream().first()
 
-        assertTrue(allCategories.size == categories.size)
-    }
+            assertTrue(allCategories.size == categories.size)
+        }
 
     @Test
     @Throws(Exception::class)
-    fun getCategoriesWithTransactionsByDate() = runBlocking {
-        addAllItemsToDb()
+    fun getCategoriesWithTransactionsByDate() =
+        runBlocking {
+            addAllItemsToDb()
 
-        val allCategories =
-            categoryDao
-                .getAllCategoriesWithTransactionsStream(
-                    localDateTime,
-                    localDateTime.plusDays(5)
-                ).first()
+            val allCategories =
+                categoryDao
+                    .getAllCategoriesWithTransactionsStream(
+                        localDateTime,
+                        localDateTime.plusDays(5),
+                    ).first()
 
-        assertTrue(allCategories.size == categories.size)
+            assertTrue(allCategories.size == categories.size)
 
-        for ((category, transactions) in allCategories) {
-            for (transaction in transactions) {
-                assertTrue(transaction.transactionRecord.date < localDateTime.plusDays(5))
+            for ((category, transactions) in allCategories) {
+                for (transaction in transactions) {
+                    assertTrue(transaction.transactionRecord.date < localDateTime.plusDays(5))
+                }
             }
         }
-    }
 
     @Test
     @Throws(Exception::class)
-    fun testTransfers() = runBlocking {
-        addAllItemsToDb()
+    fun testTransfers() =
+        runBlocking {
+            addAllItemsToDb()
 
-        transactionDao.insertTransferAndTransactions(
-            Transfer(
-                id = 0,
-                sourceAccountId = 1,
-                destinationAccountId = 2,
-                destinationAccountTransactionId = -1,
-                sourceAccountTransactionId = -1,
-                amountDestination = 10f,
-                amountSource = 10f,
-                date = localDateTime.plusDays(5)
+            transactionDao.insertTransferAndTransactions(
+                Transfer(
+                    id = 0,
+                    sourceAccountId = 1,
+                    destinationAccountId = 2,
+                    destinationAccountTransactionId = -1,
+                    sourceAccountTransactionId = -1,
+                    amountDestination = 10f,
+                    amountSource = 10f,
+                    date = localDateTime.plusDays(5),
+                ),
             )
-        )
 
-        val transfers = transactionDao.getAllTransfersWithAccountsStream().first()
+            val transfers = transactionDao.getAllTransfersWithAccountsStream().first()
 
-        assertTrue(transfers.count() == 1)
+            assertTrue(transfers.count() == 1)
 
-        val transactions = transactionDao.getAllTransactionsStream().first()
-        val fullTransactions = transactionDao.getAllFullTransactionsStream().first()
+            val transactions = transactionDao.getAllTransactionsStream().first()
+            val fullTransactions = transactionDao.getAllFullTransactionsStream().first()
 
-        val accounts = accountDao.getAllFullAccounts().first()
-    }
+            val accounts = accountDao.getAllFullAccounts().first()
+        }
 
     @Test(expected = Exception::class)
     fun daoInsertAccountWithWrongCurrency() {
@@ -382,7 +388,7 @@ class BudgetDatabaseTest {
                 id = 4,
                 name = "Banco de Bogota",
                 currency = "COP",
-                initialBalance = 1000000.0f
+                initialBalance = 1000000.0f,
             )
 
         runBlocking {
@@ -391,8 +397,9 @@ class BudgetDatabaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun deleteWrongCurrency() = runBlocking {
-        addAllItemsToDb()
-        currencyDao.delete(currencies[0])
-    }
+    fun deleteWrongCurrency() =
+        runBlocking {
+            addAllItemsToDb()
+            currencyDao.delete(currencies[0])
+        }
 }

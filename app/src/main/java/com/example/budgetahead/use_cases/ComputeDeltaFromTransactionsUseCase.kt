@@ -1,6 +1,7 @@
 package com.example.budgetahead.use_cases
 
 import com.example.budgetahead.data.currencies.Currency
+import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionRecord
 
 class ComputeDeltaFromTransactionsUseCase {
@@ -10,9 +11,28 @@ class ComputeDeltaFromTransactionsUseCase {
     fun computeDelta(transactions: List<Pair<TransactionRecord, Currency>>): Float {
         var delta = 0f // Initialize delta as a floating point number
         for (transaction in transactions) {
-            val amountInBaseCurrency = transaction.first.amount * 1 / transaction.second.value
+            val amountInBaseCurrency = toBaseCurrency(transaction.first.amount, transaction.second)
             delta += amountInBaseCurrency
         }
         return delta
     }
+
+    fun computeDelta(transactions: List<FullTransactionRecord>): Float {
+        var delta = 0f // Initialize delta as a floating point number
+        for (transaction in transactions) {
+            val amountInBaseCurrency = toBaseCurrency(transaction.transactionRecord.amount, transaction.account.currency)
+            delta += amountInBaseCurrency
+        }
+        return delta
+    }
+
+    fun toBaseCurrency(
+        amount: Float,
+        currency: Currency,
+    ): Float = amount * 1 / currency.value
+
+    fun fromBaseCurrency(
+        amount: Float,
+        currency: Currency,
+    ): Float = amount * currency.value
 }

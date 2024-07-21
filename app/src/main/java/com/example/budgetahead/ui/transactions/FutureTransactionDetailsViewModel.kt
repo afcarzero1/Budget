@@ -11,16 +11,16 @@ import com.example.budgetahead.data.future_transactions.FutureTransactionsReposi
 import com.example.budgetahead.data.future_transactions.RecurrenceType
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.ui.navigation.FutureTransactionDetails
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDateTime
 
 class FutureTransactionDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val futureTransactionsRepository: FutureTransactionsRepository
+    private val futureTransactionsRepository: FutureTransactionsRepository,
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -38,7 +38,7 @@ class FutureTransactionDetailsViewModel(
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = FutureTransactionDetailsUiState()
+                initialValue = FutureTransactionDetailsUiState(),
             )
 
     var transactionUiState by mutableStateOf(FutureTransactionDetailsUiState())
@@ -55,7 +55,7 @@ class FutureTransactionDetailsViewModel(
         this.transactionUiState =
             FutureTransactionDetailsUiState(
                 transaction = futureTransaction,
-                isValid = validateInput(futureTransaction)
+                isValid = validateInput(futureTransaction),
             )
         showUpdatedState = true
     }
@@ -88,7 +88,7 @@ data class FutureTransactionDetailsUiState(
             startDate = LocalDateTime.now(),
             endDate = LocalDateTime.now(),
             recurrenceValue = 0,
-            recurrenceType = RecurrenceType.NONE
+            recurrenceType = RecurrenceType.NONE,
         ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

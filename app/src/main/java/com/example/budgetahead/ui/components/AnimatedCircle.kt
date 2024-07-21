@@ -39,7 +39,11 @@ private const val DividerLengthInDegrees = 1.8f
  * A donut chart that animates when loaded.
  */
 @Composable
-fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modifier = Modifier) {
+fun AnimatedCircle(
+    proportions: List<Float>,
+    colors: List<Color>,
+    modifier: Modifier = Modifier,
+) {
     val currentState =
         remember {
             MutableTransitionState(AnimatedCircleProgress.START)
@@ -52,9 +56,9 @@ fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modi
             tween(
                 delayMillis = 500,
                 durationMillis = 900,
-                easing = LinearOutSlowInEasing
+                easing = LinearOutSlowInEasing,
             )
-        }
+        },
     ) { progress ->
         if (progress == AnimatedCircleProgress.START) {
             0f
@@ -67,9 +71,9 @@ fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modi
             tween(
                 delayMillis = 500,
                 durationMillis = 900,
-                easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f)
+                easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f),
             )
-        }
+        },
     ) { progress ->
         if (progress == AnimatedCircleProgress.START) {
             0f
@@ -84,7 +88,7 @@ fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modi
         val topLeft =
             Offset(
                 halfSize.width - innerRadius,
-                halfSize.height - innerRadius
+                halfSize.height - innerRadius,
             )
         val size = Size(innerRadius * 2, innerRadius * 2)
         var startAngle = shift - 90f
@@ -97,7 +101,7 @@ fun AnimatedCircle(proportions: List<Float>, colors: List<Color>, modifier: Modi
                 topLeft = topLeft,
                 size = size,
                 useCenter = false,
-                style = stroke
+                style = stroke,
             )
             startAngle += sweep
         }

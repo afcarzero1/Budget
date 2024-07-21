@@ -38,7 +38,7 @@ fun DatePickerField(
     date: LocalDateTime,
     label: String,
     onDateChanged: (date: LocalDateTime) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // Use for the text the variable that we get from out
     val calendar = Calendar.getInstance()
@@ -64,25 +64,25 @@ fun DatePickerField(
             enabled = true,
             modifier = Modifier.fillMaxWidth(),
             onValueChange = { },
-            readOnly = true
+            readOnly = true,
         )
         Surface(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .clickable(enabled = enabled) {
-                    showDatePicker = true
-                },
-            color = Color.Transparent
+                Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .clickable(enabled = enabled) {
+                        showDatePicker = true
+                    },
+            color = Color.Transparent,
         ) {}
     }
 
     if (showDatePicker) {
         val datePickerState =
             rememberDatePickerState(
-                initialSelectedDateMillis = calendar.timeInMillis
+                initialSelectedDateMillis = calendar.timeInMillis,
             )
         DatePickerDialog(
             onDismissRequest = {
@@ -92,7 +92,7 @@ fun DatePickerField(
                 TextButton(onClick = {
                     showDatePicker = false
                     onDateChanged(
-                        convertToLocalDateTimeViaInstant(Date(datePickerState.selectedDateMillis!!))
+                        convertToLocalDateTimeViaInstant(Date(datePickerState.selectedDateMillis!!)),
                     )
                 }) {
                     Text(text = "Confirm")
@@ -104,16 +104,17 @@ fun DatePickerField(
                 }) {
                     Text(text = "Cancel")
                 }
-            }
+            },
         ) {
             DatePicker(
-                state = datePickerState
+                state = datePickerState,
             )
         }
     }
 }
 
-fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime = dateToConvert
-    .toInstant()
-    .atZone(ZoneId.systemDefault())
-    .toLocalDateTime()
+fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime =
+    dateToConvert
+        .toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime()

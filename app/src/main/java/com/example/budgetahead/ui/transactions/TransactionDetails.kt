@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransactionDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TransactionDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val transactionDBState by viewModel.transactionDBState.collectAsState()
     val transactionUiState = viewModel.transactionUiState
@@ -60,12 +60,12 @@ fun TransactionDetailsScreen(
             actions = {
                 IconButton(
                     onClick = { deleteConfirmationRequired = true },
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = stringResource(R.string.delete),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
                 IconButton(
@@ -76,17 +76,18 @@ fun TransactionDetailsScreen(
                         }
                         navigateBack()
                     },
-                    enabled = transactionUiState.isValid
+                    enabled = transactionUiState.isValid,
                 ) {
                     Icon(
-                        painter = painterResource(
-                            id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
-                        ),
+                        painter =
+                            painterResource(
+                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24,
+                            ),
                         contentDescription = stringResource(R.string.save),
-                        tint = if (transactionUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
+                        tint = if (transactionUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray,
                     )
                 }
-            }
+            },
         )
     }) { innerPadding ->
         TransactionDetailsBody(
@@ -94,7 +95,7 @@ fun TransactionDetailsScreen(
             onTransactionDetailsChanged = {
                 viewModel.updateUiState(it)
             },
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         )
 
         if (deleteConfirmationRequired) {
@@ -110,14 +111,14 @@ fun TransactionDetailsScreen(
                                 .makeText(
                                     context,
                                     "Error deleting account",
-                                    Toast.LENGTH_SHORT
+                                    Toast.LENGTH_SHORT,
                                 ).show()
                         }
                     }
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
             )
         }
     }
@@ -130,7 +131,7 @@ fun TransactionDetailsBody(
     modifier: Modifier = Modifier,
     categoriesViewModel: CategoriesSummaryViewModel =
         viewModel(factory = AppViewModelProvider.Factory),
-    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    accountsViewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val availableCategories by categoriesViewModel.categoriesUiState.collectAsState()
     val availableAccounts by accountsViewModel.accountsUiState.collectAsState()
@@ -141,7 +142,7 @@ fun TransactionDetailsBody(
             onValueChange = { onTransactionDetailsChanged(it) },
             availableAccounts = availableAccounts.accountsList.map { it.account },
             availableCategories = availableCategories.categoriesList.map { it.category },
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
         )
     }
 }
@@ -150,7 +151,7 @@ fun TransactionDetailsBody(
 private fun DeleteConfirmationDialog(
     onDeleteConfirm: () -> Unit,
     onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
         onDismissRequest = { /* Do nothing */ },
@@ -166,6 +167,6 @@ private fun DeleteConfirmationDialog(
             TextButton(onClick = onDeleteConfirm) {
                 Text(stringResource(R.string.yes))
             }
-        }
+        },
     )
 }

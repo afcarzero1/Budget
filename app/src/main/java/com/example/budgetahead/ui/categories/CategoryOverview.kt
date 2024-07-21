@@ -49,7 +49,7 @@ import com.example.budgetahead.ui.transactions.TransactionsSummaryBody
 @Composable
 fun CategoryOverviewScreen(
     navController: NavHostController,
-    viewModel: CategoryOverviewViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: CategoryOverviewViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val categoryUiState by viewModel.categoryState.collectAsState()
     val baseCurrency by viewModel.baseCurrency.collectAsState()
@@ -64,20 +64,20 @@ fun CategoryOverviewScreen(
                         modifier = Modifier.padding(horizontal = 8.dp),
                         onClick = {
                             navController.navigate(
-                                "${CategoryDetails.route}/${categoryUiState.category.id}"
+                                "${CategoryDetails.route}/${categoryUiState.category.id}",
                             )
-                        }
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
                             contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
             )
-        }
+        },
     ) {
         CategorySummaryBody(
             category = categoryUiState.category,
@@ -85,9 +85,10 @@ fun CategoryOverviewScreen(
             categoryPlannedTransactions = categoryUiState.plannedTransactions,
             baseCurrency = baseCurrency,
             navController = navController,
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .padding(it)
+                    .fillMaxSize(),
         )
     }
 }
@@ -99,21 +100,23 @@ fun CategorySummaryBody(
     categoryPlannedTransactions: List<FullFutureTransaction>,
     baseCurrency: String,
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.background(
-            MaterialTheme.colorScheme.background
-        )
+        modifier =
+            modifier.background(
+                MaterialTheme.colorScheme.background,
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                    ),
             verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -121,21 +124,23 @@ fun CategorySummaryBody(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = category.name,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                text = Currency.formatAmountStatic(
-                    baseCurrency,
-                    categoryTransactions.sumOf {
-                        it.transactions.sumOf { it.transactionRecord.amount.toDouble() }
-                    }.toFloat()
-                ),
+                text =
+                    Currency.formatAmountStatic(
+                        baseCurrency,
+                        categoryTransactions
+                            .sumOf {
+                                it.transactions.sumOf { it.transactionRecord.amount.toDouble() }
+                            }.toFloat(),
+                    ),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -147,7 +152,7 @@ fun CategorySummaryBody(
             navController = navController,
             futureTransactions = categoryPlannedTransactions,
             onTabChanged = {},
-            dividerColor = MaterialTheme.colorScheme.background
+            dividerColor = MaterialTheme.colorScheme.background,
         )
     }
 }
@@ -160,42 +165,47 @@ fun SmallTabbedTransactions(
     futureTransactions: List<FullFutureTransaction>,
     modifier: Modifier = Modifier,
     onTabChanged: (Int) -> Unit = {},
-    dividerColor: Color = MaterialTheme.colorScheme.background
+    dividerColor: Color = MaterialTheme.colorScheme.background,
 ) {
     val tabs = listOf("Present", "Planned")
     var tabIndex by remember { mutableStateOf(0) }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primaryContainer)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer),
         ) {
             TabRow(
                 selectedTabIndex = tabIndex,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.padding(horizontal = 18.dp)
+                modifier = Modifier.padding(horizontal = 18.dp),
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         content = {
                             Row {
                                 when (index) {
-                                    0 -> Icon(
-                                        painter = painterResource(
-                                            id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24
-                                        ),
-                                        contentDescription = "Executed Transactions",
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    1 -> Icon(
-                                        painter = painterResource(
-                                            id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24
-                                        ),
-                                        contentDescription = "Planned Transactions",
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                                    0 ->
+                                        Icon(
+                                            painter =
+                                                painterResource(
+                                                    id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24,
+                                                ),
+                                            contentDescription = "Executed Transactions",
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                    1 ->
+                                        Icon(
+                                            painter =
+                                                painterResource(
+                                                    id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24,
+                                                ),
+                                            contentDescription = "Planned Transactions",
+                                            modifier = Modifier.size(16.dp),
+                                        )
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
 
@@ -206,7 +216,7 @@ fun SmallTabbedTransactions(
                         onClick = {
                             tabIndex = index
                             onTabChanged(tabIndex)
-                        }
+                        },
                     )
                 }
             }
@@ -214,18 +224,20 @@ fun SmallTabbedTransactions(
 
         Spacer(modifier = Modifier.height(8.dp))
         when (tabIndex) {
-            0 -> TransactionsSummaryBody(
-                transactions = transactions,
-                baseCurrency = baseCurrency,
-                navController = navController,
-                dividerColor = dividerColor,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            1 -> FutureTransactionsSummaryBody(
-                futureTransactions = futureTransactions,
-                navController = navController,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            0 ->
+                TransactionsSummaryBody(
+                    transactions = transactions,
+                    baseCurrency = baseCurrency,
+                    navController = navController,
+                    dividerColor = dividerColor,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            1 ->
+                FutureTransactionsSummaryBody(
+                    futureTransactions = futureTransactions,
+                    navController = navController,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
         }
     }
 }

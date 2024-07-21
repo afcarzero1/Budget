@@ -6,14 +6,14 @@ import java.time.YearMonth
 interface ClassifyCategoriesUseCase {
     fun execute(
         balances: Map<YearMonth, Map<Category, Float>>,
-        pos: Boolean
+        pos: Boolean,
     ): Map<YearMonth, Map<Category, Float>>
 }
 
 class ClassifyCategoriesUseCaseImpl : ClassifyCategoriesUseCase {
     override fun execute(
         balances: Map<YearMonth, Map<Category, Float>>,
-        pos: Boolean
+        pos: Boolean,
     ): Map<YearMonth, Map<Category, Float>> {
         val classifiedExpenses: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
         for ((yearMonth, categoryMap) in balances) {

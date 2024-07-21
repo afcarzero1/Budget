@@ -39,13 +39,13 @@ import com.example.budgetahead.ui.components.graphics.convertColorToLong
 import com.example.budgetahead.ui.components.graphics.convertLongToColor
 import com.example.budgetahead.ui.components.inputs.FloatOutlinedText
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
-import java.time.LocalDateTime
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun AccountEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: AccountsEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: AccountsEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currenciesListState by viewModel.currenciesListState.collectAsState()
@@ -55,9 +55,9 @@ fun AccountEntryScreen(
         topBar = {
             SecondaryScreenTopBar(
                 navigateBack = navigateBack,
-                titleResId = R.string.entry_account_title
+                titleResId = R.string.entry_account_title,
             )
-        }
+        },
     ) { innerPadding ->
         AccountEntryBody(
             accountUiState = viewModel.accountUiState,
@@ -66,7 +66,7 @@ fun AccountEntryScreen(
                 coroutineScope.launch {
                     Log.d(
                         "AccountEntryScreen",
-                        "Saving account: ${viewModel.accountUiState.account}"
+                        "Saving account: ${viewModel.accountUiState.account}",
                     )
                     viewModel.saveAccount()
                     focusManager.clearFocus()
@@ -75,10 +75,10 @@ fun AccountEntryScreen(
             },
             availableCurrencies = currenciesListState,
             modifier =
-            Modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+                Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
         )
     }
 }
@@ -89,27 +89,27 @@ fun AccountEntryBody(
     availableCurrencies: List<Currency>,
     onAccountValueChange: (Account) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-            modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
+            modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
         ) {
             AccountForm(
                 account = accountUiState.account,
                 availableCurrencies = availableCurrencies,
                 onValueChange = onAccountValueChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Button(
                 onClick = onSaveClick,
                 enabled = accountUiState.isValid,
                 shape = MaterialTheme.shapes.large,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.entry_account_save))
             }
@@ -123,27 +123,28 @@ fun AccountForm(
     availableCurrencies: List<Currency>,
     modifier: Modifier = Modifier,
     onValueChange: (Account) -> Unit = {},
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val currencyIndex = availableCurrencies.indexOfFirst { it.name == account.currency }
 
     val colors =
         OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-            unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                alpha = 0.05f
-            ),
-            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            unfocusedContainerColor =
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.05f,
+                ),
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
         )
     Log.d("AccountForm", convertLongToColor(account.color).toString())
     Column(
         modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             OutlinedTextField(
                 value = account.name,
@@ -152,7 +153,7 @@ fun AccountForm(
                 colors = colors,
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = enabled,
-                singleLine = true
+                singleLine = true,
             )
             ColorPicker(
                 color = convertLongToColor(account.color),
@@ -161,8 +162,8 @@ fun AccountForm(
                     onValueChange(account.copy(color = convertColorToLong(it)))
                 },
                 modifier =
-                Modifier
-                    .padding(top = 8.dp, bottom = 4.dp)
+                    Modifier
+                        .padding(top = 8.dp, bottom = 4.dp),
             )
         }
         FloatOutlinedText(
@@ -178,14 +179,14 @@ fun AccountForm(
                 it.initialBalance
             },
             modifier = Modifier.fillMaxWidth(),
-            colors = colors
+            colors = colors,
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_account_currency),
             items = availableCurrencies.map { it.name },
             onItemSelected = { index, item -> onValueChange(account.copy(currency = item)) },
             initialIndex = currencyIndex,
-            colors = colors
+            colors = colors,
         )
     }
 }
@@ -199,13 +200,13 @@ fun AccountFormPreview() {
             name = "Account 1",
             initialBalance = 100f,
             currency = "USD",
-            color = 0x000000
+            color = 0x000000,
         )
 
     val availableCurrencies =
         listOf(
             Currency("USD", 1f, LocalDateTime.now()),
-            Currency("EUR", 1.2f, LocalDateTime.now())
+            Currency("EUR", 1.2f, LocalDateTime.now()),
         )
 
     AccountForm(account = account, availableCurrencies = availableCurrencies)

@@ -9,8 +9,8 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.budgetahead.data.transfers.Transfer
 import com.example.budgetahead.data.transfers.TransferWithAccounts
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface TransactionDao {
@@ -30,8 +30,8 @@ interface TransactionDao {
         insertTransfer(
             transfer.copy(
                 sourceAccountTransactionId = sourceRecordId,
-                destinationAccountTransactionId = destinationRecordId
-            )
+                destinationAccountTransactionId = destinationRecordId,
+            ),
         )
     }
 
@@ -50,7 +50,7 @@ interface TransactionDao {
             transactionsFromTransfer(
                 transfer,
                 transfer.sourceAccountTransactionId.toInt(),
-                transfer.destinationAccountTransactionId.toInt()
+                transfer.destinationAccountTransactionId.toInt(),
             )
 
         updateTransfer(transfer)
@@ -110,11 +110,11 @@ interface TransactionDao {
     @Query(
         "SELECT * from transactions " +
             "WHERE date >= :startDateTime AND date <= :endDateTime AND categoryId IS NOT NULL " +
-            "ORDER BY date DESC"
+            "ORDER BY date DESC",
     )
     fun getFullTransactionsByDateStream(
         startDateTime: LocalDateTime,
-        endDateTime: LocalDateTime
+        endDateTime: LocalDateTime,
     ): Flow<List<FullTransactionRecord>>
 
     @Transaction
@@ -124,7 +124,7 @@ interface TransactionDao {
     private fun transactionsFromTransfer(
         transfer: Transfer,
         sourceId: Int = 0,
-        destinationId: Int = 0
+        destinationId: Int = 0,
     ): Pair<TransactionRecord, TransactionRecord> {
         val sourceTransaction =
             TransactionRecord(
@@ -134,7 +134,7 @@ interface TransactionDao {
                 accountId = transfer.sourceAccountId,
                 categoryId = null,
                 amount = transfer.amountSource,
-                date = transfer.date
+                date = transfer.date,
             )
 
         val destinationTransaction =
@@ -145,7 +145,7 @@ interface TransactionDao {
                 accountId = transfer.destinationAccountId,
                 categoryId = null,
                 amount = transfer.amountDestination,
-                date = transfer.date
+                date = transfer.date,
             )
         return Pair(sourceTransaction, destinationTransaction)
     }

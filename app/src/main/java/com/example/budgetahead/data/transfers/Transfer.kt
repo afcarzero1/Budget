@@ -17,27 +17,27 @@ import java.time.LocalDateTime
             entity = Account::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("sourceAccountId"),
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.RESTRICT,
         ),
         ForeignKey(
             entity = Account::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("destinationAccountId"),
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.RESTRICT,
         ),
         ForeignKey(
             entity = TransactionRecord::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("sourceAccountTransactionId"),
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.RESTRICT,
         ),
         ForeignKey(
             entity = TransactionRecord::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("destinationAccountTransactionId"),
-            onDelete = ForeignKey.RESTRICT
-        )
-    ]
+            onDelete = ForeignKey.RESTRICT,
+        ),
+    ],
 )
 data class Transfer(
     @PrimaryKey(autoGenerate = true) val id: Int,
@@ -47,7 +47,7 @@ data class Transfer(
     val destinationAccountTransactionId: Long,
     val amountSource: Float,
     val amountDestination: Float,
-    val date: LocalDateTime
+    val date: LocalDateTime,
 )
 
 data class TransferWithAccounts(
@@ -55,13 +55,13 @@ data class TransferWithAccounts(
     @Relation(
         entity = Account::class,
         parentColumn = "sourceAccountId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
     val sourceAccount: AccountWithCurrency,
     @Relation(
         entity = Account::class,
         parentColumn = "destinationAccountId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
-    val destinationAccount: AccountWithCurrency
+    val destinationAccount: AccountWithCurrency,
 )

@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.budgetahead.data.manager.LocalUserManager
 import kotlinx.coroutines.launch
 
-class OnBoardingViewModel(private val localUserManager: LocalUserManager) : ViewModel() {
+class OnBoardingViewModel(
+    private val localUserManager: LocalUserManager,
+) : ViewModel() {
     fun onEvent(event: OnBoardingEvent) {
         when (event) {
             is OnBoardingEvent.SaveAppEntry -> {

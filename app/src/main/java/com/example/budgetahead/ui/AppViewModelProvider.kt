@@ -32,13 +32,13 @@ object AppViewModelProvider {
 
             initializer {
                 MainViewModel(
-                    budgetApplication().container.localUserManager
+                    budgetApplication().container.localUserManager,
                 )
             }
 
             initializer {
                 OnBoardingViewModel(
-                    budgetApplication().container.localUserManager
+                    budgetApplication().container.localUserManager,
                 )
             }
 
@@ -54,28 +54,28 @@ object AppViewModelProvider {
                 AccountSummaryViewModel(
                     this.createSavedStateHandle(),
                     budgetApplication().container.accountsRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
             initializer {
                 AccountsEntryViewModel(
                     budgetApplication().container.accountsRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
             initializer {
                 AccountDetailsViewModel(
                     this.createSavedStateHandle(),
-                    budgetApplication().container.accountsRepository
+                    budgetApplication().container.accountsRepository,
                 )
             }
 
             initializer {
                 CategoriesSummaryViewModel(
                     budgetApplication().container.categoriesRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
@@ -87,21 +87,21 @@ object AppViewModelProvider {
                 CategoryOverviewViewModel(
                     this.createSavedStateHandle(),
                     budgetApplication().container.categoriesRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
             initializer {
                 CategoryDetailsViewModel(
                     this.createSavedStateHandle(),
-                    budgetApplication().container.categoriesRepository
+                    budgetApplication().container.categoriesRepository,
                 )
             }
 
             initializer {
                 TransactionsSummaryViewModel(
                     budgetApplication().container.transactionsRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
@@ -109,7 +109,7 @@ object AppViewModelProvider {
                 TransactionEntryViewModel(
                     budgetApplication().container.transactionsRepository,
                     budgetApplication().container.accountsRepository,
-                    budgetApplication().container.categoriesRepository
+                    budgetApplication().container.categoriesRepository,
                 )
             }
 
@@ -117,20 +117,20 @@ object AppViewModelProvider {
                 TransferDetailsViewModel(
                     this.createSavedStateHandle(),
                     budgetApplication().container.transactionsRepository,
-                    budgetApplication().container.accountsRepository
+                    budgetApplication().container.accountsRepository,
                 )
             }
 
             initializer {
                 TransactionDetailsViewModel(
                     this.createSavedStateHandle(),
-                    budgetApplication().container.transactionsRepository
+                    budgetApplication().container.transactionsRepository,
                 )
             }
 
             initializer {
                 FutureTransactionsSummaryViewModel(
-                    budgetApplication().container.futureTransactionsRepository
+                    budgetApplication().container.futureTransactionsRepository,
                 )
             }
 
@@ -138,14 +138,14 @@ object AppViewModelProvider {
                 FutureTransactionEntryViewModel(
                     budgetApplication().container.futureTransactionsRepository,
                     budgetApplication().container.categoriesRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
             initializer {
                 FutureTransactionDetailsViewModel(
                     this.createSavedStateHandle(),
-                    budgetApplication().container.futureTransactionsRepository
+                    budgetApplication().container.futureTransactionsRepository,
                 )
             }
 
@@ -153,13 +153,13 @@ object AppViewModelProvider {
                 OverallViewModel(
                     budgetApplication().container.accountsRepository,
                     budgetApplication().container.balancesRepository,
-                    budgetApplication().container.currenciesRepository
+                    budgetApplication().container.currenciesRepository,
                 )
             }
 
             initializer {
                 AccountTransferEntryViewModel(
-                    budgetApplication().container.accountsRepository
+                    budgetApplication().container.accountsRepository,
                 )
             }
         }

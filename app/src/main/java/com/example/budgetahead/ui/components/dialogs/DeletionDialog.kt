@@ -16,7 +16,7 @@ fun ConfirmationDeletionDialog(
     onDeleteCancel: () -> Unit,
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.attention),
-    message: String = stringResource(R.string.delete_confirmation)
+    message: String = stringResource(R.string.delete_confirmation),
 ) {
     AlertDialog(
         onDismissRequest = { /* Prevent dialog from dismissing on back press or outside touch */ },
@@ -27,7 +27,7 @@ fun ConfirmationDeletionDialog(
             TextButton(onClick = onDeleteCancel) {
                 Text(
                     stringResource(R.string.no),
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
         },
@@ -35,11 +35,11 @@ fun ConfirmationDeletionDialog(
             TextButton(onClick = onDeleteConfirm) {
                 Text(
                     stringResource(R.string.yes),
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.errorContainer
+        containerColor = MaterialTheme.colorScheme.errorContainer,
     )
 }
 

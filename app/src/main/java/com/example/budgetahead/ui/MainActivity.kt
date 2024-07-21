@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     val startDestination = viewModel.startDestination.value
                     BudgetApplicationApp(startDestination = startDestination)
@@ -51,11 +51,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun BannerAd(modifier: Modifier, adId: String) {
+fun BannerAd(
+    modifier: Modifier,
+    adId: String,
+) {
     Column(
         modifier = modifier.wrapContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         AndroidView(
             factory = { context ->
@@ -64,7 +67,7 @@ fun BannerAd(modifier: Modifier, adId: String) {
                     adUnitId = adId
                     loadAd(AdRequest.Builder().build())
                 }
-            }
+            },
         )
     }
 }
