@@ -8,6 +8,7 @@ class ComputeDeltaFromTransactionsUseCase {
     /**
      * Computes the delta in the base currency
      */
+    @JvmName("computeDeltaPairOfTransactionAndCurrency")
     fun computeDelta(transactions: List<Pair<TransactionRecord, Currency>>): Float {
         var delta = 0f // Initialize delta as a floating point number
         for (transaction in transactions) {
@@ -16,7 +17,7 @@ class ComputeDeltaFromTransactionsUseCase {
         }
         return delta
     }
-
+    @JvmName("computeDeltaFullTransactionRecord")
     fun computeDelta(transactions: List<FullTransactionRecord>): Float {
         var delta = 0f // Initialize delta as a floating point number
         for (transaction in transactions) {

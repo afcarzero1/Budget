@@ -43,8 +43,8 @@ class OfflineBalancesRepository(
     ): Flow<Map<YearMonth, Map<Category, Float>>> =
         combine(
             futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-            transactionsRepository.getAllFullTransactionsStream()
-        ){ futureTransactions, executedTransactions ->
+            transactionsRepository.getAllFullTransactionsStream(),
+        ) { futureTransactions, executedTransactions ->
             val allExpectedTransactions: List<FullTransactionRecord> =
                 generatePendingTransactions(
                     futureTransactions,
@@ -60,7 +60,6 @@ class OfflineBalancesRepository(
                 }
             groupTransactionsByMonthAndCategory(allExpectedTransactions, fromDate, toDate)
         }
-
 
     override fun getBalanceByDay(
         fromDate: LocalDate,
@@ -167,29 +166,38 @@ class OfflineBalancesRepository(
     override fun getExpectedTransactions(
         fromDate: LocalDate,
         toDate: LocalDate,
-    ): Flow<List<FullTransactionRecord>> {
-        return combine(
-            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-            transactionsRepository.getAllFullTransactionsStream(),
-        ) { futureTransactions, executedTransactions ->
-            generatePendingTransactions(futureTransactions, executedTransactions, fromDate, toDate)
-        }
-        // return futureTransactionsRepository.getAllFutureFullTransactionsStream().map {
-        //    generateExpectedTransactions(it, fromDate, toDate)
-        // }
-    }
+    ): Flow<List<FullTransactionRecord>> =
+        futureTransactionsRepository
+            .getAllFutureFullTransactionsStream()
+            .map { futureTransactions ->
+                generatePendingTransactions(futureTransactions, listOf(), fromDate, toDate)
+            }
+
+    // return futureTransactionsRepository.getAllFutureFullTransactionsStream().map {
+    //    generateExpectedTransactions(it, fromDate, toDate)
+    // }
 
     override fun getPendingTransactions(
         fromDate: LocalDate,
         toDate: LocalDate,
-    ): Flow<List<FullTransactionRecord>> {
-        TODO("Not yet implemented")
-    }
+    ): Flow<List<FullTransactionRecord>> =
+        combine(
+            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
+            transactionsRepository.getAllFullTransactionsStream(),
+        ) { futureTransactions, executedTransactions ->
+            generatePendingTransactions(
+                futureTransactions,
+                executedTransactions,
+                fromDate,
+                toDate,
+            )
+        }
 
     private fun generateDates(
         startDate: LocalDate,
         endDate: LocalDate,
         timePeriod: TimePeriod?,
+        periods: Int,
         intervalStart: LocalDate,
         intervalEnd: LocalDate,
     ): List<LocalDate> {
@@ -206,10 +214,10 @@ class OfflineBalancesRepository(
 
             currentDate = timePeriod?.let { date: TimePeriod ->
                 when (date) {
-                    TimePeriod.YEAR -> currentDate.plusYears(1)
-                    TimePeriod.DAY -> currentDate.plusDays(1)
-                    TimePeriod.WEEK -> currentDate.plusWeeks(1)
-                    TimePeriod.MONTH -> currentDate.plusMonths(1)
+                    TimePeriod.YEAR -> currentDate.plusYears(periods.toLong())
+                    TimePeriod.DAY -> currentDate.plusDays(periods.toLong())
+                    TimePeriod.WEEK -> currentDate.plusWeeks(periods.toLong())
+                    TimePeriod.MONTH -> currentDate.plusMonths(periods.toLong())
                 }
             } ?: break
 
@@ -286,27 +294,28 @@ class OfflineBalancesRepository(
                 futureTransactions,
                 executedTransactions,
                 fromDate,
-                toDate
-            )
+                toDate,
+            ),
         )
 
         // Handle remaining future transactions
         for (futureTransaction in futureTransactions.filter { !it.futureTransaction.recurrenceType.isContinuous() }) {
             val recurrenceType = futureTransaction.futureTransaction.recurrenceType
-                for (date in generateDates(
-                    startDate = futureTransaction.futureTransaction.startDate.toLocalDate(),
-                    endDate = futureTransaction.futureTransaction.endDate.toLocalDate(),
-                    timePeriod = recurrenceType.timePeriod(),
-                    intervalStart = fromDate,
-                    intervalEnd = toDate,
-                )) {
-                    pendingTransactions.add(
-                        generateTransaction(
-                            date,
-                            futureTransaction,
-                        ),
-                    )
-                }
+            for (date in generateDates(
+                startDate = futureTransaction.futureTransaction.startDate.toLocalDate(),
+                endDate = futureTransaction.futureTransaction.endDate.toLocalDate(),
+                timePeriod = recurrenceType.timePeriod(),
+                periods = futureTransaction.futureTransaction.recurrenceValue,
+                intervalStart = fromDate,
+                intervalEnd = toDate,
+            )) {
+                pendingTransactions.add(
+                    generateTransaction(
+                        date,
+                        futureTransaction,
+                    ),
+                )
+            }
         }
 
         return pendingTransactions
@@ -352,10 +361,10 @@ class OfflineBalancesRepository(
                         val nextDate =
                             timePeriod?.let { date: TimePeriod ->
                                 when (date) {
-                                    TimePeriod.YEAR -> currentDate.plusYears(1)
-                                    TimePeriod.DAY -> currentDate.plusDays(1)
-                                    TimePeriod.WEEK -> currentDate.plusWeeks(1)
-                                    TimePeriod.MONTH -> currentDate.plusMonths(1)
+                                    TimePeriod.YEAR -> currentDate.plusYears(futureTransaction.futureTransaction.recurrenceValue.toLong())
+                                    TimePeriod.DAY -> currentDate.plusDays(futureTransaction.futureTransaction.recurrenceValue.toLong())
+                                    TimePeriod.WEEK -> currentDate.plusWeeks(futureTransaction.futureTransaction.recurrenceValue.toLong())
+                                    TimePeriod.MONTH -> currentDate.plusMonths(futureTransaction.futureTransaction.recurrenceValue.toLong())
                                 }
                             } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
 
