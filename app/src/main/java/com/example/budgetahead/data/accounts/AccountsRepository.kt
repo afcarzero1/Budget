@@ -5,7 +5,6 @@ import com.example.budgetahead.data.transfers.Transfer
 import kotlinx.coroutines.flow.Flow
 
 interface AccountsRepository {
-
     suspend fun insertAccount(account: Account)
 
     suspend fun updateAccount(account: Account)

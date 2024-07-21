@@ -34,7 +34,6 @@ import com.example.budgetahead.ui.components.dialogs.ConfirmationDeletionDialog
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun TransferDetailsScreen(
     navigateBack: () -> Unit,
@@ -50,7 +49,8 @@ fun TransferDetailsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
-        SecondaryScreenTopBar(navigateBack = navigateBack,
+        SecondaryScreenTopBar(
+            navigateBack = navigateBack,
             titleResId = R.string.details_transaction_title,
             actions = {
                 IconButton(
@@ -64,20 +64,25 @@ fun TransferDetailsScreen(
                     )
                 }
                 IconButton(
-                    modifier = Modifier.padding(horizontal = 8.dp), onClick = {
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = {
                         coroutineScope.launch {
                             viewModel.updateTransfer()
                         }
                         navigateBack()
-                    }, enabled = transferUiState.isValid
+                    },
+                    enabled = transferUiState.isValid
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24),
+                        painter = painterResource(
+                            id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
+                        ),
                         contentDescription = stringResource(R.string.save),
                         tint = if (transferUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                     )
                 }
-            })
+            }
+        )
     }) { innerPadding ->
         TransferDetailsBody(
             transactionDetailsUiState = viewModel.transferUiState,
@@ -97,11 +102,13 @@ fun TransferDetailsScreen(
                         try {
                             viewModel.deleteTransfer()
                         } catch (e: Exception) {
-                            Toast.makeText(
-                                context, "Error deleting transfer", Toast.LENGTH_SHORT
-                            ).show()
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Error deleting transfer",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                         }
-
                     }
                     navigateBack()
                 },
@@ -110,10 +117,7 @@ fun TransferDetailsScreen(
             )
         }
     }
-
-
 }
-
 
 @Composable
 fun TransferDetailsBody(

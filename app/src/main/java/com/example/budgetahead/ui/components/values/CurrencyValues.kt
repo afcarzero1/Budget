@@ -30,7 +30,7 @@ fun ValueWithIcon(
     value: Float,
     currency: Currency,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     Row(
         modifier = modifier.wrapContentWidth(),
@@ -58,7 +58,9 @@ fun ValueWithIcon(
 
             else -> {
                 Icon(
-                    painter = painterResource(id = R.drawable.equal_24dp_fill0_wght400_grad0_opsz24),
+                    painter = painterResource(
+                        id = R.drawable.equal_24dp_fill0_wght400_grad0_opsz24
+                    ),
                     contentDescription = "neutral",
                     modifier = Modifier.padding(start = 8.dp).size(16.dp)
                 )
@@ -89,7 +91,6 @@ fun PreviewNegValueWIthIcon() {
         currency = Currency("USD", 1.0f, LocalDateTime.now())
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable

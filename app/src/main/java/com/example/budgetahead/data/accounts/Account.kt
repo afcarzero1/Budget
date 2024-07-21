@@ -8,15 +8,16 @@ import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import java.time.LocalDate
 
-
 @Entity(
     tableName = "accounts",
-    foreignKeys = [ForeignKey(
-        entity = Currency::class,
-        parentColumns = arrayOf("name"),
-        childColumns = arrayOf("currency"),
-        onDelete = ForeignKey.RESTRICT
-    )]
+    foreignKeys = [
+        ForeignKey(
+            entity = Currency::class,
+            parentColumns = arrayOf("name"),
+            childColumns = arrayOf("currency"),
+            onDelete = ForeignKey.RESTRICT
+        )
+    ]
 )
 data class Account(
     @PrimaryKey(autoGenerate = true)
@@ -27,7 +28,6 @@ data class Account(
     val color: Long = 0xFF0000FF,
     val hidden: Boolean = false
 ) {
-
     /**
      * Compute the balance of the account at the start of the day (not considering transactions
      * that happened the "atDate").
@@ -55,5 +55,4 @@ data class Account(
 
         return balance
     }
-
 }

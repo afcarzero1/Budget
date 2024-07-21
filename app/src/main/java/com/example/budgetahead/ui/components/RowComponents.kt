@@ -23,27 +23,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.budgetahead.data.currencies.Currency
 
-
 @Composable
-fun <T>BaseRow(
+fun <T> BaseRow(
     color: Color,
     title: String,
     subtitle: String,
     amount: Float,
     currency: String,
     negative: Boolean,
-    holdedItem : T,
-    onItemSelected : (T) -> Unit = {}
+    holdedItem: T,
+    onItemSelected: (T) -> Unit = {}
 ) {
     val formattedAmount = Currency.formatAmountStatic(currency, amount)
 
     Row(
-        modifier = Modifier
+        modifier =
+        Modifier
             .height(68.dp)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         // Color bar in the left side
         VerticalBar(
             color = color,
@@ -55,7 +54,7 @@ fun <T>BaseRow(
         // Title and subtitle
         Column(Modifier) {
             Text(text = title, style = MaterialTheme.typography.headlineSmall)
-            if (subtitle.isNotEmpty()){
+            if (subtitle.isNotEmpty()) {
                 Text(text = subtitle, style = MaterialTheme.typography.titleSmall)
             }
         }
@@ -78,25 +77,25 @@ fun <T>BaseRow(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = {onItemSelected(holdedItem)}) {
+            IconButton(onClick = { onItemSelected(holdedItem) }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
+                    contentDescription = null
                 )
             }
         }
         Spacer(Modifier.width(16.dp))
     }
-    ListDivider()
+    // ListDivider()
 }
-
 
 @Composable
 fun VerticalBar(color: Color, modifier: Modifier = Modifier) {
     Spacer(
         modifier
             .size(4.dp, 36.dp)
-            .background(color = color))
+            .background(color = color)
+    )
 }
 
 @Composable

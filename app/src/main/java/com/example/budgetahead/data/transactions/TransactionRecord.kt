@@ -26,7 +26,7 @@ import java.time.LocalDateTime
         )
     ]
 )
-data class TransactionRecord (
+data class TransactionRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String,
@@ -35,14 +35,23 @@ data class TransactionRecord (
     val categoryId: Int?,
     val amount: Float,
     @TypeConverters(DateConverter::class)
-    val date: LocalDateTime,
-){
+    val date: LocalDateTime
+) {
     // I prefer to throw errors than to have inconsistent data
     init {
-        if (type in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) && categoryId != null) {
-            throw IllegalArgumentException("categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions")
-        } else if (type !in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) && categoryId == null) {
-            throw IllegalArgumentException("categoryId cannot be null for EXPENSE or INCOME transactions")
+        if (type in listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) &&
+            categoryId != null
+        ) {
+            throw IllegalArgumentException(
+                "categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions"
+            )
+        } else if (type !in
+            listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) &&
+            categoryId == null
+        ) {
+            throw IllegalArgumentException(
+                "categoryId cannot be null for EXPENSE or INCOME transactions"
+            )
         }
     }
 }

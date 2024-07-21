@@ -2,7 +2,6 @@ package com.example.budgetahead.data.currencies
 
 import kotlinx.coroutines.flow.Flow
 
-
 interface CurrenciesRepository {
     fun getAllCurrenciesStream(): Flow<List<Currency>>
 

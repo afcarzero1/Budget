@@ -53,4 +53,5 @@
   <string name="overall_expenses_title">Planned</string>
   <string name="delete_future_transaction">Deleting Planned Transaction</string>
   <string name="delete_transfer">Deleting transfer!</string>
+  <string name="edit">edit</string>
 </resources>

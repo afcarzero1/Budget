@@ -4,7 +4,6 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 interface FutureTransactionsRepository {
-
     suspend fun insert(futureTransaction: FutureTransaction)
 
     suspend fun update(futureTransaction: FutureTransaction)
@@ -20,5 +19,4 @@ interface FutureTransactionsRepository {
 
     @Transaction
     fun getAllFutureFullTransactionsStream(): Flow<List<FullFutureTransaction>>
-
 }

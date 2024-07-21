@@ -37,31 +37,32 @@ import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.categories.CategoryType
 import com.example.budgetahead.use_cases.IconFromReIdUseCase
 
-
 @Composable
 fun CategorySelector(
     category: Category?,
     categoryOptions: List<Category>,
     onCategorySelected: (Category) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    val iconResourceId = IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-        category?.iconResId
-    )
+    val iconResourceId =
+        IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
+            category?.iconResId
+        )
     val icon = painterResource(id = iconResourceId)
-    Box(modifier = modifier.height(IntrinsicSize.Min)){
+    Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
-            label = { Text("Category")},
-            enabled= enabled,
+            label = { Text("Category") },
+            enabled = enabled,
             value = category?.name ?: "",
             onValueChange = {},
             leadingIcon = {
                 Image(
                     painter = icon,
                     contentDescription = "Category Icon",
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(25.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
@@ -76,37 +77,35 @@ fun CategorySelector(
             readOnly = true
         )
         Surface(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .padding(top = 8.dp)
                 .clip(MaterialTheme.shapes.extraSmall)
                 .clickable(enabled = enabled) { showDialog = true },
-            color = Color.Transparent,
+            color = Color.Transparent
         ) {}
     }
 
-
-    if (showDialog){
+    if (showDialog) {
         Dialog(
-            onDismissRequest = { showDialog = false },
-        ){
+            onDismissRequest = { showDialog = false }
+        ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(all = 16.dp),
-            ){
-
+                modifier = Modifier.padding(all = 16.dp)
+            ) {
             }
         }
     }
-
 }
-
 
 @Preview
 @Composable
 fun CategorySelectorPreview() {
     CategorySelector(
-        category = Category(
+        category =
+        Category(
             id = 0,
             name = "School",
             defaultType = CategoryType.Expense,
@@ -114,9 +113,6 @@ fun CategorySelectorPreview() {
             iconResId = "cat_school"
         ),
         categoryOptions = listOf(),
-        onCategorySelected = {},
-
+        onCategorySelected = {}
     )
 }
-
-

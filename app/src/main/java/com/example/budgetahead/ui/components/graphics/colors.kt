@@ -51,21 +51,23 @@ fun convertColorToLong(color: Color): Long {
     val red = (color.red * 255).toInt() and 0xFF
     val green = (color.green * 255).toInt() and 0xFF
     val blue = (color.blue * 255).toInt() and 0xFF
-    return (alpha.toLong() shl 24) or (red.toLong() shl 16) or (green.toLong() shl 8) or blue.toLong()
+    return (alpha.toLong() shl 24) or (red.toLong() shl 16) or (green.toLong() shl 8) or
+        blue.toLong()
 }
 
 object AvailableColors {
-    val colorsList = listOf(
-        Color(0xFFBB86FC),
-        Color(0xFF6200EE),
-        Color(0xFF03DAC5),
-        Color(0xFF007BFF),
-        Color(0xFF5C6BC0),
-        Color(0xFFE91E63),
-        Color(0xFF9C27B0),
-        Color(0xFF2196F3),
-        Color(0xFF4CAF50)
-    )
+    val colorsList =
+        listOf(
+            Color(0xFFBB86FC),
+            Color(0xFF6200EE),
+            Color(0xFF03DAC5),
+            Color(0xFF007BFF),
+            Color(0xFF5C6BC0),
+            Color(0xFFE91E63),
+            Color(0xFF9C27B0),
+            Color(0xFF2196F3),
+            Color(0xFF4CAF50)
+        )
 }
 
 @Composable
@@ -77,24 +79,30 @@ fun ColorPicker(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier = modifier
-        .size(35.dp)
-        .background(color = color, shape = RoundedCornerShape(10.dp))
-        .border(
-            border = BorderStroke(1.dp, Color(0x80000000)), shape = RoundedCornerShape(10.dp)
-        )
-        .clickable { expanded = true })
+    Box(
+        modifier =
+        modifier
+            .size(35.dp)
+            .background(color = color, shape = RoundedCornerShape(10.dp))
+            .border(
+                border = BorderStroke(1.dp, Color(0x80000000)),
+                shape = RoundedCornerShape(10.dp)
+            ).clickable { expanded = true }
+    )
 
     if (expanded) {
         Dialog(onDismissRequest = { expanded = false }) {
             Surface(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 color = Color.White,
                 shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(
-                    width = 2.dp, color = Color.Gray.copy(alpha = 0.8f)
+                border =
+                BorderStroke(
+                    width = 2.dp,
+                    color = Color.Gray.copy(alpha = 0.8f)
                 )
             ) {
                 Column(
@@ -106,20 +114,21 @@ fun ColorPicker(
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.Black
                     )
-                    Spacer(modifier = Modifier.height(16.dp))  // Space between the title and grid
+                    Spacer(modifier = Modifier.height(16.dp)) // Space between the title and grid
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp)  // Padding at the bottom
+                            .padding(bottom = 16.dp) // Padding at the bottom
                     ) {
                         items(options.size) { index ->
                             ColorBox(color = options[index], onColorSelected = {
                                 onColorChanged(it)
-                                expanded = false  // Close dialog when a color is selected
+                                expanded = false // Close dialog when a color is selected
                             })
                         }
                     }
@@ -129,46 +138,49 @@ fun ColorPicker(
     }
 }
 
-
 @Composable
 fun ColorBox(color: Color, onColorSelected: (Color) -> Unit) {
     Surface(
-        modifier = Modifier
+        modifier =
+        Modifier
             .aspectRatio(1f)
             .size(32.dp)
             // Sets the size directly on the Surface
-            .clickable { onColorSelected(color) }, // Clickable modifier for color selection
+            .clickable { onColorSelected(color) },
+        // Clickable modifier for color selection
         shape = RoundedCornerShape(10.dp), // Sets the shape of the Surface
         color = color, // Background color of the Surface
-        border = BorderStroke(
-            1.dp, if (color == Color.Black) Color.Black else Color.Transparent
-        ), // Border condition
+        border =
+        BorderStroke(
+            1.dp,
+            if (color == Color.Black) Color.Black else Color.Transparent
+        ),
+        // Border condition
         tonalElevation = 0.dp // Optional: You can set elevation if needed for a shadow effect
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-
         }
     }
 }
 
-
 object AvailableIcons {
-    val icons = listOf(
-        "bar",
-        "groceries",
-        "rent",
-        "restaurants",
-        "school",
-        "trips",
-        "exercise",
-        "flights",
-        "bets",
-        "entertainment",
-        "hotel",
-        "groceries",
-        "others",
-        "salary"
-    )
+    val icons =
+        listOf(
+            "bar",
+            "groceries",
+            "rent",
+            "restaurants",
+            "school",
+            "trips",
+            "exercise",
+            "flights",
+            "bets",
+            "entertainment",
+            "hotel",
+            "groceries",
+            "others",
+            "salary"
+        )
 }
 
 @Composable
@@ -186,9 +198,13 @@ fun IconPicker(
 
     IconButton(
         onClick = { expanded = true },
-        modifier = modifier
+        modifier =
+        modifier
             .size(35.dp)
-            .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(10.dp))
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(10.dp)
+            )
             .border(
                 border = BorderStroke(1.dp, Color(0x80000000)),
                 shape = RoundedCornerShape(10.dp)
@@ -204,13 +220,16 @@ fun IconPicker(
     if (expanded) {
         Dialog(onDismissRequest = { expanded = false }) {
             Surface(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(
-                    width = 2.dp, color = Color.Gray.copy(alpha = 0.8f)
+                border =
+                BorderStroke(
+                    width = 2.dp,
+                    color = Color.Gray.copy(alpha = 0.8f)
                 )
             ) {
                 Column(
@@ -228,12 +247,14 @@ fun IconPicker(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
                     ) {
                         items(iconOptions) { iconName ->
-                            IconBox(iconName = iconName,
+                            IconBox(
+                                iconName = iconName,
                                 onIconSelected = {
                                     onIconChanged(it)
                                     expanded = false
@@ -261,29 +282,30 @@ fun IconBox(iconName: String, onIconSelected: (String) -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun ColorPickerPreview() {
-    val sampleColors = listOf(
-        Color.Red,
-        Color.Green,
-        Color.Blue,
-        Color.Cyan,
-        Color.Magenta,
-        Color.Yellow,
-        Color.Black,
-        Color.Gray,
-        Color.White
-    )
+    val sampleColors =
+        listOf(
+            Color.Red,
+            Color.Green,
+            Color.Blue,
+            Color.Cyan,
+            Color.Magenta,
+            Color.Yellow,
+            Color.Black,
+            Color.Gray,
+            Color.White
+        )
 
     // Creating a fake function for handling color changes
     val onColorChanged: (Color) -> Unit = {}
 
     // Displaying the ColorPicker with the dialog open
     ColorPicker(
-        modifier = Modifier, color = Color.Blue, // Current selected color
-        options = sampleColors, onColorChanged = onColorChanged
+        modifier = Modifier,
+        color = Color.Blue, // Current selected color
+        options = sampleColors,
+        onColorChanged = onColorChanged
     )
 }
-

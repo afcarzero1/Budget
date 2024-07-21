@@ -2,10 +2,7 @@ package com.example.budgetahead.ui.components
 
 import androidx.compose.ui.graphics.Color
 
-class ColorAssigner(
-    private val availableColors: List<Color>
-) {
-
+class ColorAssigner(private val availableColors: List<Color>) {
     private val temporarilyExcludedColors: MutableSet<Int> = HashSet()
     private val assignedColors: MutableMap<String, Color> = HashMap()
 
@@ -14,7 +11,6 @@ class ColorAssigner(
         if (assignedColors.containsKey(key)) {
             return assignedColors[key]!!
         }
-
 
         if (temporarilyExcludedColors.size == availableColors.size) {
             temporarilyExcludedColors.clear()

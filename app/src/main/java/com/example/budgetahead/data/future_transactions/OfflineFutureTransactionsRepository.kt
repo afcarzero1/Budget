@@ -2,9 +2,8 @@ package com.example.budgetahead.data.future_transactions
 
 import kotlinx.coroutines.flow.Flow
 
-class OfflineFutureTransactionsRepository(
-    private val futureTransactionDao: FutureTransactionDao
-) : FutureTransactionsRepository {
+class OfflineFutureTransactionsRepository(private val futureTransactionDao: FutureTransactionDao) :
+    FutureTransactionsRepository {
     override suspend fun insert(futureTransaction: FutureTransaction) =
         futureTransactionDao.insert(futureTransaction)
 

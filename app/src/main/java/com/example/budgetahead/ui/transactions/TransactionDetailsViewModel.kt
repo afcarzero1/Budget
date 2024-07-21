@@ -1,23 +1,22 @@
 package com.example.budgetahead.ui.transactions
 
-
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.ui.navigation.TransactionDetails
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class TransactionDetailsViewModel(
     savedStateHandle: SavedStateHandle,
@@ -31,7 +30,8 @@ class TransactionDetailsViewModel(
         checkNotNull(savedStateHandle[TransactionDetails.transactionIdArg])
 
     val transactionDBState: StateFlow<TransactionDetailsUiState> =
-        transactionsRepository.getTransactionStream(transactionId)
+        transactionsRepository
+            .getTransactionStream(transactionId)
             .filterNotNull()
             .map {
                 TransactionDetailsUiState(it, true)
@@ -53,16 +53,15 @@ class TransactionDetailsViewModel(
     }
 
     fun updateUiState(transaction: TransactionRecord) {
-        this.transactionUiState = TransactionDetailsUiState(
-            transaction = transaction,
-            isValid = validateInput(transaction)
-        )
+        this.transactionUiState =
+            TransactionDetailsUiState(
+                transaction = transaction,
+                isValid = validateInput(transaction)
+            )
     }
 
-    private fun validateInput(transaction: TransactionRecord): Boolean {
-        return with(transaction) {
-            amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
-        }
+    private fun validateInput(transaction: TransactionRecord): Boolean = with(transaction) {
+        amount > 0 && accountId >= 0 && categoryId != null && categoryId >= 0
     }
 
     suspend fun updateTransaction() {
@@ -77,14 +76,15 @@ class TransactionDetailsViewModel(
 }
 
 data class TransactionDetailsUiState(
-    val transaction: TransactionRecord = TransactionRecord(
-        id = -1,
-        accountId = -1,
-        categoryId = -1,
-        amount = 0f,
-        date = LocalDateTime.now(),
-        name = "",
-        type = TransactionType.EXPENSE
-    ),
+    val transaction: TransactionRecord =
+        TransactionRecord(
+            id = -1,
+            accountId = -1,
+            categoryId = -1,
+            amount = 0f,
+            date = LocalDateTime.now(),
+            name = "",
+            type = TransactionType.EXPENSE
+        ),
     val isValid: Boolean = false
 )

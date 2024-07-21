@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +21,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -39,7 +38,8 @@ fun BudgetNavigationBar(
         containerColor = MaterialTheme.colorScheme.surface
     ) {
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(14.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -49,16 +49,24 @@ fun BudgetNavigationBar(
                 IconButton(
                     onClick = { if (!isSelected) onTabSelected(screen) },
                     // Set the icon tint color based on the selection state
-                    colors = IconButtonDefaults.iconButtonColors(
+                    colors =
+                    IconButtonDefaults.iconButtonColors(
                         contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                     ),
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .then(
-                            if (isSelected) Modifier
-                                .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                            else Modifier
+                            if (isSelected) {
+                                Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                        CircleShape
+                                    )
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                            } else {
+                                Modifier
+                            }
                         )
                 ) {
                     screen.icon(isSelected)
@@ -67,7 +75,6 @@ fun BudgetNavigationBar(
         }
     }
 }
-
 
 @Composable
 fun BudgetTopBar(currentScreen: BudgetDestination, navHostController: NavHostController) {
@@ -98,20 +105,24 @@ fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> 
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondaryScreenTopBar(
     navigateBack: () -> Unit,
-    @StringRes titleResId: Int,
-    actions: @Composable (() -> Unit)? = null
+    title: String?,
+    actions: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(id = titleResId),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            title?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         navigationIcon = {
             IconButton(onClick = { navigateBack() }) {
@@ -127,11 +138,26 @@ fun SecondaryScreenTopBar(
         },
         modifier = Modifier.fillMaxWidth(),
         colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = containerColor
         )
     )
 }
 
+@Composable
+fun SecondaryScreenTopBar(
+    navigateBack: () -> Unit,
+    @StringRes titleResId: Int?,
+    actions: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primary
+) {
+    val title = titleResId?.let { stringResource(id = it) }
+    SecondaryScreenTopBar(
+        navigateBack = navigateBack,
+        title = title,
+        actions = actions,
+        containerColor = containerColor
+    )
+}
 
 @Composable
 @Preview(showBackground = true, name = "Budget Navigation Bar Preview")
@@ -147,7 +173,6 @@ fun PreviewBudgetNavigationBar() {
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

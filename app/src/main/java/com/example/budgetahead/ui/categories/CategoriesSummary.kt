@@ -1,6 +1,5 @@
 package com.example.budgetahead.ui.categories
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,14 +54,13 @@ import com.example.budgetahead.ui.AppViewModelProvider
 import com.example.budgetahead.ui.components.PieChart
 import com.example.budgetahead.ui.components.TextPiece
 import com.example.budgetahead.ui.navigation.Categories
-import com.example.budgetahead.ui.navigation.CategoryDetails
 import com.example.budgetahead.ui.navigation.CategoryEntry
+import com.example.budgetahead.ui.navigation.CategoryOverview
 import com.example.budgetahead.ui.navigation.TabItem
 import com.example.budgetahead.ui.navigation.TabbedPage
 import com.example.budgetahead.ui.theme.InitialScreen
 import com.example.budgetahead.use_cases.IconFromReIdUseCase
 import java.time.YearMonth
-
 
 @Composable
 fun CategoriesSummary(
@@ -83,23 +81,29 @@ fun CategoriesSummary(
             } else {
                 TabbedPage(
                     modifier = modifier.fillMaxSize(),
-                    tabs = listOf(
+                    tabs =
+                    listOf(
                         TabItem(
                             title = "Expense",
                             icon = {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
+                                    painter = painterResource(
+                                        id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24
+                                    ),
                                     contentDescription = "Expenses",
                                     tint = Color(0xFFE57373)
                                 )
                             },
                             screen = {
                                 CategoriesSummaryBody(
-                                    categories = categoriesState.categoriesList.filter {
+                                    categories =
+                                    categoriesState.categoriesList.filter {
                                         it.category.defaultType == CategoryType.Expense
                                     },
                                     onCategoryClicked = {
-                                        navController.navigate("${CategoryDetails.route}/${it.id}")
+                                        navController.navigate(
+                                            "${CategoryOverview.route}/${it.id}"
+                                        )
                                     },
                                     onNextMonth = {
                                         viewModel.setMonthOfTransactions(
@@ -128,18 +132,23 @@ fun CategoriesSummary(
                             title = "Income",
                             icon = {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24),
+                                    painter = painterResource(
+                                        id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24
+                                    ),
                                     contentDescription = "Incomes",
                                     tint = Color(0xFF4CAF50)
                                 )
                             },
                             screen = {
                                 CategoriesSummaryBody(
-                                    categories = categoriesState.categoriesList.filter {
+                                    categories =
+                                    categoriesState.categoriesList.filter {
                                         it.category.defaultType == CategoryType.Income
                                     },
                                     onCategoryClicked = {
-                                        navController.navigate("${CategoryDetails.route}/${it.id}")
+                                        navController.navigate(
+                                            "${CategoryOverview.route}/${it.id}"
+                                        )
                                     },
                                     onNextMonth = {
                                         viewModel.setMonthOfTransactions(
@@ -163,22 +172,26 @@ fun CategoriesSummary(
                                     baseCurrency = baseCurrency
                                 )
                             }
-                        ),
-                    ))
+                        )
+                    )
+                )
             }
-        }, floatingButton = {
+        },
+        floatingButton = {
             FloatingActionButton(
                 onClick = {
                     navController.navigate(CategoryEntry.route)
-                }, modifier = Modifier.padding(16.dp)
+                },
+                modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add, contentDescription = "Add Category"
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add Category"
                 )
             }
-        })
+        }
+    )
 }
-
 
 @Composable
 fun CategoriesSummaryBody(
@@ -191,7 +204,6 @@ fun CategoriesSummaryBody(
     onPreviousMonth: () -> Unit,
     onCategoryClicked: (Category) -> Unit
 ) {
-
     val totalDelta = categories.sumOf { deltas[it.category]?.toDouble() ?: 0.0 }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -219,11 +231,14 @@ fun CategoriesSummaryBody(
                 itemToColor = {
                     categoryToColor(it.category)
                 },
-                middleText = listOf(
+                middleText =
+                listOf(
                     TextPiece(
-                        text = buildAnnotatedString {
+                        text =
+                        buildAnnotatedString {
                             withStyle(
-                                style = SpanStyle(
+                                style =
+                                SpanStyle(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -233,15 +248,20 @@ fun CategoriesSummaryBody(
                         }
                     ),
                     TextPiece(
-                        text = buildAnnotatedString {
+                        text =
+                        buildAnnotatedString {
                             withStyle(
-                                style = SpanStyle(
+                                style =
+                                SpanStyle(
                                     fontWeight = FontWeight.Normal,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
                                 append(
-                                    Currency.formatAmountStatic(baseCurrency, totalDelta.toFloat())
+                                    Currency.formatAmountStatic(
+                                        baseCurrency,
+                                        totalDelta.toFloat()
+                                    )
                                 )
                             }
                         }
@@ -262,7 +282,8 @@ fun CategoriesSummaryBody(
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(horizontal = 10.dp)
                 .padding(vertical = 16.dp)
         )
@@ -293,14 +314,16 @@ fun CategoryCard(
     color: Color
 ) {
     Card(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
-            .clickable { onCategoryClicked(categoryWithTransactions.category) },
+            .clickable { onCategoryClicked(categoryWithTransactions.category) }
     ) {
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(2.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -320,7 +343,8 @@ fun CategoryCard(
                     Icon(
                         painter = painterResource(id = iconResourceId),
                         contentDescription = "Category Icon",
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .size(40.dp)
                             .clip(CircleShape)
                             .border(2.dp, color, CircleShape)
@@ -332,31 +356,32 @@ fun CategoryCard(
                     Column {
                         Text(
                             text = categoryWithTransactions.category.name,
-                            style = MaterialTheme.typography.titleSmall.copy(
+                            style =
+                            MaterialTheme.typography.titleSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Bold
                             ),
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1
                         )
                         Text(
-                            text = Currency.formatAmountStatic(
+                            text =
+                            Currency.formatAmountStatic(
                                 totalAmount.first,
                                 totalAmount.second
                             ),
-                            style = MaterialTheme.typography.bodyMedium.copy(
+                            style =
+                            MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.ExtraLight,
-                            ),
+                                fontWeight = FontWeight.ExtraLight
+                            )
                         )
                     }
                 }
             }
-
         }
     }
 }
-
 
 /**
 @Preview(showBackground = true)
@@ -449,7 +474,8 @@ onCategoryClicked = {}
 @Composable
 fun EmptyCategoryScreen() {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "No categories yet. Create one by clicking the + button",

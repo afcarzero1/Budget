@@ -1,14 +1,14 @@
 package com.example.budgetahead.data.balances
 
 import com.example.budgetahead.data.categories.Category
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class MockBalancesRepository(
-    private val currentBalances:Map<YearMonth, Map<Category, Float>>,
-    private val expectedBalances:Map<YearMonth, Map<Category, Float>>
+    private val currentBalances: Map<YearMonth, Map<Category, Float>>,
+    private val expectedBalances: Map<YearMonth, Map<Category, Float>>
 ) : BalancesRepository {
     override fun getCurrentBalancesByMonthStream(
         fromDate: YearMonth,

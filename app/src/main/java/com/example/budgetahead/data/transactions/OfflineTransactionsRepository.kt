@@ -2,13 +2,12 @@ package com.example.budgetahead.data.transactions
 
 import com.example.budgetahead.data.transfers.Transfer
 import com.example.budgetahead.data.transfers.TransferWithAccounts
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.YearMonth
+import kotlinx.coroutines.flow.Flow
 
-class OfflineTransactionsRepository(
-    private val transactionDao: TransactionDao
-) : TransactionsRepository {
+class OfflineTransactionsRepository(private val transactionDao: TransactionDao) :
+    TransactionsRepository {
     override suspend fun insert(transactionRecord: TransactionRecord) {
         transactionDao.insert(transactionRecord)
     }
@@ -24,7 +23,6 @@ class OfflineTransactionsRepository(
     override suspend fun update(transactionRecord: TransactionRecord) =
         transactionDao.update(transactionRecord)
 
-
     override suspend fun updateTransfer(transfer: Transfer) {
         transactionDao.updateTransferAndTransactions(transfer)
     }
@@ -39,9 +37,7 @@ class OfflineTransactionsRepository(
     override fun getTransactionStream(id: Int): Flow<TransactionRecord> =
         transactionDao.getTransactionStream(id)
 
-    override fun getTransfersStream(id: Int): Flow<Transfer> =
-        transactionDao.getTransferStream(id)
-
+    override fun getTransfersStream(id: Int): Flow<Transfer> = transactionDao.getTransferStream(id)
 
     override fun getAllTransactionsStream(): Flow<List<TransactionRecord>> =
         transactionDao.getAllTransactionsStream()
@@ -60,7 +56,7 @@ class OfflineTransactionsRepository(
 
     override fun getFullTransactionsByMonthsStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Flow<List<FullTransactionRecord>> {
         // Calculate the start and end date times for the specified start and end months/years
         val startDateTime = LocalDateTime.of(fromDate.year, fromDate.monthValue, 1, 0, 0)

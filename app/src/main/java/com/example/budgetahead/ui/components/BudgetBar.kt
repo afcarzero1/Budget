@@ -46,7 +46,6 @@ fun BudgetSummary(
     }
 }
 
-
 @Composable
 fun BudgetBar(
     categoryName: String,
@@ -64,7 +63,8 @@ fun BudgetBar(
 
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -78,14 +78,14 @@ fun BudgetBar(
         }
 
         LinearProgressIndicator(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .height(8.dp),
             progress = progress
         )
     }
 }
-
 
 @Composable
 fun LinearProgressIndicator(
@@ -103,13 +103,15 @@ fun LinearProgressIndicator(
     val progressColor = lerp(startColor, endColor, innerProgress)
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .clip(clipShape)
             .background(backgroundColor)
             .height(8.dp)
     ) {
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .background(progressColor)
                 .fillMaxHeight()
                 .fillMaxWidth(innerProgress)

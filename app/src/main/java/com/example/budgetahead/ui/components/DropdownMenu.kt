@@ -50,11 +50,16 @@ fun <T> LargeDropdownMenu(
     onItemSelected: (index: Int, item: T) -> Unit,
     selectedItemToString: (T) -> String = { it.toString() },
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
-    drawItem: @Composable (T, Boolean, Boolean, () -> Unit) -> Unit = { item, selected, itemEnabled, onClick ->
+    drawItem: @Composable (
+        T,
+        Boolean,
+        Boolean,
+        () -> Unit
+    ) -> Unit = { item, selected, itemEnabled, onClick ->
         DefaultDrawItem(item, selected, itemEnabled, onClick, selectedItemToString, leadingIcon)
     },
     leadingIcon: (@Composable (T) -> Unit)? = null,
-    initialIndex: Int = -1,
+    initialIndex: Int = -1
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
@@ -64,7 +69,6 @@ fun <T> LargeDropdownMenu(
         selectedIndex = -1
     }
     val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
-
 
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
@@ -77,7 +81,8 @@ fun <T> LargeDropdownMenu(
                     if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown
                 Icon(icon, "")
             },
-            leadingIcon = items.getOrNull(uiIndex)?.let { item ->
+            leadingIcon =
+            items.getOrNull(uiIndex)?.let { item ->
                 leadingIcon?.let { { leadingIcon(item) } }
             },
             onValueChange = { },
@@ -85,25 +90,25 @@ fun <T> LargeDropdownMenu(
             colors = colors
         )
 
-
         // Transparent clickable surface on top of OutlinedTextField
         Surface(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .padding(top = 8.dp)
                 .clip(MaterialTheme.shapes.extraSmall)
                 .clickable(enabled = enabled) { expanded = true },
-            color = Color.Transparent,
+            color = Color.Transparent
         ) {}
     }
 
     if (expanded) {
         Dialog(
-            onDismissRequest = { expanded = false },
+            onDismissRequest = { expanded = false }
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(all = 16.dp)
             ) {
                 val listState = rememberLazyListState()
                 if (uiIndex > -1) {
@@ -122,7 +127,7 @@ fun <T> LargeDropdownMenu(
                                 text = notSetLabel,
                                 selected = false,
                                 enabled = false,
-                                onClick = { },
+                                onClick = { }
                             )
                         }
                     }
@@ -147,7 +152,6 @@ fun <T> LargeDropdownMenu(
         }
     }
 }
-
 
 @Composable
 fun <T> DefaultDrawItem(
@@ -175,27 +179,29 @@ fun LargeDropdownMenuItem(
     onClick: () -> Unit,
     leadingIcon: (@Composable () -> Unit)? = null
 ) {
-    val contentColor = when {
-        !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_DISABLED)
-        selected -> MaterialTheme.colorScheme.primary.copy(alpha = ALPHA_FULL)
-        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_FULL)
-    }
+    val contentColor =
+        when {
+            !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_DISABLED)
+            selected -> MaterialTheme.colorScheme.primary.copy(alpha = ALPHA_FULL)
+            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_FULL)
+        }
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
-        Box(modifier = Modifier
-            .clickable(enabled) { onClick() }
-            .fillMaxWidth()
-            .padding(16.dp)) {
-            Row(
-                
-            ){
+        Box(
+            modifier =
+            Modifier
+                .clickable(enabled) { onClick() }
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row {
                 leadingIcon?.let {
                     it()
-                    Spacer(modifier = Modifier.width(16.dp))  // Add spacer only if leadingIcon is not null
+                    Spacer(modifier = Modifier.width(16.dp)) // Add spacer only if leadingIcon is not null
                 }
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
         }

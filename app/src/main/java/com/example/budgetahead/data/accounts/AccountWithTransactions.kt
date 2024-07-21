@@ -5,7 +5,6 @@ import androidx.room.Ignore
 import androidx.room.Relation
 import com.example.budgetahead.data.transactions.TransactionRecord
 
-
 data class AccountWithTransactions(
     @Embedded val account: Account,
     @Relation(
@@ -13,9 +12,8 @@ data class AccountWithTransactions(
         parentColumn = "id",
         entityColumn = "accountId"
     )
-    val transactionRecords: List<TransactionRecord>,
-
-    ){
+    val transactionRecords: List<TransactionRecord>
+) {
     @get:Ignore val balance: Float
         get() {
             return account.computeBalance(transactionRecords)

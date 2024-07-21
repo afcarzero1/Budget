@@ -28,7 +28,8 @@ import com.example.budgetahead.R
 @Composable
 fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -42,8 +43,10 @@ fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "No budgets are set yet!",
-            style = MaterialTheme.typography.headlineSmall.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(
+            style =
+            MaterialTheme.typography.headlineSmall.copy(
+                color =
+                MaterialTheme.colorScheme.onSurface.copy(
                     alpha = 0.5f
                 )
             )
@@ -51,17 +54,20 @@ fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
             val text = "Start planning by adding your planned transactions "
             ClickableText(
                 softWrap = true,
-                text = buildAnnotatedString {
+                text =
+                buildAnnotatedString {
                     append(text)
                     withStyle(
-                        style = SpanStyle(
+                        style =
+                        SpanStyle(
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
                             textDecoration = TextDecoration.Underline
                         )
@@ -71,21 +77,21 @@ fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
                 },
                 onClick = { offset ->
                     Log.d("CLickableText", offset.toString())
-                    if (offset in text.length until "${text}here".length+1) {
+                    if (offset in text.length until "${text}here".length + 1) {
                         onLinkClicked()
                     }
                 },
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface.copy(
+                style =
+                MaterialTheme.typography.bodyMedium.copy(
+                    color =
+                    MaterialTheme.colorScheme.onSurface.copy(
                         alpha = 0.5f
                     )
                 )
             )
         }
-
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

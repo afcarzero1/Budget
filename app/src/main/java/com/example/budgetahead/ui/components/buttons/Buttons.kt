@@ -16,19 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.budgetahead.ui.navigation.FutureTransactionEntry
-import com.example.budgetahead.ui.navigation.TransactionEntry
 import com.example.budgetahead.ui.theme.PurpleGrey80
 
 @Composable
-fun BudgetButton(
-    text: String,
-    onClick: () -> Unit,
-) {
-
+fun BudgetButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
+        colors =
+        ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White
         ),
@@ -43,10 +38,7 @@ fun BudgetButton(
 }
 
 @Composable
-fun BudgetTextButton(
-    text: String,
-    onClick: () -> Unit,
-) {
+fun BudgetTextButton(text: String, onClick: () -> Unit) {
     TextButton(onClick = onClick) {
         Text(
             text = text,
@@ -56,12 +48,8 @@ fun BudgetTextButton(
     }
 }
 
-
 @Composable
-fun BudgetFloatingButton(
-    onClick: () -> Unit,
-    contentDescription: String?,
-) {
+fun BudgetFloatingButton(onClick: () -> Unit, contentDescription: String?) {
     FloatingActionButton(
         onClick = onClick,
         modifier = Modifier.padding(16.dp),
@@ -69,8 +57,8 @@ fun BudgetFloatingButton(
         contentColor = MaterialTheme.colorScheme.onPrimary
     ) {
         Icon(
-            imageVector = Icons.Filled.Add, contentDescription = contentDescription
+            imageVector = Icons.Filled.Add,
+            contentDescription = contentDescription
         )
     }
-
 }

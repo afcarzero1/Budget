@@ -11,11 +11,11 @@ import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
+import java.time.LocalDate
+import java.time.YearMonth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import java.time.YearMonth
 
 class OfflineBalancesRepository(
     private val accountsRepository: AccountsRepository,
@@ -25,116 +25,128 @@ class OfflineBalancesRepository(
     override fun getCurrentBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth
-    ): Flow<Map<YearMonth, Map<Category, Float>>> {
-        return transactionsRepository.getFullTransactionsByMonthsStream(
+    ): Flow<Map<YearMonth, Map<Category, Float>>> = transactionsRepository
+        .getFullTransactionsByMonthsStream(
             fromDate = fromDate,
             toDate = toDate
         ).map {
             groupTransactions(it, fromDate, toDate)
         }
-    }
 
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth
-    ): Flow<Map<YearMonth, Map<Category, Float>>> {
-        return futureTransactionsRepository.getAllFutureFullTransactionsStream().map {
-            val allExpectedTransactions: List<FullTransactionRecord> = generateExpectedTransactions(
-                it,
-                fromDate,
-                toDate
-            )
+    ): Flow<Map<YearMonth, Map<Category, Float>>> =
+        futureTransactionsRepository.getAllFutureFullTransactionsStream().map {
+            val allExpectedTransactions: List<FullTransactionRecord> =
+                generateExpectedTransactions(
+                    it,
+                    fromDate,
+                    toDate
+                )
 
             groupTransactions(allExpectedTransactions, fromDate, toDate)
         }
-    }
 
     override fun getBalanceByDay(
         fromDate: LocalDate,
         toDate: LocalDate,
         realityDate: LocalDate
-    ): Flow<Map<LocalDate, Float>> {
-        return combine(
-            accountsRepository.getAllFullAccountsStream(),
-            transactionsRepository.getAllFullTransactionsStream(),
-            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-        ) { accounts, transactions, futureTransactions ->
-            Triple(accounts, transactions, futureTransactions)
-        }.map { (allAccounts, allTransactions, allFutureTransactions) ->
+    ): Flow<Map<LocalDate, Float>> = combine(
+        accountsRepository.getAllFullAccountsStream(),
+        transactionsRepository.getAllFullTransactionsStream(),
+        futureTransactionsRepository.getAllFutureFullTransactionsStream()
+    ) { accounts, transactions, futureTransactions ->
+        Triple(accounts, transactions, futureTransactions)
+    }.map { (allAccounts, allTransactions, allFutureTransactions) ->
 
-            val balanceByDay: MutableMap<LocalDate, Float> = generateDayInterval(fromDate, toDate)
+        val balanceByDay: MutableMap<LocalDate, Float> = generateDayInterval(fromDate, toDate)
 
-            // Compute the initial balance at "fromDate" in the
-            // base currency
-            var initialBalance = 0f
-            for (accountInfo in allAccounts) {
-                initialBalance += accountInfo.account.computeBalance(
-                    accountInfo.transactionRecords.map { it.transactionRecord },
-                    fromDate.minusDays(1)
-                ) / accountInfo.currency.value
-            }
+        // Compute the initial balance at "fromDate" in the
+        // base currency
+        var initialBalance = 0f
+        for (accountInfo in allAccounts) {
+            initialBalance += accountInfo.account.computeBalance(
+                accountInfo.transactionRecords.map { it.transactionRecord },
+                fromDate.minusDays(1)
+            ) / accountInfo.currency.value
+        }
 
-            // Apply all the real transactions until "realityDate" (end of the day)
-            val relevantTransactions = allTransactions
+        // Apply all the real transactions until "realityDate" (end of the day)
+        val relevantTransactions =
+            allTransactions
                 .filter {
-                    it.transactionRecord.date.toLocalDate() >= fromDate && it.transactionRecord.date.toLocalDate() <= realityDate
+                    it.transactionRecord.date.toLocalDate() >= fromDate &&
+                        it.transactionRecord.date.toLocalDate() <= realityDate
                 }.sortedBy {
                     it.transactionRecord.date.toLocalDate()
                 }
 
-            // Apply all the expected transactions until "toDate" (end of the day)
-            val relevantFutureTransactions = generateExpectedTransactions(
+        // Apply all the expected transactions until "toDate" (end of the day)
+        val relevantFutureTransactions =
+            generateExpectedTransactions(
                 allFutureTransactions,
                 realityDate,
                 toDate
             )
 
-            var currentDate = fromDate
+        var currentDate = fromDate
 
-            while (currentDate <= toDate){
-                if(currentDate <= realityDate){
-                    // TODO: Group before and use hash map, this is VERY inefficient
-                    val dateTransactions = relevantTransactions.filter {
+        while (currentDate <= toDate) {
+            if (currentDate <= realityDate) {
+                // TODO: Group before and use hash map, this is VERY inefficient
+                val dateTransactions =
+                    relevantTransactions.filter {
                         it.transactionRecord.date.toLocalDate() == currentDate
                     }
 
-                    val dateDelta = dateTransactions.sumOf {
-                        val value = when(it.transactionRecord.type){
-                            TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
-                            TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
-                            TransactionType.EXPENSE_TRANSFER -> 0f.toDouble()
-                            TransactionType.INCOME_TRANSFER -> 0f.toDouble()
-                        }
-                        value / it.account.currency.value.toDouble()
-                    }.toFloat()
+                val dateDelta =
+                    dateTransactions
+                        .sumOf {
+                            val value =
+                                when (it.transactionRecord.type) {
+                                    TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE_TRANSFER -> 0f.toDouble()
+                                    TransactionType.INCOME_TRANSFER -> 0f.toDouble()
+                                }
+                            value /
+                                it.account.currency.value
+                                    .toDouble()
+                        }.toFloat()
 
-                    initialBalance += dateDelta
-                }
-
-                if (currentDate > realityDate){
-                    val dateTransactions = relevantFutureTransactions.filter {
-                        it.transactionRecord.date.toLocalDate() == currentDate
-                    }
-
-                    val dateDelta = dateTransactions.sumOf {
-                        val value = when(it.transactionRecord.type){
-                            TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
-                            TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
-                            TransactionType.EXPENSE_TRANSFER -> 0F.toDouble()
-                            TransactionType.INCOME_TRANSFER -> 0f.toDouble()
-                        }
-                        value / it.account.currency.value.toDouble()
-                    }.toFloat()
-
-                    initialBalance += dateDelta
-                }
-
-                balanceByDay[currentDate] = initialBalance
-                currentDate = currentDate.plusDays(1)
+                initialBalance += dateDelta
             }
 
-            balanceByDay
+            if (currentDate > realityDate) {
+                val dateTransactions =
+                    relevantFutureTransactions.filter {
+                        it.transactionRecord.date.toLocalDate() == currentDate
+                    }
+
+                val dateDelta =
+                    dateTransactions
+                        .sumOf {
+                            val value =
+                                when (it.transactionRecord.type) {
+                                    TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE_TRANSFER -> 0F.toDouble()
+                                    TransactionType.INCOME_TRANSFER -> 0f.toDouble()
+                                }
+                            value /
+                                it.account.currency.value
+                                    .toDouble()
+                        }.toFloat()
+
+                initialBalance += dateDelta
+            }
+
+            balanceByDay[currentDate] = initialBalance
+            currentDate = currentDate.plusDays(1)
         }
+
+        balanceByDay
     }
 
     private fun generateDates(
@@ -147,7 +159,7 @@ class OfflineBalancesRepository(
         val dates = mutableListOf<LocalDate>()
         var currentDate = startDate
 
-        //TODO: Potential optimization here to avoid starting from the beginning every time
+        // TODO: Potential optimization here to avoid starting from the beginning every time
 
         while (currentDate <= endDate) {
             // Check if currentDate is within the intervalStart and intervalEnd
@@ -203,7 +215,6 @@ class OfflineBalancesRepository(
         return balancesByDay
     }
 
-
     /**
      * Generate all the future expected transactions in the specified interval
      *
@@ -212,13 +223,11 @@ class OfflineBalancesRepository(
         futureTransactions: List<FullFutureTransaction>,
         fromDate: YearMonth,
         toDate: YearMonth
-    ): List<FullTransactionRecord> {
-        return generateExpectedTransactions(
-            futureTransactions,
-            fromDate.atDay(1),
-            toDate.atEndOfMonth()
-        )
-    }
+    ): List<FullTransactionRecord> = generateExpectedTransactions(
+        futureTransactions,
+        fromDate.atDay(1),
+        toDate.atEndOfMonth()
+    )
 
     private fun generateExpectedTransactions(
         futureTransactions: List<FullFutureTransaction>,
@@ -233,35 +242,39 @@ class OfflineBalancesRepository(
 
             val recurrenceType = futureTransaction.futureTransaction.recurrenceType
 
-            val transactionDates = generateDates(
-                startDate = initialDate,
-                endDate = endDate,
-                recurrenceType = recurrenceType,
-                intervalStart = fromDate,
-                intervalEnd = toDate
-            )
+            val transactionDates =
+                generateDates(
+                    startDate = initialDate,
+                    endDate = endDate,
+                    recurrenceType = recurrenceType,
+                    intervalStart = fromDate,
+                    intervalEnd = toDate
+                )
 
             // Add all the expected transactions
             for (date in transactionDates) {
                 allExpectedTransactions.add(
                     FullTransactionRecord(
-                        transactionRecord = TransactionRecord(
+                        transactionRecord =
+                        TransactionRecord(
                             id = 0,
                             date = date.atStartOfDay(),
                             amount = futureTransaction.futureTransaction.amount,
                             name = "",
                             categoryId = futureTransaction.futureTransaction.categoryId,
                             accountId = 0,
-                            type = futureTransaction.futureTransaction.type,
+                            type = futureTransaction.futureTransaction.type
                         ),
                         category = futureTransaction.category,
-                        account = AccountWithCurrency(
-                            account = Account(
+                        account =
+                        AccountWithCurrency(
+                            account =
+                            Account(
                                 id = 0,
                                 name = "",
                                 initialBalance = 0f,
                                 currency = futureTransaction.currency.name,
-                                color = 0x000000,
+                                color = 0x000000
                             ),
                             currency = futureTransaction.currency
                         )
@@ -302,12 +315,13 @@ class OfflineBalancesRepository(
             val transactionAbsoluteValue =
                 transaction.transactionRecord.amount / transactionCurrencyValue
 
-            val transactionValue: Float = when (transaction.transactionRecord.type) {
-                TransactionType.INCOME -> transactionAbsoluteValue
-                TransactionType.EXPENSE -> -transactionAbsoluteValue
-                TransactionType.EXPENSE_TRANSFER -> 0f
-                TransactionType.INCOME_TRANSFER -> 0f
-            }
+            val transactionValue: Float =
+                when (transaction.transactionRecord.type) {
+                    TransactionType.INCOME -> transactionAbsoluteValue
+                    TransactionType.EXPENSE -> -transactionAbsoluteValue
+                    TransactionType.EXPENSE_TRANSFER -> 0f
+                    TransactionType.INCOME_TRANSFER -> 0f
+                }
 
             // Only in the case that this is not a transfer we attempt to add it
             transactionCategory?.let {
@@ -318,10 +332,8 @@ class OfflineBalancesRepository(
                     monthBalances?.set(transactionCategory, transactionValue)
                 }
             }
-
         }
 
         return balancesByMonth
     }
-
 }

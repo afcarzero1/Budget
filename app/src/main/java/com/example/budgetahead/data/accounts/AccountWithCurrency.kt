@@ -10,5 +10,5 @@ data class AccountWithCurrency(
         parentColumn = "currency",
         entityColumn = "name"
     )
-    val currency: Currency,
+    val currency: Currency
 )

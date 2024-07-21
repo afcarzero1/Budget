@@ -10,7 +10,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FutureTransactionDao{
+interface FutureTransactionDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(futureTransaction: FutureTransaction)
 
@@ -33,5 +33,4 @@ interface FutureTransactionDao{
     @Transaction
     @Query("SELECT * from futureTransactions ORDER BY amount DESC")
     fun getAllFutureFullTransactionsStream(): Flow<List<FullFutureTransaction>>
-
 }

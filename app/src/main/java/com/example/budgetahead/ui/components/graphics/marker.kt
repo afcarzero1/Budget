@@ -30,45 +30,55 @@ import com.patrykandpatrick.vico.core.marker.Marker
 @Composable
 internal fun rememberMarker(): Marker {
     val labelBackgroundColor = MaterialTheme.colorScheme.surface
-    val labelBackground = remember(labelBackgroundColor) {
-        ShapeComponent(labelBackgroundShape, labelBackgroundColor.toArgb()).setShadow(
-            radius = LABEL_BACKGROUND_SHADOW_RADIUS,
-            dy = LABEL_BACKGROUND_SHADOW_DY,
-            applyElevationOverlay = true,
+    val labelBackground =
+        remember(labelBackgroundColor) {
+            ShapeComponent(labelBackgroundShape, labelBackgroundColor.toArgb()).setShadow(
+                radius = LABEL_BACKGROUND_SHADOW_RADIUS,
+                dy = LABEL_BACKGROUND_SHADOW_DY,
+                applyElevationOverlay = true
+            )
+        }
+    val label =
+        textComponent(
+            background = labelBackground,
+            lineCount = LABEL_LINE_COUNT,
+            padding = labelPadding,
+            typeface = Typeface.MONOSPACE
         )
-    }
-    val label = textComponent(
-        background = labelBackground,
-        lineCount = LABEL_LINE_COUNT,
-        padding = labelPadding,
-        typeface = Typeface.MONOSPACE,
-    )
-    val indicatorInnerComponent = shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.surface)
+    val indicatorInnerComponent =
+        shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.surface)
     val indicatorCenterComponent = shapeComponent(Shapes.pillShape, Color.White)
     val indicatorOuterComponent = shapeComponent(Shapes.pillShape, Color.White)
-    val indicator = overlayingComponent(
-        outer = indicatorOuterComponent,
-        inner = overlayingComponent(
-            outer = indicatorCenterComponent,
-            inner = indicatorInnerComponent,
-            innerPaddingAll = indicatorInnerAndCenterComponentPaddingValue,
-        ),
-        innerPaddingAll = indicatorCenterAndOuterComponentPaddingValue,
-    )
-    val guideline = lineComponent(
-        MaterialTheme.colorScheme.onSurface.copy(GUIDELINE_ALPHA),
-        guidelineThickness,
-        guidelineShape,
-    )
+    val indicator =
+        overlayingComponent(
+            outer = indicatorOuterComponent,
+            inner =
+            overlayingComponent(
+                outer = indicatorCenterComponent,
+                inner = indicatorInnerComponent,
+                innerPaddingAll = indicatorInnerAndCenterComponentPaddingValue
+            ),
+            innerPaddingAll = indicatorCenterAndOuterComponentPaddingValue
+        )
+    val guideline =
+        lineComponent(
+            MaterialTheme.colorScheme.onSurface.copy(GUIDELINE_ALPHA),
+            guidelineThickness,
+            guidelineShape
+        )
     return remember(label, indicator, guideline) {
         object : MarkerComponent(label, indicator, guideline) {
             init {
                 indicatorSizeDp = INDICATOR_SIZE_DP
                 onApplyEntryColor = { entryColor ->
-                    indicatorOuterComponent.color = entryColor.copyColor(INDICATOR_OUTER_COMPONENT_ALPHA)
+                    indicatorOuterComponent.color =
+                        entryColor.copyColor(INDICATOR_OUTER_COMPONENT_ALPHA)
                     with(indicatorCenterComponent) {
                         color = entryColor
-                        setShadow(radius = INDICATOR_CENTER_COMPONENT_SHADOW_RADIUS, color = entryColor)
+                        setShadow(
+                            radius = INDICATOR_CENTER_COMPONENT_SHADOW_RADIUS,
+                            color = entryColor
+                        )
                     }
                 }
             }
@@ -76,11 +86,11 @@ internal fun rememberMarker(): Marker {
             override fun getInsets(
                 context: MeasureContext,
                 outInsets: Insets,
-                horizontalDimensions: HorizontalDimensions,
+                horizontalDimensions: HorizontalDimensions
             ) = with(context) {
                 outInsets.top = label.getHeight(context) + labelBackgroundShape.tickSizeDp.pixels +
-                        LABEL_BACKGROUND_SHADOW_RADIUS.pixels * SHADOW_RADIUS_MULTIPLIER -
-                        LABEL_BACKGROUND_SHADOW_DY.pixels
+                    LABEL_BACKGROUND_SHADOW_RADIUS.pixels * SHADOW_RADIUS_MULTIPLIER -
+                    LABEL_BACKGROUND_SHADOW_DY.pixels
             }
         }
     }
@@ -104,4 +114,5 @@ private val labelPadding = dimensionsOf(labelHorizontalPaddingValue, labelVertic
 private val indicatorInnerAndCenterComponentPaddingValue = 5.dp
 private val indicatorCenterAndOuterComponentPaddingValue = 10.dp
 private val guidelineThickness = 2.dp
-private val guidelineShape = DashedShape(Shapes.pillShape, GUIDELINE_DASH_LENGTH_DP, GUIDELINE_GAP_LENGTH_DP)
+private val guidelineShape =
+    DashedShape(Shapes.pillShape, GUIDELINE_DASH_LENGTH_DP, GUIDELINE_GAP_LENGTH_DP)

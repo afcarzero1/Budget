@@ -19,7 +19,6 @@ import com.example.budgetahead.ui.currencies.CurrencySettingsScreen
 import com.example.budgetahead.ui.onboarding.OnBoardingScreen
 import com.example.budgetahead.ui.onboarding.OnBoardingViewModel
 
-
 @Composable
 fun BudgetNavHost(
     navController: NavHostController,
@@ -31,7 +30,6 @@ fun BudgetNavHost(
         startDestination = startDestination?.route ?: Overview.route,
         modifier = modifier
     ) {
-
         composable(route = OnBoarding.route) {
             val viewModel: OnBoardingViewModel = viewModel(factory = AppViewModelProvider.Factory)
             OnBoardingScreen(
@@ -49,21 +47,34 @@ fun BudgetNavHost(
             CurrencySettingsScreen(navController = navController)
         }
         composable(
-            route = Accounts.route,
+            route = Accounts.route
         ) {
             Accounts.screen(navController)
         }
         composable(
-            route = AccountEntry.route,
+            route = AccountEntry.route
         ) {
             AccountEntry.screen(navController)
         }
         composable(route = AccountTransferEntry.route) {
             AccountTransferEntry.screen(navController)
         }
+
+        composable(
+            route = AccountSummary.routeWithArgs,
+            arguments = listOf(
+                navArgument(AccountSummary.accountIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            AccountSummary.screen(navController)
+        }
+
         composable(
             route = AccountDetails.routeWithArgs,
-            arguments = listOf(
+            arguments =
+            listOf(
                 navArgument(AccountDetails.accountIdArg) {
                     type = NavType.IntType
                 }
@@ -79,8 +90,20 @@ fun BudgetNavHost(
         }
 
         composable(
-            route = CategoryDetails.routeWithArgs,
+            route = CategoryOverview.routeWithArgs,
             arguments = listOf(
+                navArgument(CategoryOverview.categoryIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            CategoryOverview.screen(navController)
+        }
+
+        composable(
+            route = CategoryDetails.routeWithArgs,
+            arguments =
+            listOf(
                 navArgument(CategoryDetails.categoryIdArg) {
                     type = NavType.IntType
                 }
@@ -99,7 +122,8 @@ fun BudgetNavHost(
 
         composable(
             route = TransactionDetails.routeWithArgs,
-            arguments = listOf(
+            arguments =
+            listOf(
                 navArgument(TransactionDetails.transactionIdArg) {
                     type = NavType.IntType
                 }
@@ -110,7 +134,8 @@ fun BudgetNavHost(
 
         composable(
             route = TransferDetails.routeWithArgs,
-            arguments = listOf(
+            arguments =
+            listOf(
                 navArgument(TransferDetails.transferIdArg) {
                     type = NavType.IntType
                 }
@@ -127,20 +152,24 @@ fun BudgetNavHost(
 
         composable(
             route = FutureTransactionDetails.routeWithArgs,
-            arguments = listOf(
+            arguments =
+            listOf(
                 navArgument(FutureTransactionDetails.futureTransactionIdArg) {
                     type = NavType.IntType
                 }
             ),
             enterTransition = {
                 fadeIn(
-                    animationSpec = tween(
-                        1000, easing = LinearEasing
+                    animationSpec =
+                    tween(
+                        1000,
+                        easing = LinearEasing
                     )
-                ) + slideIntoContainer(
-                    animationSpec = tween(1000, easing = LinearOutSlowInEasing),
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                )
+                ) +
+                    slideIntoContainer(
+                        animationSpec = tween(1000, easing = LinearOutSlowInEasing),
+                        towards = AnimatedContentTransitionScope.SlideDirection.Start
+                    )
             }
         ) {
             FutureTransactionDetails.screen(navController)

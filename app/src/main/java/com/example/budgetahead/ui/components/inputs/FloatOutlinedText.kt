@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 
-
 /**
  * A generic composable function to create an outlined text field for editing float values
  * within any record type `T`. The function is type-agnostic and utilizes provided lambdas
@@ -46,17 +45,19 @@ fun <T> FloatOutlinedText(
         value = text,
         onValueChange = {
             text = it
-            supportText = try {
-                val parsedFloat = it.toFloat()
-                onValueChange(record, parsedFloat)
-                ""
-            } catch (e: NumberFormatException) {
-                "Please enter a valid number."
-            }
+            supportText =
+                try {
+                    val parsedFloat = it.toFloat()
+                    onValueChange(record, parsedFloat)
+                    ""
+                } catch (e: NumberFormatException) {
+                    "Please enter a valid number."
+                }
         },
         label = label ?: { Text("Enter value") },
         colors = colors,
-        modifier = modifier
+        modifier =
+        modifier
             .onFocusChanged { focusState ->
                 if (!focusState.isFocused) {
                     try {

@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-
 @Composable
 fun DateRangeSelector(
     startDate: YearMonth,
@@ -33,7 +32,8 @@ fun DateRangeSelector(
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
     Row(
-        modifier = modifier
+        modifier =
+        modifier
             .height(54.dp)
             .padding(4.dp)
             .fillMaxWidth(),
@@ -43,7 +43,8 @@ fun DateRangeSelector(
         IconButton(
             onClick = {
                 onRangeChanged(
-                    startDate.minusMonths(1), endDate.minusMonths(1)
+                    startDate.minusMonths(1),
+                    endDate.minusMonths(1)
                 )
             },
             modifier = Modifier.weight(1f)
@@ -52,13 +53,13 @@ fun DateRangeSelector(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = "Previous month",
                 tint = MaterialTheme.colorScheme.onPrimary, // Changed to primary color
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
                         shape = CircleShape
-                    )
-                    .padding(4.dp)
+                    ).padding(4.dp)
             )
         }
         Row(
@@ -70,9 +71,10 @@ fun DateRangeSelector(
                 text = startDate.format(dateFormatter),
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                modifier = Modifier.padding(
+                modifier =
+                Modifier.padding(
                     bottom = 2.dp,
-                    top = 8.dp,
+                    top = 8.dp
                 ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
@@ -89,9 +91,10 @@ fun DateRangeSelector(
                 text = endDate.format(dateFormatter),
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                modifier = Modifier.padding(
+                modifier =
+                Modifier.padding(
                     bottom = 2.dp,
-                    top = 8.dp,
+                    top = 8.dp
                 ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
@@ -100,7 +103,8 @@ fun DateRangeSelector(
         IconButton(
             onClick = {
                 onRangeChanged(
-                    startDate.plusMonths(1), endDate.plusMonths(1)
+                    startDate.plusMonths(1),
+                    endDate.plusMonths(1)
                 )
             },
             modifier = Modifier.weight(1f)
@@ -109,18 +113,17 @@ fun DateRangeSelector(
                 imageVector = Icons.Filled.ArrowForward,
                 contentDescription = "Next month",
                 tint = MaterialTheme.colorScheme.onPrimary, // Changed to primary color
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
                         shape = CircleShape
-                    )
-                    .padding(4.dp)
+                    ).padding(4.dp)
             )
         }
     }
 }
-
 
 @Composable
 fun YearMonthSelector(
@@ -130,7 +133,8 @@ fun YearMonthSelector(
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
     Row(
-        modifier = modifier
+        modifier =
+        modifier
             .height(54.dp)
             .padding(4.dp)
             .fillMaxWidth(),
@@ -149,13 +153,13 @@ fun YearMonthSelector(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = "Month",
                 tint = MaterialTheme.colorScheme.onPrimary, // Changed to primary color
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
                         shape = CircleShape
-                    )
-                    .padding(4.dp)
+                    ).padding(4.dp)
             )
         }
         Row(
@@ -167,9 +171,10 @@ fun YearMonthSelector(
                 text = date.format(dateFormatter),
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                modifier = Modifier.padding(
+                modifier =
+                Modifier.padding(
                     bottom = 2.dp,
-                    top = 8.dp,
+                    top = 8.dp
                 ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
@@ -187,13 +192,13 @@ fun YearMonthSelector(
                 imageVector = Icons.Filled.ArrowForward,
                 contentDescription = "Next month",
                 tint = MaterialTheme.colorScheme.onPrimary, // Changed to primary color
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
                         shape = CircleShape
-                    )
-                    .padding(4.dp)
+                    ).padding(4.dp)
             )
         }
     }

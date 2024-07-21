@@ -19,9 +19,7 @@ import com.example.budgetahead.ui.navigation.BudgetNavHost
 import com.example.budgetahead.ui.navigation.BudgetNavigationBar
 import com.example.budgetahead.ui.navigation.BudgetTopBar
 import com.example.budgetahead.ui.navigation.Currencies
-import com.example.budgetahead.ui.navigation.Overview
 import com.example.budgetahead.ui.navigation.tabDestinations
-
 
 @Composable
 fun BudgetApplicationApp(
@@ -56,7 +54,7 @@ fun InitialScreen(
                 navHostController = navController
             )
         },
-        floatingActionButton = floatingButton,
+        floatingActionButton = floatingButton
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Surface(
@@ -72,7 +70,6 @@ fun InitialScreen(
                     }
                     screenBody()
                 }
-
             }
         }
     }

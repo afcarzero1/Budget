@@ -18,21 +18,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetahead.R
 import com.example.budgetahead.data.accounts.Account
 import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.AppViewModelProvider
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.dp
 import com.example.budgetahead.ui.components.LargeDropdownMenu
 import com.example.budgetahead.ui.components.graphics.AvailableColors
 import com.example.budgetahead.ui.components.graphics.ColorPicker
@@ -41,6 +40,7 @@ import com.example.budgetahead.ui.components.graphics.convertLongToColor
 import com.example.budgetahead.ui.components.inputs.FloatOutlinedText
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import java.time.LocalDateTime
+import kotlinx.coroutines.launch
 
 @Composable
 fun AccountEntryScreen(
@@ -74,7 +74,8 @@ fun AccountEntryScreen(
                 }
             },
             availableCurrencies = currenciesListState,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
@@ -90,7 +91,6 @@ fun AccountEntryBody(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
@@ -115,7 +115,6 @@ fun AccountEntryBody(
             }
         }
     }
-
 }
 
 @Composable
@@ -124,16 +123,18 @@ fun AccountForm(
     availableCurrencies: List<Currency>,
     modifier: Modifier = Modifier,
     onValueChange: (Account) -> Unit = {},
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
-
     val currencyIndex = availableCurrencies.indexOfFirst { it.name == account.currency }
 
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-        unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f),
-        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-    )
+    val colors =
+        OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+            unfocusedContainerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                alpha = 0.05f
+            ),
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+        )
     Log.d("AccountForm", convertLongToColor(account.color).toString())
     Column(
         modifier = modifier.padding(16.dp),
@@ -159,7 +160,8 @@ fun AccountForm(
                 onColorChanged = {
                     onValueChange(account.copy(color = convertColorToLong(it)))
                 },
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(top = 8.dp, bottom = 4.dp)
             )
         }
@@ -188,23 +190,23 @@ fun AccountForm(
     }
 }
 
-
 @Preview
 @Composable
 fun AccountFormPreview() {
-    val account = Account(
-        id = 0,
-        name = "Account 1",
-        initialBalance = 100f,
-        currency = "USD",
-        color = 0x000000
-    )
+    val account =
+        Account(
+            id = 0,
+            name = "Account 1",
+            initialBalance = 100f,
+            currency = "USD",
+            color = 0x000000
+        )
 
-    val availableCurrencies = listOf(
-        Currency("USD", 1f, LocalDateTime.now()),
-        Currency("EUR", 1.2f, LocalDateTime.now())
-    )
+    val availableCurrencies =
+        listOf(
+            Currency("USD", 1f, LocalDateTime.now()),
+            Currency("EUR", 1.2f, LocalDateTime.now())
+        )
 
     AccountForm(account = account, availableCurrencies = availableCurrencies)
-
 }

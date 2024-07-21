@@ -10,7 +10,6 @@ import com.example.budgetahead.data.accounts.AccountWithCurrency
 import com.example.budgetahead.data.transactions.TransactionRecord
 import java.time.LocalDateTime
 
-
 @Entity(
     tableName = "transfers",
     foreignKeys = [
@@ -50,7 +49,6 @@ data class Transfer(
     val amountDestination: Float,
     val date: LocalDateTime
 )
-
 
 data class TransferWithAccounts(
     @Embedded val transfer: Transfer,

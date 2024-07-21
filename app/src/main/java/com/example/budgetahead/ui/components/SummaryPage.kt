@@ -10,10 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun <T> SummaryPage(
-    items: List<T>,
-    rows: @Composable (T) -> Unit
-) {
+fun <T> SummaryPage(items: List<T>, rows: @Composable (T) -> Unit) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         // List of items
         Card {
@@ -25,7 +22,6 @@ fun <T> SummaryPage(
         }
     }
 }
-
 
 /**
  * Extracts the proportions of each item in a list.

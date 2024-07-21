@@ -11,19 +11,17 @@ import com.example.budgetahead.data.future_transactions.FutureTransactionsReposi
 import com.example.budgetahead.data.future_transactions.RecurrenceType
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.ui.navigation.FutureTransactionDetails
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDateTime
 
 class FutureTransactionDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val futureTransactionsRepository: FutureTransactionsRepository
 ) : ViewModel() {
-
-
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -32,7 +30,8 @@ class FutureTransactionDetailsViewModel(
         checkNotNull(savedStateHandle[FutureTransactionDetails.futureTransactionIdArg])
 
     var transactionState: StateFlow<FutureTransactionDetailsUiState> =
-        futureTransactionsRepository.getFutureTransactionStream(futureTransactionId)
+        futureTransactionsRepository
+            .getFutureTransactionStream(futureTransactionId)
             .filterNotNull()
             .map {
                 FutureTransactionDetailsUiState(it, true)
@@ -49,23 +48,22 @@ class FutureTransactionDetailsViewModel(
         private set
 
     fun updateUiState(futureTransaction: FutureTransaction) {
-
         if (futureTransaction.id != futureTransactionId) {
             return
         }
 
-        this.transactionUiState = FutureTransactionDetailsUiState(
-            transaction = futureTransaction,
-            isValid = validateInput(futureTransaction)
-        )
+        this.transactionUiState =
+            FutureTransactionDetailsUiState(
+                transaction = futureTransaction,
+                isValid = validateInput(futureTransaction)
+            )
         showUpdatedState = true
     }
 
-    private fun validateInput(futureTransaction: FutureTransaction): Boolean {
-        return with(futureTransaction) {
+    private fun validateInput(futureTransaction: FutureTransaction): Boolean =
+        with(futureTransaction) {
             amount > 0 && categoryId >= 0 && endDate > startDate
         }
-    }
 
     suspend fun updateTransaction() {
         if (transactionUiState.isValid) {
@@ -79,17 +77,18 @@ class FutureTransactionDetailsViewModel(
 }
 
 data class FutureTransactionDetailsUiState(
-    val transaction: FutureTransaction = FutureTransaction(
-        id = 0,
-        name = "",
-        type = TransactionType.EXPENSE,
-        categoryId = -1,
-        amount = 0f,
-        currency = "USD",
-        startDate = LocalDateTime.now(),
-        endDate = LocalDateTime.now(),
-        recurrenceValue = 0,
-        recurrenceType = RecurrenceType.NONE
-    ),
+    val transaction: FutureTransaction =
+        FutureTransaction(
+            id = 0,
+            name = "",
+            type = TransactionType.EXPENSE,
+            categoryId = -1,
+            amount = 0f,
+            currency = "USD",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now(),
+            recurrenceValue = 0,
+            recurrenceType = RecurrenceType.NONE
+        ),
     val isValid: Boolean = false
 )

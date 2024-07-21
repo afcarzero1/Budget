@@ -10,14 +10,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.budgetahead.R
 
-
 @Composable
 fun ConfirmationDeletionDialog(
     onDeleteConfirm: () -> Unit,
     onDeleteCancel: () -> Unit,
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.attention),
-    message: String = stringResource(R.string.delete_confirmation),
+    message: String = stringResource(R.string.delete_confirmation)
 ) {
     AlertDialog(
         onDismissRequest = { /* Prevent dialog from dismissing on back press or outside touch */ },
@@ -42,9 +41,7 @@ fun ConfirmationDeletionDialog(
         },
         containerColor = MaterialTheme.colorScheme.errorContainer
     )
-
 }
-
 
 @Preview(showBackground = true)
 @Composable

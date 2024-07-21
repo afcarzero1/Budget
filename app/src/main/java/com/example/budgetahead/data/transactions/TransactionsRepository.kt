@@ -2,8 +2,8 @@ package com.example.budgetahead.data.transactions
 
 import com.example.budgetahead.data.transfers.Transfer
 import com.example.budgetahead.data.transfers.TransferWithAccounts
-import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
+import kotlinx.coroutines.flow.Flow
 
 interface TransactionsRepository {
     suspend fun insert(transactionRecord: TransactionRecord)
@@ -36,7 +36,7 @@ interface TransactionsRepository {
 
     fun getFullTransactionsByMonthsStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Flow<List<FullTransactionRecord>>
 
     fun getAllFullTransferTransactionsStream(): Flow<List<FullTransactionRecord>>
