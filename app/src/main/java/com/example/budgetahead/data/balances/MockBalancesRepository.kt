@@ -1,10 +1,12 @@
 package com.example.budgetahead.data.balances
 
 import com.example.budgetahead.data.categories.Category
-import java.time.LocalDate
-import java.time.YearMonth
+
+import com.example.budgetahead.data.transactions.FullTransactionRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.time.LocalDate
+import java.time.YearMonth
 
 class MockBalancesRepository(
     private val currentBalances: Map<YearMonth, Map<Category, Float>>,
@@ -21,7 +23,8 @@ class MockBalancesRepository(
 
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth
+        toDate: YearMonth,
+        onlyUpcoming: Boolean
     ): Flow<Map<YearMonth, Map<Category, Float>>> {
         // Replace this with your logic to filter and return expected balances within the specified date range
         val filteredExpectedBalances = expectedBalances.filterKeys { it in fromDate..toDate }
@@ -35,4 +38,19 @@ class MockBalancesRepository(
     ): Flow<Map<LocalDate, Float>> {
         TODO("Not yet implemented")
     }
+
+    override fun getExpectedTransactions(
+        fromDate: LocalDate,
+        toDate: LocalDate
+    ): Flow<List<FullTransactionRecord>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPendingTransactions(
+        fromDate: LocalDate,
+        toDate: LocalDate
+    ): Flow<List<FullTransactionRecord>> {
+        TODO("Not yet implemented")
+    }
 }
+

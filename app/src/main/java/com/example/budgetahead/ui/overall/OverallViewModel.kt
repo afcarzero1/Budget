@@ -13,6 +13,7 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import kotlin.math.max
 import kotlin.math.min
+import com.example.budgetahead.use_cases.ClassifyCategoriesUseCaseImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,24 +66,17 @@ class OverallViewModel(
         centralDateFlow.value = date
     }
 
-    private val lastExpensesFlow =
-        currentDateRangeFlow
-            .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
-            }.map { monthMap ->
-                // TODO: Improve this code
-                val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
-                for ((yearMonth, categoryMap) in monthMap) {
-                    // Filter categories with negative float values
-                    val filteredCategoryMap = categoryMap.filter { (_, value) -> value < 0 }
-                    if (filteredCategoryMap.isNotEmpty()) {
-                        newMap[yearMonth] = filteredCategoryMap
-                    } else {
-                        newMap[yearMonth] = mapOf()
-                    }
-                }
-                newMap
-            }
+
+    private val lastExpensesFlow = currentDateRangeFlow
+        .flatMapLatest { (fromDate, toDate) ->
+            balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+        }
+        .map { monthMap ->
+            ClassifyCategoriesUseCaseImpl().execute(
+                monthMap, false
+            )
+        }
+
 
     val lastExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> =
         lastExpensesFlow
@@ -92,31 +86,24 @@ class OverallViewModel(
                 initialValue = mapOf()
             )
 
-    private val lastIncomesFlow =
-        currentDateRangeFlow
-            .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
-            }.map { monthMap ->
-                val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
-                for ((yearMonth, categoryMap) in monthMap) {
-                    // Filter categories with positive float values
-                    val filteredCategoryMap = categoryMap.filter { (_, value) -> value > 0 }
-                    if (filteredCategoryMap.isNotEmpty()) {
-                        newMap[yearMonth] = filteredCategoryMap
-                    } else {
-                        newMap[yearMonth] = mapOf()
-                    }
-                }
-                newMap
-            }
 
-    val lastIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> =
-        lastIncomesFlow
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = mapOf()
+    private val lastIncomesFlow = currentDateRangeFlow
+        .flatMapLatest { (fromDate, toDate) ->
+            balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+        }
+        .map { monthMap ->
+            ClassifyCategoriesUseCaseImpl().execute(
+                monthMap, true
             )
+        }
+
+    val lastIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> = lastIncomesFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = mapOf()
+        )
+
 
     private val expectedDateFromCurrent: Flow<Pair<YearMonth, YearMonth>> =
         currentDateRangeFlow.map { interval ->
@@ -135,17 +122,9 @@ class OverallViewModel(
             .flatMapLatest { (fromDate, toDate) ->
                 balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
             }.map { data ->
-                val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
-                for ((yearMonth, categoryMap) in data) {
-                    // Filter categories with negative float values
-                    val filteredCategoryMap = categoryMap.filter { (_, value) -> value < 0 }
-                    if (filteredCategoryMap.isNotEmpty()) {
-                        newMap[yearMonth] = filteredCategoryMap
-                    } else {
-                        newMap[yearMonth] = mapOf()
-                    }
-                }
-                newMap
+                ClassifyCategoriesUseCaseImpl().execute(
+                    data, false
+                )
             }
 
     val expectedExpenses: StateFlow<Map<YearMonth, Map<Category, Float>>> =
@@ -160,17 +139,9 @@ class OverallViewModel(
             .flatMapLatest { (fromDate, toDate) ->
                 balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
             }.map { data ->
-                val newMap: MutableMap<YearMonth, Map<Category, Float>> = mutableMapOf()
-                for ((yearMonth, categoryMap) in data) {
-                    // Filter categories with negative float values
-                    val filteredCategoryMap = categoryMap.filter { (_, value) -> value > 0 }
-                    if (filteredCategoryMap.isNotEmpty()) {
-                        newMap[yearMonth] = filteredCategoryMap
-                    } else {
-                        newMap[yearMonth] = mapOf()
-                    }
-                }
-                newMap
+                ClassifyCategoriesUseCaseImpl().execute(
+                    data, true
+                )
             }
 
     val expectedIncomes: StateFlow<Map<YearMonth, Map<Category, Float>>> =

@@ -82,6 +82,27 @@ object Overview : BudgetDestination {
     override val topBar: (@Composable (NavHostController) -> Unit)? = null
 }
 
+object CashFlowOverview : BudgetDestination {
+    override val icon = @Composable { selected: Boolean ->
+        Icon(
+            painter = painterResource(
+                id = if (selected) R.drawable.home_24dp_fill1_wght300_grad0_opsz24 else
+                    R.drawable.home_24dp_fill0_wght300_grad0_opsz24
+            ),
+            contentDescription = null
+        )
+    }
+    override val route = "cashflow_overview"
+    override val screen: @Composable (navController: NavHostController) -> Unit = {
+        TODO("Add here screen")
+    }
+    override val topBar: (@Composable (NavHostController) -> Unit)? = null
+
+    const val dateArg = "dateArgs"
+
+    val routeWithArgs = "$route/{$dateArg}"
+}
+
 object Accounts : BudgetDestination {
     override val icon = @Composable { selected: Boolean ->
         Icon(
