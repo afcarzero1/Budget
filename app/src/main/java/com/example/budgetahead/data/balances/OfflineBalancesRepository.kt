@@ -18,7 +18,9 @@ import kotlinx.coroutines.flow.map
 import java.lang.IllegalStateException
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.temporal.ChronoUnit
 import kotlin.math.max
+import kotlin.math.min
 
 class OfflineBalancesRepository(
     private val accountsRepository: AccountsRepository,
@@ -354,12 +356,13 @@ class OfflineBalancesRepository(
                 val alreadyCounted = MutableList(relevantExecutedTransactions.size) { false }
 
                 for (futureTransaction in categoryFutureTransactions) {
-                    var currentDate = futureTransaction.futureTransaction.startDate
+                    var currentDate = futureTransaction.futureTransaction.startDate.toLocalDate()
+                    val endDate = futureTransaction.futureTransaction.endDate.toLocalDate()
                     var currentExpectedTransactionIndex = 0
                     val timePeriod = futureTransaction.futureTransaction.recurrenceType.timePeriod()
 
-                    while (currentDate <= futureTransaction.futureTransaction.endDate) {
-                        val nextDate =
+                    while (currentDate < endDate && currentDate < toDate) {
+                        var nextDate =
                             timePeriod?.let { date: TimePeriod ->
                                 when (date) {
                                     TimePeriod.YEAR -> currentDate.plusYears(futureTransaction.futureTransaction.recurrenceValue.toLong())
@@ -369,16 +372,27 @@ class OfflineBalancesRepository(
                                 }
                             } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
 
+                        // Understand if we overshooted!
+                        val maxDate = minOf(toDate, endDate)
+                        var totalExpectedMultiplier = 1f
+                        if(nextDate > maxDate){
+                            val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
+                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(currentDate, maxDate)
+
+                            totalExpectedMultiplier = (nonOvershootPeriodLength.toFloat()/timePeriodLength.toFloat())
+                            nextDate = maxDate
+                        }
+
                         val periodExecutedTransactions: MutableList<FullTransactionRecord> = mutableListOf()
 
                         // Get those transactions that were executed between currentDate and nextDate
                         while (
                             currentExpectedTransactionIndex < relevantExecutedTransactions.size &&
-                            relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date < nextDate
+                            relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() < nextDate
                         ) {
                             // Add it only if it falls within the examined period AND it was not already counted
                             if (
-                                relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date >= currentDate &&
+                                relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() >= currentDate &&
                                 !alreadyCounted[currentExpectedTransactionIndex]
                             ) {
                                 if(relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.type != futureTransaction.futureTransaction.type){
@@ -391,11 +405,11 @@ class OfflineBalancesRepository(
                             // Advance
                             currentExpectedTransactionIndex += 1
                         }
-
+                        // TODO: fix currencies exchange problem !!
                         // Sum how much those transactions are worth! IN BASE CURRENCY
                         val totalExecuted =
                             ComputeDeltaFromTransactionsUseCase().computeDelta(
-                                periodExecutedTransactions,
+                                periodExecutedTransactions
                             )
 
                         // Convert that value to the transaction currency
@@ -406,12 +420,12 @@ class OfflineBalancesRepository(
                             )
 
                         // Subtract the value from the expected transaction for this period.
-                        val totalPending = max(futureTransaction.futureTransaction.amount - totalExecutedInCurrency, 0f)
+                        val totalPending = max(futureTransaction.futureTransaction.amount * totalExpectedMultiplier - totalExecutedInCurrency, 0f)
 
                         // Add the "planned" modified transaction at the end of the period
                         pendingTransactions.add(
                             generateTransaction(
-                                nextDate.toLocalDate(),
+                                nextDate,
                                 futureTransaction,
                                 totalPending,
                             ),

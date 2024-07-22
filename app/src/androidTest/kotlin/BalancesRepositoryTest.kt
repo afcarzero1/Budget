@@ -38,6 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -310,10 +311,11 @@ class BalancesRepositoryTest{
         ).first()
 
         assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        val possibleDates = hashSetOf(LocalDate.parse("2024-08-31"), LocalDate.parse("2024-08-08"), LocalDate.parse("2024-08-15"), LocalDate.parse("2024-08-22"), LocalDate.parse("2024-08-29"))
         for(pending in pendingTransaction){
-            assertTrue(pending.transactionRecord.amount == 20f)
+            assertTrue(possibleDates.contains(pending.transactionRecord.date.toLocalDate()))
         }
-
+        assertTrue("Value must be cropped.",pendingTransaction.last().transactionRecord.amount == 20f * 2f/7f)
 
         transactionsRepository.insert(
             TransactionRecord(
@@ -331,14 +333,10 @@ class BalancesRepositoryTest{
             LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
             LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
         ).first()
-        assertTrue("Weekly transactions", pendingTransaction.size == 4)
+
+        // Transactions should still be inserted but the first one should have the value reduced!
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
         assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
-
-
-
-
-
-
 
 
     }
