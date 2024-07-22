@@ -20,7 +20,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import kotlin.math.max
-import kotlin.math.min
 
 class OfflineBalancesRepository(
     private val accountsRepository: AccountsRepository,
@@ -375,11 +374,11 @@ class OfflineBalancesRepository(
                         // Understand if we overshooted!
                         val maxDate = minOf(toDate, endDate)
                         var totalExpectedMultiplier = 1f
-                        if(nextDate > maxDate){
+                        if (nextDate > maxDate) {
                             val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
                             val nonOvershootPeriodLength = ChronoUnit.DAYS.between(currentDate, maxDate)
 
-                            totalExpectedMultiplier = (nonOvershootPeriodLength.toFloat()/timePeriodLength.toFloat())
+                            totalExpectedMultiplier = (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
                             nextDate = maxDate
                         }
 
@@ -392,10 +391,13 @@ class OfflineBalancesRepository(
                         ) {
                             // Add it only if it falls within the examined period AND it was not already counted
                             if (
-                                relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() >= currentDate &&
+                                relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() >=
+                                currentDate &&
                                 !alreadyCounted[currentExpectedTransactionIndex]
                             ) {
-                                if(relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.type != futureTransaction.futureTransaction.type){
+                                if (relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.type !=
+                                    futureTransaction.futureTransaction.type
+                                ) {
                                     throw IllegalStateException("This is not supported yet!!")
                                 }
                                 periodExecutedTransactions.add(relevantExecutedTransactions[currentExpectedTransactionIndex])
@@ -405,11 +407,10 @@ class OfflineBalancesRepository(
                             // Advance
                             currentExpectedTransactionIndex += 1
                         }
-                        // TODO: fix currencies exchange problem !!
                         // Sum how much those transactions are worth! IN BASE CURRENCY
                         val totalExecuted =
                             ComputeDeltaFromTransactionsUseCase().computeDelta(
-                                periodExecutedTransactions
+                                periodExecutedTransactions,
                             )
 
                         // Convert that value to the transaction currency
@@ -420,7 +421,11 @@ class OfflineBalancesRepository(
                             )
 
                         // Subtract the value from the expected transaction for this period.
-                        val totalPending = max(futureTransaction.futureTransaction.amount * totalExpectedMultiplier - totalExecutedInCurrency, 0f)
+                        val totalPending =
+                            max(
+                                futureTransaction.futureTransaction.amount * totalExpectedMultiplier - totalExecutedInCurrency,
+                                0f,
+                            )
 
                         // Add the "planned" modified transaction at the end of the period
                         pendingTransactions.add(

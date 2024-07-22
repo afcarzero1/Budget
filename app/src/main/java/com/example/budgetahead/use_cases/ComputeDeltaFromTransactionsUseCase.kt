@@ -17,6 +17,7 @@ class ComputeDeltaFromTransactionsUseCase {
         }
         return delta
     }
+
     @JvmName("computeDeltaFullTransactionRecord")
     fun computeDelta(transactions: List<FullTransactionRecord>): Float {
         var delta = 0f // Initialize delta as a floating point number

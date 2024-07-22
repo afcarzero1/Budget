@@ -19,8 +19,8 @@ class MockCurrenciesRepository : CurrenciesRepository {
         val mockCurrencies =
             listOf(
                 Currency("USD", 1.0f, localDateTime),
-                Currency("EUR", 1/1.1f, localDateTime),
-                Currency("SEK", 1/0.1f, localDateTime),
+                Currency("EUR", 1 / 1.1f, localDateTime),
+                Currency("SEK", 1 / 0.1f, localDateTime),
             )
 
         // Emit the mock currencies list as a Flow
