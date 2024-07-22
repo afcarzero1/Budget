@@ -338,6 +338,34 @@ class BalancesRepositoryTest{
         assertTrue("Weekly transactions", pendingTransaction.size == 5)
         assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
 
+        accountRepository.insertAccount(
+            Account(
+                id = 2,
+                name = "Deutsche Bank",
+                currency = "EUR",
+                initialBalance = 100.0f,
+            )
+        )
 
+        transactionsRepository.insert(
+            TransactionRecord(
+                id=0,
+                name="Fake transaction",
+                type = TransactionType.EXPENSE,
+                amount = 5f,
+                accountId = 2, // Transaction in EUR
+                categoryId = 1,
+                date = LocalDateTime.parse("2024-08-12T12:00:00")
+            )
+        )
+
+        pendingTransaction = offlineBalancesRepository.getPendingTransactions(
+            LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+            LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+        ).first()
+
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
+        assertTrue("Value should be reduced taking into account exchange rate", pendingTransaction[1].transactionRecord.amount == 14.5f)
     }
 }
