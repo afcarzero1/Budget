@@ -27,7 +27,7 @@ class ComputeDeltaFromTransactionsUseCase {
         }
         return delta
     }
-
+    // TODO: Add here protection for currencies that are too close to 0 in value.
     fun toBaseCurrency(
         amount: Float,
         currency: Currency,

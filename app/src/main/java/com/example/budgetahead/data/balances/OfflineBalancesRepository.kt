@@ -303,7 +303,7 @@ class OfflineBalancesRepository(
             futureTransactions,
             executedTransactions,
             fromDate.atDay(1),
-            toDate.atEndOfMonth(),
+            toDate.atEndOfMonth()
         )
 
     /**
@@ -398,14 +398,29 @@ class OfflineBalancesRepository(
                                 }
                             } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
 
-                        // Understand if we overshooted!
-                        val maxDate = minOf(toDate, endDate)
+                        // Understand if we under-shooted
+                        if(nextDate < fromDate){
+                            currentDate = nextDate
+                            continue
+                        }
+
                         var totalExpectedMultiplier = 1f
+                        if(currentDate < fromDate){
+                            val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
+                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(fromDate, nextDate)
+
+                            totalExpectedMultiplier *= (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
+                        }
+
+
+                        // Understand if we over-shooted!
+                        val maxDate = minOf(toDate, endDate)
+
                         if (nextDate > maxDate) {
                             val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
                             val nonOvershootPeriodLength = ChronoUnit.DAYS.between(currentDate, maxDate)
 
-                            totalExpectedMultiplier = (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
+                            totalExpectedMultiplier *= (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
                             nextDate = maxDate
                         }
 
@@ -533,11 +548,10 @@ class OfflineBalancesRepository(
             val categoryMonthBalance: Float? = monthBalances?.get(transactionCategory)
 
             // Compute the absolute value of the transaction
-            // TODO: Add here protection for currencies that are too close to 0 in value.
-            val transactionCurrencyValue = transaction.account.currency.value
 
-            val transactionAbsoluteValue =
-                transaction.transactionRecord.amount / transactionCurrencyValue
+            val transactionAbsoluteValue = ComputeDeltaFromTransactionsUseCase().toBaseCurrency(
+                transaction.transactionRecord.amount, transaction.account.currency
+            )
 
             val transactionValue: Float =
                 when (transaction.transactionRecord.type) {

@@ -20,6 +20,13 @@ class MockBalancesRepository(
         return flowOf(filteredCurrentBalances)
     }
 
+    override fun getPlannedBalancesByMonthStream(
+        fromDate: YearMonth,
+        toDate: YearMonth
+    ): Flow<Map<YearMonth, Map<Category, Float>>> {
+        TODO("Not yet implemented")
+    }
+
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
