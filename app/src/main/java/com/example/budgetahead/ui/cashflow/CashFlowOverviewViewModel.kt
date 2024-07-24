@@ -37,7 +37,7 @@ class CashFlowOverviewViewModel(
     val monthExpensesFlow: Flow<Map<YearMonth, Map<Category, Float>>> =
         dateToShowFlow
             .flatMapLatest {
-                balancesRepository.getCurrentBalancesByMonthStream(it, it)
+                balancesRepository.getExecutedBalancesByMonthStream(it, it)
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
                     it,
@@ -48,7 +48,7 @@ class CashFlowOverviewViewModel(
     val monthIncomesFlow: Flow<Map<YearMonth, Map<Category, Float>>> =
         dateToShowFlow
             .flatMapLatest {
-                balancesRepository.getCurrentBalancesByMonthStream(it, it)
+                balancesRepository.getExecutedBalancesByMonthStream(it, it)
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
                     it,

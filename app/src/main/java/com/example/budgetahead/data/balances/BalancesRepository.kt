@@ -20,7 +20,19 @@ interface BalancesRepository {
      * transactions.
      * @return A Flow emitting a map of YearMonth to a map of Category to balance amount.
      */
-    fun getCurrentBalancesByMonthStream(
+    fun getExecutedBalancesByMonthStream(
+        fromDate: YearMonth,
+        toDate: YearMonth,
+    ): Flow<Map<YearMonth, Map<Category, Float>>>
+
+    /**
+     * Retrieves a stream of the planned balances organized by month and category.
+     *
+     * It makes use only of the planned transactions by the user
+     *
+     *
+     */
+    fun getPlannedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
     ): Flow<Map<YearMonth, Map<Category, Float>>>
@@ -28,7 +40,7 @@ interface BalancesRepository {
     /**
      * Retrieves a stream of expected balances organized by month and category.
      *
-     * A balance is how much money (in base currency) is/was expected to be spent during that time
+     * A balance is how much money (in base currency) is expected to be spent during that time
      * period.
      *
      * @return A Flow emitting a map of YearMonth to a map of Category to balance amount.
@@ -36,7 +48,7 @@ interface BalancesRepository {
     fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
-        onlyUpcoming: Boolean = false,
+        realityDate: LocalDate = LocalDate.now(),
     ): Flow<Map<YearMonth, Map<Category, Float>>>
 
     /**
@@ -52,7 +64,7 @@ interface BalancesRepository {
     /**
      * Obtain the transactions that the user planned
      */
-    fun getExpectedTransactions(
+    fun getPlannedTransactions(
         fromDate: LocalDate,
         toDate: LocalDate,
     ): Flow<List<FullTransactionRecord>>

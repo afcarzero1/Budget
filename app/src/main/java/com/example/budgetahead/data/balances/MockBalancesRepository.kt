@@ -11,7 +11,7 @@ class MockBalancesRepository(
     private val currentBalances: Map<YearMonth, Map<Category, Float>>,
     private val expectedBalances: Map<YearMonth, Map<Category, Float>>,
 ) : BalancesRepository {
-    override fun getCurrentBalancesByMonthStream(
+    override fun getExecutedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
     ): Flow<Map<YearMonth, Map<Category, Float>>> {
@@ -23,7 +23,7 @@ class MockBalancesRepository(
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
-        onlyUpcoming: Boolean,
+        realityDate: LocalDate,
     ): Flow<Map<YearMonth, Map<Category, Float>>> {
         // Replace this with your logic to filter and return expected balances within the specified date range
         val filteredExpectedBalances = expectedBalances.filterKeys { it in fromDate..toDate }
@@ -38,7 +38,7 @@ class MockBalancesRepository(
         TODO("Not yet implemented")
     }
 
-    override fun getExpectedTransactions(
+    override fun getPlannedTransactions(
         fromDate: LocalDate,
         toDate: LocalDate,
     ): Flow<List<FullTransactionRecord>> {

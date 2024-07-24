@@ -69,7 +69,7 @@ class OverallViewModel(
     private val lastExpensesFlow =
         currentDateRangeFlow
             .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+                balancesRepository.getExecutedBalancesByMonthStream(fromDate, toDate)
             }.map { monthMap ->
                 ClassifyCategoriesUseCaseImpl().execute(
                     monthMap,
@@ -88,7 +88,7 @@ class OverallViewModel(
     private val lastIncomesFlow =
         currentDateRangeFlow
             .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getCurrentBalancesByMonthStream(fromDate, toDate)
+                balancesRepository.getExecutedBalancesByMonthStream(fromDate, toDate)
             }.map { monthMap ->
                 ClassifyCategoriesUseCaseImpl().execute(
                     monthMap,

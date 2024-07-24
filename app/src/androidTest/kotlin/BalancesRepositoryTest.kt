@@ -398,4 +398,70 @@ class BalancesRepositoryTest {
             assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
             assertTrue("Value should be reduced taking into account exchange rate", pendingTransaction[1].transactionRecord.amount == 14.5f)
         }
+
+    @Test
+    @Throws(Exception::class)
+    fun testBalancesByDay() =
+        runBlocking {
+            currenciesRepository.getAllCurrenciesStream().first().forEach {
+                currencyDao.insert(it)
+            }
+
+            accountRepository.insertAccount(
+                Account(
+                    id = 1,
+                    name = "JPMorgan Chase",
+                    currency = "USD",
+                    initialBalance = 1000.0f,
+                ),
+            )
+
+            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
+
+            for (category in fakeCategories) {
+                categoriesRepository.insert(
+                    category,
+                )
+            }
+
+            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
+
+            futureTransactionsRepository.insert(
+                FutureTransaction(
+                    id = 0, // auto-generate
+                    name = "First budget",
+                    type = TransactionType.EXPENSE,
+                    categoryId = 1,
+                    amount = 20f,
+                    currency = "USD",
+                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                    endDate = LocalDateTime.parse("2024-09-30T12:00:00"),
+                    recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                    recurrenceValue = 1,
+                ),
+            )
+
+            var expectedBalances =
+                offlineBalancesRepository
+                    .getBalanceByDay(
+                        LocalDate.parse("2024-08-01"),
+                        LocalDate.parse("2024-09-30"),
+                        LocalDate.parse("2024-07-31"),
+                    ).first()
+
+            assertTrue(expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f - 20f)
+
+            expectedBalances =
+                offlineBalancesRepository
+                    .getBalanceByDay(
+                        LocalDate.parse("2024-08-01"),
+                        LocalDate.parse("2024-09-30"),
+                        LocalDate.parse("2024-08-08"),
+                    ).first()
+
+            assertTrue(
+                "The reality date should not include expected transactions!",
+                expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f,
+            )
+        }
 }

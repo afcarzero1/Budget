@@ -1,5 +1,6 @@
 package com.example.budgetahead.data.balances
 
+import android.util.Log
 import com.example.budgetahead.data.accounts.Account
 import com.example.budgetahead.data.accounts.AccountWithCurrency
 import com.example.budgetahead.data.accounts.AccountsRepository
@@ -26,7 +27,7 @@ class OfflineBalancesRepository(
     private val transactionsRepository: TransactionsRepository,
     private val futureTransactionsRepository: FutureTransactionsRepository,
 ) : BalancesRepository {
-    override fun getCurrentBalancesByMonthStream(
+    override fun getExecutedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
     ): Flow<Map<YearMonth, Map<Category, Float>>> =
@@ -38,29 +39,59 @@ class OfflineBalancesRepository(
                 groupTransactionsByMonthAndCategory(it, fromDate, toDate)
             }
 
+    override fun getPlannedBalancesByMonthStream(
+        fromDate: YearMonth,
+        toDate: YearMonth,
+    ): Flow<Map<YearMonth, Map<Category, Float>>> =
+        futureTransactionsRepository
+            .getAllFutureFullTransactionsStream()
+            .map { futureTransactions ->
+                val pendingTransactions =
+                    generatePendingTransactions(
+                        futureTransactions,
+                        listOf(),
+                        fromDate,
+                        toDate,
+                    )
+                groupTransactionsByMonthAndCategory(pendingTransactions, fromDate, toDate)
+            }
+
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
-        onlyUpcoming: Boolean,
+        realityDate: LocalDate,
     ): Flow<Map<YearMonth, Map<Category, Float>>> =
         combine(
             futureTransactionsRepository.getAllFutureFullTransactionsStream(),
             transactionsRepository.getAllFullTransactionsStream(),
         ) { futureTransactions, executedTransactions ->
+            if (toDate.atEndOfMonth() < realityDate) {
+                Log.w("BalancesRepository", "toDate is after realityDate")
+            }
+            // Take only the future pending transactions
             val allExpectedTransactions: List<FullTransactionRecord> =
                 generatePendingTransactions(
                     futureTransactions,
                     executedTransactions,
                     fromDate,
                     toDate,
-                ).filter { transaction ->
-                    if (onlyUpcoming) {
-                        transaction.transactionRecord.date.toLocalDate() > LocalDate.now()
-                    } else {
-                        true
-                    }
+                ).filter {
+                    it.transactionRecord.date > realityDate.atTime(23, 59, 59) &&
+                        it.transactionRecord.date <= toDate.atEndOfMonth().atTime(23, 59, 59)
                 }
-            groupTransactionsByMonthAndCategory(allExpectedTransactions, fromDate, toDate)
+
+            val relevantTransactions =
+                executedTransactions.filter {
+                    it.transactionRecord.date.toLocalDate() >= fromDate.atDay(1) && it.transactionRecord.date.toLocalDate() <= realityDate
+                }
+
+            groupTransactionsByMonthAndCategory(
+                allExpectedTransactions.plus(relevantTransactions).sortedBy {
+                    it.transactionRecord.date
+                },
+                fromDate,
+                toDate,
+            )
         }
 
     override fun getBalanceByDay(
@@ -165,7 +196,7 @@ class OfflineBalancesRepository(
             balanceByDay
         }
 
-    override fun getExpectedTransactions(
+    override fun getPlannedTransactions(
         fromDate: LocalDate,
         toDate: LocalDate,
     ): Flow<List<FullTransactionRecord>> =
@@ -174,10 +205,6 @@ class OfflineBalancesRepository(
             .map { futureTransactions ->
                 generatePendingTransactions(futureTransactions, listOf(), fromDate, toDate)
             }
-
-    // return futureTransactionsRepository.getAllFutureFullTransactionsStream().map {
-    //    generateExpectedTransactions(it, fromDate, toDate)
-    // }
 
     override fun getPendingTransactions(
         fromDate: LocalDate,
@@ -263,8 +290,8 @@ class OfflineBalancesRepository(
     }
 
     /**
-     * Generate all the future expected transactions in the specified interval
-     *
+     * Generate all the future planned transactions in the specified interval
+     * that have not yet been executed.
      */
     private fun generatePendingTransactions(
         futureTransactions: List<FullFutureTransaction>,
@@ -331,10 +358,10 @@ class OfflineBalancesRepository(
     ): List<FullTransactionRecord> {
         val pendingTransactions: MutableList<FullTransactionRecord> = mutableListOf()
 
-        // Only Process Continuous
-        // Only Process Transactions that are somehow relevant for the queried period
         futureTransactions
             .filter {
+                // Only Process Continuous
+                // Only Process Transactions that are somehow relevant for the queried period
                 it.futureTransaction.recurrenceType.isContinuous() &&
                     !areExternal(
                         start1 = fromDate,
