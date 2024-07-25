@@ -160,6 +160,7 @@ fun OverallScreenBody(
                 .verticalScroll(rememberScrollState()),
     ) {
         CashFlowCard(
+            title= "Cash-flow",
             registeredCashFlow = monthCashFlow,
             modifier = Modifier.fillMaxWidth(),
             yearMonth = centralDate,
@@ -197,6 +198,7 @@ fun OverallScreenBody(
 
 @Composable
 fun CashFlowCard(
+    title: String,
     yearMonth: YearMonth,
     registeredCashFlow: CashFlow,
     modifier: Modifier = Modifier,
@@ -231,7 +233,7 @@ fun CashFlowCard(
                     modifier = Modifier.padding(start = 8.dp),
                 ) {
                     Text(
-                        text = "Projected cashflow",
+                        text = title,
                         maxLines = 1,
                         modifier = Modifier.padding(8.dp),
                         style =
@@ -343,6 +345,7 @@ fun ValueText(
 @Composable
 fun PreviewCashflowCard() {
     CashFlowCard(
+        title= "Cash-flow",
         registeredCashFlow =
             CashFlow(
                 outgoing = -2000f,
