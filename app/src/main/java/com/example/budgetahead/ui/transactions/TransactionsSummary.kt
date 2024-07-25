@@ -646,8 +646,15 @@ private fun FutureTransactionRow(
                             contentDescription = "Event repeated",
                             modifier = Modifier.size(16.dp),
                         )
+                        val text = if(futureTransaction.futureTransaction.recurrenceType.isContinuous())"On period of" else "Every"
+                        val recurrenceDescription = RecurrenceTypeDescriptions.descriptions[futureTransaction.futureTransaction.recurrenceType]?:"Unknown"
+
+                        if(futureTransaction.futureTransaction.recurrenceValue == 1){
+                            recurrenceDescription.removeSuffix("s")
+                        }
+                        
                         Text(
-                            text = "Every ${futureTransaction.futureTransaction.recurrenceValue} ${RecurrenceTypeDescriptions.descriptions[futureTransaction.futureTransaction.recurrenceType]}",
+                            text = "$text ${futureTransaction.futureTransaction.recurrenceValue} $recurrenceDescription",
                         )
                     }
                 }
