@@ -87,7 +87,6 @@ fun OverallScreen(
     val balancesInterval by overallViewModel.balanceDateRange.collectAsState()
 
     val monthCashFlow by overallViewModel.monthCashFlow.collectAsState()
-    val extraCashFlow by overallViewModel.monthExpectedExtraCashFlow.collectAsState()
 
     val centralDate by overallViewModel.centralDateFlow.collectAsState()
 
@@ -115,7 +114,6 @@ fun OverallScreen(
                 overallViewModel.setBalanceRangeFlow(fromDate, toDate)
             },
             monthCashFlow = monthCashFlow,
-            extraCashFlow = extraCashFlow,
             centralDate = centralDate,
         )
     }, topBar = { budgetDestination, navHostController ->
@@ -151,7 +149,6 @@ fun OverallScreenBody(
     balances: Map<LocalDate, Float>,
     balancesInterval: Pair<YearMonth, YearMonth>,
     monthCashFlow: CashFlow,
-    extraCashFlow: CashFlow,
     centralDate: YearMonth,
     onBudgetsEmpty: () -> Unit,
     onBalancesDateRangeChanged: (fromDate: YearMonth, toDate: YearMonth) -> Unit = { _, _ -> },
@@ -164,7 +161,6 @@ fun OverallScreenBody(
     ) {
         CashFlowCard(
             registeredCashFlow = monthCashFlow,
-            extraCashFlow = extraCashFlow,
             modifier = Modifier.fillMaxWidth(),
             yearMonth = centralDate,
         )
@@ -203,11 +199,10 @@ fun OverallScreenBody(
 fun CashFlowCard(
     yearMonth: YearMonth,
     registeredCashFlow: CashFlow,
-    extraCashFlow: CashFlow,
     modifier: Modifier = Modifier,
 ) {
-    val totalProjectedIngoing = (registeredCashFlow.ingoing + extraCashFlow.ingoing)
-    val totalProjectedOutgoing = (registeredCashFlow.outgoing + extraCashFlow.outgoing)
+    val totalProjectedIngoing = (registeredCashFlow.ingoing)
+    val totalProjectedOutgoing = (registeredCashFlow.outgoing)
 
     val totalProjectedCashflow = totalProjectedIngoing + totalProjectedOutgoing
     Card(
@@ -262,14 +257,14 @@ fun CashFlowCard(
                         ) {
                             ValueText(
                                 title = null,
-                                value = registeredCashFlow.ingoing + extraCashFlow.ingoing,
+                                value = registeredCashFlow.ingoing,
                                 currency = registeredCashFlow.currency,
                                 positive = true,
                                 showIcon = false,
                             )
                             ValueText(
                                 title = null,
-                                value = registeredCashFlow.outgoing + extraCashFlow.outgoing,
+                                value = registeredCashFlow.outgoing,
                                 currency = registeredCashFlow.currency,
                                 positive = false,
                                 showIcon = false,
@@ -350,14 +345,8 @@ fun PreviewCashflowCard() {
     CashFlowCard(
         registeredCashFlow =
             CashFlow(
-                outgoing = 2000f,
+                outgoing = -2000f,
                 ingoing = 1500f,
-                currency = Currency("USD", 1.0f, LocalDateTime.now()),
-            ),
-        extraCashFlow =
-            CashFlow(
-                outgoing = 500f,
-                ingoing = 100f,
                 currency = Currency("USD", 1.0f, LocalDateTime.now()),
             ),
         yearMonth = YearMonth.now(),

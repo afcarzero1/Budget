@@ -119,7 +119,7 @@ class OverallViewModel(
     private val expectedExpensesFlow: Flow<Map<YearMonth, Map<Category, Float>>> =
         expectedDateFromCurrent
             .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
+                balancesRepository.getPlannedBalancesByMonthStream(fromDate, toDate)
             }.map { data ->
                 ClassifyCategoriesUseCaseImpl().execute(
                     data,
@@ -137,7 +137,7 @@ class OverallViewModel(
     private val expectedIncomesFlow: Flow<Map<YearMonth, Map<Category, Float>>> =
         expectedDateFromCurrent
             .flatMapLatest { (fromDate, toDate) ->
-                balancesRepository.getExpectedBalancesByMonthStream(fromDate, toDate)
+                balancesRepository.getPlannedBalancesByMonthStream(fromDate, toDate)
             }.map { data ->
                 ClassifyCategoriesUseCaseImpl().execute(
                     data,

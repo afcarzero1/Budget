@@ -397,7 +397,7 @@ class OfflineBalancesRepository(
                                     TimePeriod.MONTH -> currentDate.plusMonths(futureTransaction.futureTransaction.recurrenceValue.toLong())
                                 }
                             } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
-
+                        // TODO: Maybe the best solution is to spread on a day to day basis (this might create a lot of transactions)
                         // Understand if we under-shooted
                         if (nextDate < fromDate) {
                             currentDate = nextDate
