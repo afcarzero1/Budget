@@ -22,7 +22,7 @@ class MockBalancesRepository(
 
     override fun getPlannedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth
+        toDate: YearMonth,
     ): Flow<Map<YearMonth, Map<Category, Float>>> {
         TODO("Not yet implemented")
     }

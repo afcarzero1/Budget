@@ -43,7 +43,7 @@ object RecurrenceTypeDescriptions {
             RecurrenceType.WEEKLY to "Weeks",
             RecurrenceType.MONTHLY to "Months",
             RecurrenceType.YEARLY to "Years",
-            RecurrenceType.WEEKLY_CONTINUOUS to "Weeks, cont.",
-            RecurrenceType.MONTHLY_CONTINUOUS to "Months, cont.",
+            RecurrenceType.WEEKLY_CONTINUOUS to "Weeks",
+            RecurrenceType.MONTHLY_CONTINUOUS to "Months",
         )
 }

@@ -466,72 +466,78 @@ class BalancesRepositoryTest {
             )
         }
 
-
-
     @Test
     @Throws(Exception::class)
-    fun testBalancesByMonth() = runBlocking {
+    fun testBalancesByMonth() =
+        runBlocking {
+            currenciesRepository.getAllCurrenciesStream().first().forEach {
+                currencyDao.insert(it)
+            }
 
-        currenciesRepository.getAllCurrenciesStream().first().forEach {
-            currencyDao.insert(it)
-        }
-
-        accountRepository.insertAccount(
-            Account(
-                id = 1,
-                name = "JPMorgan Chase",
-                currency = "USD",
-                initialBalance = 1000.0f,
-            ),
-        )
-
-        assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
-
-        for (category in fakeCategories) {
-            categoriesRepository.insert(
-                category,
+            accountRepository.insertAccount(
+                Account(
+                    id = 1,
+                    name = "JPMorgan Chase",
+                    currency = "USD",
+                    initialBalance = 1000.0f,
+                ),
             )
+
+            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
+
+            for (category in fakeCategories) {
+                categoriesRepository.insert(
+                    category,
+                )
+            }
+
+            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
+
+            futureTransactionsRepository.insert(
+                FutureTransaction(
+                    id = 0, // auto-generate
+                    name = "First budget",
+                    type = TransactionType.EXPENSE,
+                    categoryId = 1,
+                    amount = 20f,
+                    currency = "USD",
+                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                    endDate = LocalDateTime.parse("2024-10-30T12:00:00"),
+                    recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                    recurrenceValue = 1,
+                ),
+            )
+
+            // October
+            var transactions =
+                offlineBalancesRepository
+                    .getPendingTransactions(
+                        YearMonth.parse("2024-10").atDay(1),
+                        YearMonth.parse("2024-10").atEndOfMonth(),
+                    ).first()
+            assertTrue("5 transactions in October", transactions.size == 5)
+            val sumOctober = transactions.sumOf { it.transactionRecord.amount.toDouble() }
+
+            // September
+            transactions =
+                offlineBalancesRepository
+                    .getPendingTransactions(
+                        YearMonth.parse("2024-09").atDay(1),
+                        YearMonth.parse("2024-09").atEndOfMonth(),
+                    ).first()
+            assertTrue("", transactions.size == 5)
+            val sumSeptember = transactions.sumOf { it.transactionRecord.amount.toDouble() }
+
+            // August
+
+            val expectedBalances =
+                offlineBalancesRepository
+                    .getPlannedBalancesByMonthStream(
+                        YearMonth.parse("2024-08"),
+                        YearMonth.parse("2024-09"),
+                    ).first()
+
+            assertTrue(expectedBalances.containsKey(YearMonth.parse("2024-08")))
+            assertTrue(expectedBalances[YearMonth.parse("2024-08")]!![fakeCategories[0]]!! == -80f)
         }
-
-        assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
-
-        futureTransactionsRepository.insert(
-            FutureTransaction(
-                id = 0, // auto-generate
-                name = "First budget",
-                type = TransactionType.EXPENSE,
-                categoryId = 1,
-                amount = 20f,
-                currency = "USD",
-                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
-                endDate = LocalDateTime.parse("2024-10-30T12:00:00"),
-                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
-                recurrenceValue = 1,
-            ),
-        )
-
-        // October
-        var transactions = offlineBalancesRepository.getPendingTransactions(YearMonth.parse("2024-10").atDay(1),YearMonth.parse("2024-10").atEndOfMonth()).first()
-        assertTrue("5 transactions in October", transactions.size == 5)
-        val sumOctober = transactions.sumOf { it.transactionRecord.amount.toDouble() }
-
-        // September
-        transactions = offlineBalancesRepository.getPendingTransactions(YearMonth.parse("2024-09").atDay(1),YearMonth.parse("2024-09").atEndOfMonth()).first()
-        assertTrue("", transactions.size == 5)
-        val sumSeptember = transactions.sumOf { it.transactionRecord.amount.toDouble() }
-
-        // August
-
-
-
-        val expectedBalances = offlineBalancesRepository.getPlannedBalancesByMonthStream(
-            YearMonth.parse("2024-08"),
-            YearMonth.parse("2024-09")
-        ).first()
-
-
-        assertTrue(expectedBalances.containsKey(YearMonth.parse("2024-08")))
-        assertTrue(expectedBalances[YearMonth.parse("2024-08")]!![fakeCategories[0]]!! == -80f)
-    }
-
 }

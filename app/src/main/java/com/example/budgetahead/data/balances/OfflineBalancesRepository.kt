@@ -303,7 +303,7 @@ class OfflineBalancesRepository(
             futureTransactions,
             executedTransactions,
             fromDate.atDay(1),
-            toDate.atEndOfMonth()
+            toDate.atEndOfMonth(),
         )
 
     /**
@@ -399,19 +399,18 @@ class OfflineBalancesRepository(
                             } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
 
                         // Understand if we under-shooted
-                        if(nextDate < fromDate){
+                        if (nextDate < fromDate) {
                             currentDate = nextDate
                             continue
                         }
 
                         var totalExpectedMultiplier = 1f
-                        if(currentDate < fromDate){
+                        if (currentDate < fromDate) {
                             val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
                             val nonOvershootPeriodLength = ChronoUnit.DAYS.between(fromDate, nextDate)
 
                             totalExpectedMultiplier *= (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
                         }
-
 
                         // Understand if we over-shooted!
                         val maxDate = minOf(toDate, endDate)
@@ -549,9 +548,11 @@ class OfflineBalancesRepository(
 
             // Compute the absolute value of the transaction
 
-            val transactionAbsoluteValue = ComputeDeltaFromTransactionsUseCase().toBaseCurrency(
-                transaction.transactionRecord.amount, transaction.account.currency
-            )
+            val transactionAbsoluteValue =
+                ComputeDeltaFromTransactionsUseCase().toBaseCurrency(
+                    transaction.transactionRecord.amount,
+                    transaction.account.currency,
+                )
 
             val transactionValue: Float =
                 when (transaction.transactionRecord.type) {
