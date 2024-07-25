@@ -269,7 +269,7 @@ fun FutureTransactionForm(
                     Text(
                         text = "Every ",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f).padding(start = 48.dp),
+                        modifier = Modifier.weight(1f).padding(start = 32.dp),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -290,9 +290,11 @@ fun FutureTransactionForm(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
+                    val validSelections =  enumValues<RecurrenceType>().toList().filter { it != RecurrenceType.NONE && !it.isContinuous() }
+
                     LargeDropdownMenu(
                         label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
-                        items = enumValues<RecurrenceType>().toList().filter { it != RecurrenceType.NONE && !it.isContinuous() },
+                        items = validSelections,
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
@@ -301,8 +303,7 @@ fun FutureTransactionForm(
                             )
                         },
                         initialIndex =
-                            enumValues<RecurrenceType>()
-                                .toList()
+                            validSelections
                                 .indexOfFirst { it == futureTransaction.recurrenceType },
                         modifier = Modifier.weight(1.3f),
                         selectedItemToString = {
@@ -341,7 +342,7 @@ fun FutureTransactionForm(
                     Text(
                         text = "Of length ",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f).padding(start = 48.dp),
+                        modifier = Modifier.weight(1f).padding(start = 32.dp),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -362,9 +363,11 @@ fun FutureTransactionForm(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
+                    val validSelections = enumValues<RecurrenceType>().toList().filter { it.isContinuous() }
+
                     LargeDropdownMenu(
                         label = stringResource(id = R.string.entry_future_transaction_recurrence_type),
-                        items = enumValues<RecurrenceType>().toList().filter { it.isContinuous() },
+                        items = validSelections,
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
@@ -373,8 +376,7 @@ fun FutureTransactionForm(
                             )
                         },
                         initialIndex =
-                            enumValues<RecurrenceType>()
-                                .toList()
+                            validSelections
                                 .indexOfFirst { it == futureTransaction.recurrenceType },
                         modifier = Modifier.weight(1.3f),
                         selectedItemToString = {
