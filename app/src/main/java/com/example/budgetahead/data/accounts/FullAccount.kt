@@ -13,27 +13,27 @@ data class FullAccount(
     @Embedded val account: Account,
     @Relation(
         parentColumn = "currency",
-        entityColumn = "name",
+        entityColumn = "name"
     )
     val currency: Currency,
     @Relation(
         entity = TransactionRecord::class,
         parentColumn = "id",
-        entityColumn = "accountId",
+        entityColumn = "accountId"
     )
     val transactionRecords: List<FullTransactionRecord>,
     @Relation(
         entity = Transfer::class,
         parentColumn = "id",
-        entityColumn = "destinationAccountId",
+        entityColumn = "destinationAccountId"
     )
     val transfersIncoming: List<TransferWithAccounts>,
     @Relation(
         entity = Transfer::class,
         parentColumn = "id",
-        entityColumn = "sourceAccountId",
+        entityColumn = "sourceAccountId"
     )
-    val transfersOutgoing: List<TransferWithAccounts>,
+    val transfersOutgoing: List<TransferWithAccounts>
 ) {
     @get:Ignore val balance: Float
         get() {

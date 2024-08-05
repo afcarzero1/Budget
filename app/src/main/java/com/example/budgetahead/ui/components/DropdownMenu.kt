@@ -54,12 +54,12 @@ fun <T> LargeDropdownMenu(
         T,
         Boolean,
         Boolean,
-        () -> Unit,
+        () -> Unit
     ) -> Unit = { item, selected, itemEnabled, onClick ->
         DefaultDrawItem(item, selected, itemEnabled, onClick, selectedItemToString, leadingIcon)
     },
     leadingIcon: (@Composable (T) -> Unit)? = null,
-    initialIndex: Int = -1,
+    initialIndex: Int = -1
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
@@ -82,33 +82,33 @@ fun <T> LargeDropdownMenu(
                 Icon(icon, "")
             },
             leadingIcon =
-                items.getOrNull(uiIndex)?.let { item ->
-                    leadingIcon?.let { { leadingIcon(item) } }
-                },
+            items.getOrNull(uiIndex)?.let { item ->
+                leadingIcon?.let { { leadingIcon(item) } }
+            },
             onValueChange = { },
             readOnly = true,
-            colors = colors,
+            colors = colors
         )
 
         // Transparent clickable surface on top of OutlinedTextField
         Surface(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(top = 8.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .clickable(enabled = enabled) { expanded = true },
-            color = Color.Transparent,
+            Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .clickable(enabled = enabled) { expanded = true },
+            color = Color.Transparent
         ) {}
     }
 
     if (expanded) {
         Dialog(
-            onDismissRequest = { expanded = false },
+            onDismissRequest = { expanded = false }
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(all = 16.dp)
             ) {
                 val listState = rememberLazyListState()
                 if (uiIndex > -1) {
@@ -119,7 +119,7 @@ fun <T> LargeDropdownMenu(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    state = listState,
+                    state = listState
                 ) {
                     if (notSetLabel != null) {
                         item {
@@ -127,7 +127,7 @@ fun <T> LargeDropdownMenu(
                                 text = notSetLabel,
                                 selected = false,
                                 enabled = false,
-                                onClick = { },
+                                onClick = { }
                             )
                         }
                     }
@@ -136,7 +136,7 @@ fun <T> LargeDropdownMenu(
                         drawItem(
                             item,
                             selectedItem,
-                            true,
+                            true
                         ) {
                             selectedIndex = index
                             onItemSelected(index, item)
@@ -160,14 +160,14 @@ fun <T> DefaultDrawItem(
     enabled: Boolean,
     onClick: () -> Unit,
     selectedItemToString: (T) -> String,
-    leadingIcon: (@Composable (T) -> Unit)? = null,
+    leadingIcon: (@Composable (T) -> Unit)? = null
 ) {
     LargeDropdownMenuItem(
         text = selectedItemToString(item),
         selected = selected,
         enabled = enabled,
         onClick = onClick,
-        leadingIcon = leadingIcon?.let { { leadingIcon(item) } },
+        leadingIcon = leadingIcon?.let { { leadingIcon(item) } }
     )
 }
 
@@ -177,7 +177,7 @@ fun LargeDropdownMenuItem(
     selected: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,
-    leadingIcon: (@Composable () -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val contentColor =
         when {
@@ -189,10 +189,10 @@ fun LargeDropdownMenuItem(
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(
             modifier =
-                Modifier
-                    .clickable(enabled) { onClick() }
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            Modifier
+                .clickable(enabled) { onClick() }
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
             Row {
                 leadingIcon?.let {
@@ -201,7 +201,7 @@ fun LargeDropdownMenuItem(
                 }
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
         }

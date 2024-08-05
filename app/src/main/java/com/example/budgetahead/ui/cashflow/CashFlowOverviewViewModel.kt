@@ -6,24 +6,29 @@ import androidx.lifecycle.viewModelScope
 import com.example.budgetahead.data.balances.BalancesRepository
 import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.currencies.CurrenciesRepository
+import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.navigation.CashFlowOverview
+import com.example.budgetahead.ui.overall.CashFlow
 import com.example.budgetahead.use_cases.ClassifyCategoriesUseCaseImpl
+import com.example.budgetahead.use_cases.GroupTransactionsAndTransfersByDateUseCase
 import com.example.budgetahead.use_cases.getYearMonth
+import java.time.LocalDateTime
+import java.time.YearMonth
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.YearMonth
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CashFlowOverviewViewModel(
     savedStateHandle: SavedStateHandle,
     currenciesRepository: CurrenciesRepository,
-    balancesRepository: BalancesRepository,
+    balancesRepository: BalancesRepository
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -32,7 +37,7 @@ class CashFlowOverviewViewModel(
     private val initialDateToShow: YearMonth =
         checkNotNull(savedStateHandle.getYearMonth(CashFlowOverview.dateArg))
 
-    val dateToShowFlow: Flow<YearMonth> = MutableStateFlow(initialDateToShow)
+    val dateToShowFlow: MutableStateFlow<YearMonth> = MutableStateFlow(initialDateToShow)
 
     val monthExpensesFlow: Flow<Map<YearMonth, Map<Category, Float>>> =
         dateToShowFlow
@@ -41,7 +46,7 @@ class CashFlowOverviewViewModel(
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
                     it,
-                    false,
+                    false
                 )
             }
 
@@ -52,7 +57,7 @@ class CashFlowOverviewViewModel(
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
                     it,
-                    true,
+                    true
                 )
             }
 
@@ -63,27 +68,108 @@ class CashFlowOverviewViewModel(
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
                     it,
-                    false,
+                    false
                 )
             }
+
+    val monthExpectedIncomeFlow =
+        dateToShowFlow
+            .flatMapLatest {
+                balancesRepository.getExpectedBalancesByMonthStream(it, it)
+            }.map {
+                ClassifyCategoriesUseCaseImpl().execute(
+                    it,
+                    true
+                )
+            }
+
+    val executedCashFlow = combine(
+        monthExpensesFlow,
+        monthIncomesFlow,
+        dateToShowFlow,
+        currenciesRepository.getDefaultCurrencyStream().map {
+            Currency(
+                it,
+                1.0f,
+                LocalDateTime.now()
+            )
+        }
+    ) { expenses, incomes, date, currency ->
+        CashFlow(
+            outgoing = expenses[date]?.values?.sum() ?: 0.0f,
+            ingoing = incomes[date]?.values?.sum() ?: 0.0f,
+            currency = currency
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = CashFlow(
+            outgoing = 0f,
+            ingoing = 0f,
+            currency = Currency("USD", 1.0f, LocalDateTime.now())
+        )
+    )
+
+    val expectedCashFlow = combine(
+        monthExpectedExpenseFlow,
+        monthExpectedIncomeFlow,
+        dateToShowFlow,
+        currenciesRepository.getDefaultCurrencyStream().map {
+            Currency(
+                it,
+                1.0f,
+                LocalDateTime.now()
+            )
+        }
+    ) { expenses, incomes, date, currency ->
+        CashFlow(
+            outgoing = expenses[date]?.values?.sum() ?: 0.0f,
+            ingoing = incomes[date]?.values?.sum() ?: 0.0f,
+            currency = currency
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = CashFlow(
+            outgoing = 0f,
+            ingoing = 0f,
+            currency = Currency("USD", 1.0f, LocalDateTime.now())
+        )
+    )
 
     val balancesByDay =
         dateToShowFlow
             .flatMapLatest {
                 balancesRepository.getBalanceByDay(
                     fromDate = it.atDay(1),
-                    toDate = it.atEndOfMonth(),
+                    toDate = it.atEndOfMonth()
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(CashFlowOverviewViewModel.TIMEOUT_MILLIS),
-                initialValue = mapOf(),
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = mapOf()
             )
+
+    val pendingTransactions = dateToShowFlow.flatMapLatest {
+        balancesRepository.getPendingTransactions(
+            it.atDay(1),
+            it.atEndOfMonth()
+        )
+    }.map {
+        GroupTransactionsAndTransfersByDateUseCase().execute(
+            transactions = it,
+            transfers = listOf()
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = listOf()
+    )
 
     val baseCurrency: StateFlow<String> =
         currenciesRepository.getDefaultCurrencyStream().stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(CashFlowOverviewViewModel.TIMEOUT_MILLIS),
-            initialValue = "USD",
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = "USD"
         )
 }

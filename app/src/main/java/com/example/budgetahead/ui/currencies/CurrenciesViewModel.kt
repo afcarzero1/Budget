@@ -17,9 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CurrenciesViewModel(
-    private val currenciesRepository: CurrenciesRepository,
-) : ViewModel() {
+class CurrenciesViewModel(private val currenciesRepository: CurrenciesRepository) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -32,16 +30,16 @@ class CurrenciesViewModel(
     val currenciesUiState: StateFlow<CurrenciesUiState> =
         combine(
             currenciesListFlow,
-            baseCurrencyFlow,
+            baseCurrencyFlow
         ) { currenciesList, baseCurrency ->
             CurrenciesUiState(
                 currenciesList = currenciesList,
-                baseCurrency = baseCurrency,
+                baseCurrency = baseCurrency
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = CurrenciesUiState(),
+            initialValue = CurrenciesUiState()
         )
 
     var searchQuery = mutableStateOf("")
@@ -83,5 +81,5 @@ class CurrenciesViewModel(
 
 data class CurrenciesUiState(
     val currenciesList: List<Currency> = listOf(),
-    val baseCurrency: String = "USD",
+    val baseCurrency: String = "USD"
 )

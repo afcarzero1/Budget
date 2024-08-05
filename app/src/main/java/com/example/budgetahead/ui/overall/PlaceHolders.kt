@@ -29,52 +29,52 @@ import com.example.budgetahead.R
 fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
     Column(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             painter = painterResource(id = R.drawable.insert_chart_24dp_fill0_wght400_grad0_opsz24),
             contentDescription = "No Budget",
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "No budgets are set yet!",
             style =
-                MaterialTheme.typography.headlineSmall.copy(
-                    color =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.5f,
-                        ),
-                ),
+            MaterialTheme.typography.headlineSmall.copy(
+                color =
+                MaterialTheme.colorScheme.onSurface.copy(
+                    alpha = 0.5f
+                )
+            )
         )
         Spacer(modifier = Modifier.height(8.dp))
         Box(
             contentAlignment = Alignment.Center,
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
         ) {
             val text = "Start planning by adding your planned transactions "
             ClickableText(
                 softWrap = true,
                 text =
-                    buildAnnotatedString {
-                        append(text)
-                        withStyle(
-                            style =
-                                SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                                    textDecoration = TextDecoration.Underline,
-                                ),
-                        ) {
-                            append("here")
-                        }
-                    },
+                buildAnnotatedString {
+                    append(text)
+                    withStyle(
+                        style =
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("here")
+                    }
+                },
                 onClick = { offset ->
                     Log.d("CLickableText", offset.toString())
                     if (offset in text.length until "${text}here".length + 1) {
@@ -82,12 +82,12 @@ fun BudgetSummaryPlaceholder(onLinkClicked: () -> Unit) {
                     }
                 },
                 style =
-                    MaterialTheme.typography.bodyMedium.copy(
-                        color =
-                            MaterialTheme.colorScheme.onSurface.copy(
-                                alpha = 0.5f,
-                            ),
-                    ),
+                MaterialTheme.typography.bodyMedium.copy(
+                    color =
+                    MaterialTheme.colorScheme.onSurface.copy(
+                        alpha = 0.5f
+                    )
+                )
             )
         }
     }

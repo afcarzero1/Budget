@@ -4,7 +4,7 @@ enum class TimePeriod {
     DAY,
     WEEK,
     MONTH,
-    YEAR,
+    YEAR
 }
 
 enum class RecurrenceType {
@@ -14,25 +14,23 @@ enum class RecurrenceType {
     WEEKLY_CONTINUOUS,
     MONTHLY,
     MONTHLY_CONTINUOUS,
-    YEARLY,
+    YEARLY
     ;
 
-    fun isContinuous(): Boolean =
-        when (this) {
-            WEEKLY_CONTINUOUS, MONTHLY_CONTINUOUS -> true
-            else -> false
-        }
+    fun isContinuous(): Boolean = when (this) {
+        WEEKLY_CONTINUOUS, MONTHLY_CONTINUOUS -> true
+        else -> false
+    }
 
-    fun timePeriod(): TimePeriod? =
-        when (this) {
-            DAILY -> TimePeriod.DAY
-            NONE -> null
-            WEEKLY -> TimePeriod.WEEK
-            WEEKLY_CONTINUOUS -> TimePeriod.WEEK
-            MONTHLY -> TimePeriod.MONTH
-            MONTHLY_CONTINUOUS -> TimePeriod.MONTH
-            YEARLY -> TimePeriod.YEAR
-        }
+    fun timePeriod(): TimePeriod? = when (this) {
+        DAILY -> TimePeriod.DAY
+        NONE -> null
+        WEEKLY -> TimePeriod.WEEK
+        WEEKLY_CONTINUOUS -> TimePeriod.WEEK
+        MONTHLY -> TimePeriod.MONTH
+        MONTHLY_CONTINUOUS -> TimePeriod.MONTH
+        YEARLY -> TimePeriod.YEAR
+    }
 }
 
 object RecurrenceTypeDescriptions {
@@ -44,6 +42,6 @@ object RecurrenceTypeDescriptions {
             RecurrenceType.MONTHLY to "Months",
             RecurrenceType.YEARLY to "Years",
             RecurrenceType.WEEKLY_CONTINUOUS to "Weeks",
-            RecurrenceType.MONTHLY_CONTINUOUS to "Months",
+            RecurrenceType.MONTHLY_CONTINUOUS to "Months"
         )
 }

@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransferEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: AccountTransferEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: AccountTransferEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val accountsListState by viewModel.accountsListState.collectAsState()
@@ -45,7 +45,7 @@ fun TransferEntryScreen(
     Scaffold(topBar = {
         SecondaryScreenTopBar(
             navigateBack = navigateBack,
-            titleResId = R.string.entry_transfer_title,
+            titleResId = R.string.entry_transfer_title
         )
     }) { innerPadding ->
 
@@ -60,10 +60,10 @@ fun TransferEntryScreen(
                 }
             },
             modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+            Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
         )
     }
 }
@@ -74,23 +74,23 @@ fun TransferEntryBody(
     availableAccounts: List<FullAccount>,
     onTransferValueChanged: (Transfer) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
+        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
     ) {
         AccountTransferForm(
             transfer = transferUiState.transfer,
             availableAccounts = availableAccounts,
             onValueChange = onTransferValueChanged,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = onSaveClick,
             enabled = transferUiState.isValid,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(R.string.transfer_entry_save_transfer))
         }
@@ -102,11 +102,11 @@ fun AccountTransferForm(
     transfer: Transfer,
     availableAccounts: List<FullAccount>,
     onValueChange: (Transfer) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             FloatOutlinedText(
@@ -116,12 +116,12 @@ fun AccountTransferForm(
                 },
                 recordToId = { it.id },
                 recordToFloat = { it.amountSource },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = Icons.Filled.ArrowForward,
                 contentDescription = "To",
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
             FloatOutlinedText(
                 record = transfer,
@@ -130,47 +130,47 @@ fun AccountTransferForm(
                 },
                 recordToId = { it.id },
                 recordToFloat = { it.amountDestination },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
         }
 
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_source_account),
             items =
-                availableAccounts.map {
-                    it.account.name
-                },
+            availableAccounts.map {
+                it.account.name
+            },
             onItemSelected = { index, item ->
                 onValueChange(
-                    transfer.copy(sourceAccountId = availableAccounts[index].account.id),
+                    transfer.copy(sourceAccountId = availableAccounts[index].account.id)
                 )
             },
             initialIndex =
-                availableAccounts.indexOfFirst {
-                    it.account.id == transfer.sourceAccountId
-                },
+            availableAccounts.indexOfFirst {
+                it.account.id == transfer.sourceAccountId
+            }
         )
         LargeDropdownMenu(
             label = stringResource(R.string.transfer_entry_destination_account),
             items =
-                availableAccounts.map {
-                    it.account.name
-                },
+            availableAccounts.map {
+                it.account.name
+            },
             onItemSelected = { index, item ->
                 onValueChange(
-                    transfer.copy(destinationAccountId = availableAccounts[index].account.id),
+                    transfer.copy(destinationAccountId = availableAccounts[index].account.id)
                 )
             },
             initialIndex =
-                availableAccounts.indexOfFirst {
-                    it.account.id == transfer.destinationAccountId
-                },
+            availableAccounts.indexOfFirst {
+                it.account.id == transfer.destinationAccountId
+            }
         )
 
         DatePickerField(
             label = stringResource(id = R.string.entry_transaction_date),
             onDateChanged = { onValueChange(transfer.copy(date = it)) },
-            date = transfer.date,
+            date = transfer.date
         )
     }
 }

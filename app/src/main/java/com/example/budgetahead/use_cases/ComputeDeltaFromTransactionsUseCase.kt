@@ -22,20 +22,15 @@ class ComputeDeltaFromTransactionsUseCase {
     fun computeDelta(transactions: List<FullTransactionRecord>): Float {
         var delta = 0f // Initialize delta as a floating point number
         for (transaction in transactions) {
-            val amountInBaseCurrency = toBaseCurrency(transaction.transactionRecord.amount, transaction.account.currency)
+            val amountInBaseCurrency =
+                toBaseCurrency(transaction.transactionRecord.amount, transaction.account.currency)
             delta += amountInBaseCurrency
         }
         return delta
     }
 
     // TODO: Add here protection for currencies that are too close to 0 in value.
-    fun toBaseCurrency(
-        amount: Float,
-        currency: Currency,
-    ): Float = amount * 1 / currency.value
+    fun toBaseCurrency(amount: Float, currency: Currency): Float = amount * 1 / currency.value
 
-    fun fromBaseCurrency(
-        amount: Float,
-        currency: Currency,
-    ): Float = amount * currency.value
+    fun fromBaseCurrency(amount: Float, currency: Currency): Float = amount * currency.value
 }

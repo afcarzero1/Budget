@@ -10,7 +10,7 @@ data class CategoryWithTransactions(
     @Relation(
         entity = TransactionRecord::class,
         parentColumn = "id",
-        entityColumn = "categoryId",
+        entityColumn = "categoryId"
     )
-    val transactions: List<TransactionWithCurrency>,
+    val transactions: List<TransactionWithCurrency>
 )

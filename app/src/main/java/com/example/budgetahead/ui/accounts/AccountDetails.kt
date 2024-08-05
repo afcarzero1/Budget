@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AccountDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: AccountDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: AccountDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
     val accountDetails by viewModel.accountState.collectAsState()
@@ -61,12 +61,12 @@ fun AccountDetailsScreen(
                 actions = {
                     IconButton(
                         onClick = { deleteConfirmationRequired = true },
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = stringResource(R.string.delete),
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     IconButton(
@@ -77,27 +77,27 @@ fun AccountDetailsScreen(
                             }
                             navigateBack()
                         },
-                        enabled = accountDetails.isValid,
+                        enabled = accountDetails.isValid
                     ) {
                         Icon(
                             painter =
-                                painterResource(
-                                    id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24,
-                                ),
+                            painterResource(
+                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
+                            ),
                             contentDescription = stringResource(R.string.save),
-                            tint = if (accountDetails.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray,
+                            tint = if (accountDetails.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
                         )
                     }
-                },
+                }
             )
-        },
+        }
     ) { innerPadding ->
         AccountDetailsBody(
             accountDetailsUiState = if (useUpdatedUiState) viewModel.accountUiState else accountDetails,
             onAccountDetailsChanged = {
                 viewModel.updateUiState(it)
             },
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.padding(innerPadding)
         )
 
         if (deleteConfirmationRequired) {
@@ -113,14 +113,14 @@ fun AccountDetailsScreen(
                                 .makeText(
                                     context,
                                     "Error deleting account",
-                                    Toast.LENGTH_SHORT,
+                                    Toast.LENGTH_SHORT
                                 ).show()
                         }
                     }
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
             )
         }
     }
@@ -132,22 +132,22 @@ fun AccountDetailsBody(
     accountDetailsUiState: AccountDetailsUiState,
     onAccountDetailsChanged: (Account) -> Unit,
     modifier: Modifier = Modifier,
-    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    currenciesViewModel: CurrenciesViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val availableCurrencies by currenciesViewModel.currenciesUiState.collectAsState()
 
     Surface(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-            modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
+            modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
         ) {
             AccountForm(
                 account = accountDetailsUiState.account,
                 availableCurrencies = availableCurrencies.currenciesList,
-                onValueChange = { onAccountDetailsChanged(it) },
+                onValueChange = { onAccountDetailsChanged(it) }
             )
         }
     }

@@ -16,15 +16,15 @@ import java.time.LocalDateTime
             entity = Account::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("accountId"),
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = ForeignKey.RESTRICT
         ),
         ForeignKey(
             entity = Category::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("categoryId"),
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ]
 )
 data class TransactionRecord(
     @PrimaryKey(autoGenerate = true)
@@ -35,7 +35,7 @@ data class TransactionRecord(
     val categoryId: Int?,
     val amount: Float,
     @TypeConverters(DateConverter::class)
-    val date: LocalDateTime,
+    val date: LocalDateTime
 ) {
     // I prefer to throw errors than to have inconsistent data
     init {
@@ -43,14 +43,14 @@ data class TransactionRecord(
             categoryId != null
         ) {
             throw IllegalArgumentException(
-                "categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions",
+                "categoryId must be null for EXPENSE_TRANSFER or INCOME_TRANSFER transactions"
             )
         } else if (type !in
             listOf(TransactionType.EXPENSE_TRANSFER, TransactionType.INCOME_TRANSFER) &&
             categoryId == null
         ) {
             throw IllegalArgumentException(
-                "categoryId cannot be null for EXPENSE or INCOME transactions",
+                "categoryId cannot be null for EXPENSE or INCOME transactions"
             )
         }
     }

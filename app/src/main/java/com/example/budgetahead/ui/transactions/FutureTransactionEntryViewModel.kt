@@ -13,15 +13,15 @@ import com.example.budgetahead.data.future_transactions.FutureTransaction
 import com.example.budgetahead.data.future_transactions.FutureTransactionsRepository
 import com.example.budgetahead.data.future_transactions.RecurrenceType
 import com.example.budgetahead.data.transactions.TransactionType
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDateTime
 
 class FutureTransactionEntryViewModel(
     private val futureTransactionsRepository: FutureTransactionsRepository,
     private val categoriesRepository: CategoriesRepository,
-    private val currenciesRepository: CurrenciesRepository,
+    private val currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
     val categoriesListState: StateFlow<List<Category>> =
         categoriesRepository
@@ -29,7 +29,7 @@ class FutureTransactionEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf(),
+                initialValue = listOf()
             )
 
     val currenciesListState: StateFlow<List<Currency>> =
@@ -38,7 +38,7 @@ class FutureTransactionEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf(),
+                initialValue = listOf()
             )
 
     var transactionUiState by mutableStateOf(FutureTransactionUiState())
@@ -48,7 +48,7 @@ class FutureTransactionEntryViewModel(
         this.transactionUiState =
             FutureTransactionUiState(
                 futureTransaction = futureTransaction,
-                isValid = validateInput(futureTransaction),
+                isValid = validateInput(futureTransaction)
             )
     }
 
@@ -59,7 +59,7 @@ class FutureTransactionEntryViewModel(
                 (
                     endDate.toLocalDate() > startDate.toLocalDate() ||
                         recurrenceType == RecurrenceType.NONE
-                )
+                    )
         }
 
     suspend fun saveTransaction() {
@@ -81,7 +81,7 @@ data class FutureTransactionUiState(
             startDate = LocalDateTime.now(),
             endDate = LocalDateTime.now(),
             recurrenceType = RecurrenceType.MONTHLY,
-            recurrenceValue = 1,
+            recurrenceValue = 1
         ),
-    val isValid: Boolean = false,
+    val isValid: Boolean = false
 )

@@ -17,15 +17,15 @@ import java.time.LocalDateTime
             entity = Category::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("categoryId"),
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = ForeignKey.RESTRICT
         ),
         ForeignKey(
             entity = Currency::class,
             parentColumns = arrayOf("name"),
             childColumns = arrayOf("currency"),
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ]
 )
 data class FutureTransaction(
     @PrimaryKey(autoGenerate = true)
@@ -40,5 +40,5 @@ data class FutureTransaction(
     @TypeConverters(DateConverter::class)
     val endDate: LocalDateTime,
     val recurrenceType: RecurrenceType,
-    val recurrenceValue: Int,
+    val recurrenceValue: Int
 )

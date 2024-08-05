@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 data class TabItem(
     val title: String,
     val icon: @Composable () -> Unit,
-    val screen: @Composable () -> Unit,
+    val screen: @Composable () -> Unit
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -26,21 +26,21 @@ data class TabItem(
 fun TabbedPage(
     tabs: List<TabItem>,
     modifier: Modifier = Modifier,
-    onTabChanged: (Int) -> Unit = {},
+    onTabChanged: (Int) -> Unit = {}
 ) {
     val pagerState =
         rememberPagerState(
             initialPage = 0,
             initialPageOffsetFraction = 0f,
-            pageCount = { tabs.size },
+            pageCount = { tabs.size }
         )
     val coroutineScope = rememberCoroutineScope()
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth()
     ) {
         TabRow(
-            selectedTabIndex = pagerState.currentPage,
+            selectedTabIndex = pagerState.currentPage
         ) {
             tabs.forEachIndexed { index, item ->
                 Tab(
@@ -50,11 +50,11 @@ fun TabbedPage(
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(
-                                index,
+                                index
                             )
                         }
                         onTabChanged(index)
-                    },
+                    }
                 )
             }
         }
@@ -65,7 +65,7 @@ fun TabbedPage(
             pageContent = {
                 tabs[it].screen()
             },
-            pageSize = PageSize.Fill,
+            pageSize = PageSize.Fill
         )
     }
 }

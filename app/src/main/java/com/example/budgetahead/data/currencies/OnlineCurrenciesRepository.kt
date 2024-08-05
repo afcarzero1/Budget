@@ -8,6 +8,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,17 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicBoolean
 
 class OnlineCurrenciesRepository(
     private val context: Context,
     private val currencyDao: CurrencyDao,
     private val currenciesApiService: CurrenciesApiService,
     private val apiKey: String,
-    private val dataStore: DataStore<Preferences>,
+    private val dataStore: DataStore<Preferences>
 ) : CurrenciesRepository {
     companion object {
         // Offline currencies supported when first opening the app
@@ -41,18 +41,18 @@ class OnlineCurrenciesRepository(
                 Currency(
                     name = "USD",
                     value = 1.0f,
-                    updatedTime = localDateTime,
+                    updatedTime = localDateTime
                 ),
                 Currency(
                     name = "EUR",
                     value = 1 / 1.1f,
-                    updatedTime = localDateTime,
+                    updatedTime = localDateTime
                 ),
                 Currency(
                     name = "SEK",
                     value = 1 / 0.1f,
-                    updatedTime = localDateTime,
-                ),
+                    updatedTime = localDateTime
+                )
             )
 
         val DEFAULT_CURRENCY_KEY = stringPreferencesKey("DEFAULT_CURRENCY")
@@ -96,7 +96,7 @@ class OnlineCurrenciesRepository(
                                     .makeText(
                                         context,
                                         "Error fetching currencies",
-                                        Toast.LENGTH_LONG,
+                                        Toast.LENGTH_LONG
                                     ).show()
                             }
                         }
@@ -116,7 +116,7 @@ class OnlineCurrenciesRepository(
                                 .makeText(
                                     context,
                                     "Error fetching currencies",
-                                    Toast.LENGTH_LONG,
+                                    Toast.LENGTH_LONG
                                 ).show()
                         }
                     }
@@ -125,18 +125,17 @@ class OnlineCurrenciesRepository(
         }
     }
 
-    override fun getDefaultCurrencyStream(): Flow<String> =
-        dataStore.data
-            .catch {
-                if (it is IOException) {
-                    Log.e(TAG, "Error reading preferences.", it)
-                    emit(emptyPreferences())
-                } else {
-                    throw it
-                }
-            }.map { preferences ->
-                preferences[DEFAULT_CURRENCY_KEY] ?: "USD"
+    override fun getDefaultCurrencyStream(): Flow<String> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                Log.e(TAG, "Error reading preferences.", it)
+                emit(emptyPreferences())
+            } else {
+                throw it
             }
+        }.map { preferences ->
+            preferences[DEFAULT_CURRENCY_KEY] ?: "USD"
+        }
 
     override suspend fun setDefaultCurrency(newBaseCurrency: String) {
         dataStore.edit { mutablePreferences ->
@@ -146,7 +145,7 @@ class OnlineCurrenciesRepository(
             for (currency in currentCurrencies) {
                 val updatedCurrency =
                     currency.copy(
-                        value = currency.value / newBaseCurrencyValue,
+                        value = currency.value / newBaseCurrencyValue
                     )
                 currencyDao.update(updatedCurrency)
             }
@@ -175,10 +174,10 @@ class OnlineCurrenciesRepository(
                             name = rate.key,
                             value = rate.value.toFloat() / currentBaseCurrencyRate,
                             updatedTime =
-                                LocalDateTime.parse(
-                                    responses.date,
-                                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX"),
-                                ),
+                            LocalDateTime.parse(
+                                responses.date,
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")
+                            )
                         )
                     currencyDao.insertOrReplace(currency)
                 }

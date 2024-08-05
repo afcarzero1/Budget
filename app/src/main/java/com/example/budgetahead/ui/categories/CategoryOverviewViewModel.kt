@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 class CategoryOverviewViewModel(
     savedStateHandle: SavedStateHandle,
     categoriesRepository: CategoriesRepository,
-    currenciesRepository: CurrenciesRepository,
+    currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -35,63 +35,63 @@ class CategoryOverviewViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = "USD",
+                initialValue = "USD"
             )
 
     private val categoryWithTransactionsFlow =
         categoriesRepository.getCategoryWithTransactionsStream(
-            categoryId,
+            categoryId
         )
     private val categoryWithPlannedFlow =
         categoriesRepository.getCategoryWithPlannedTransactionsStream(
-            categoryId,
+            categoryId
         )
 
     val categoryState: StateFlow<CategorySummaryUiState> =
         combine(
             categoryWithTransactionsFlow,
-            categoryWithPlannedFlow,
+            categoryWithPlannedFlow
         ) {
                 categoryWithTransactions,
-                categoryWithPlanned,
+                categoryWithPlanned
             ->
             CategorySummaryUiState(
                 category = categoryWithTransactions.category,
                 transactions =
-                    GroupTransactionsAndTransfersByDateUseCase().execute(
-                        transactions =
-                            categoryWithTransactions.transactions.map {
-                                FullTransactionRecord(
-                                    transactionRecord = it.transactionRecord,
-                                    account = it.account,
-                                    category = categoryWithTransactions.category,
-                                )
-                            },
-                        transfers = listOf(),
-                    ),
-                plannedTransactions = categoryWithPlanned.transactions,
+                GroupTransactionsAndTransfersByDateUseCase().execute(
+                    transactions =
+                    categoryWithTransactions.transactions.map {
+                        FullTransactionRecord(
+                            transactionRecord = it.transactionRecord,
+                            account = it.account,
+                            category = categoryWithTransactions.category
+                        )
+                    },
+                    transfers = listOf()
+                ),
+                plannedTransactions = categoryWithPlanned.transactions
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue =
-                CategorySummaryUiState(
-                    category =
-                        Category(
-                            id = 0,
-                            name = "Category",
-                            CategoryType.Expense,
-                            parentCategoryId = null,
-                            iconResId = null,
-                        ),
-                    transactions = listOf(),
-                    plannedTransactions = listOf(),
+            CategorySummaryUiState(
+                category =
+                Category(
+                    id = 0,
+                    name = "Category",
+                    CategoryType.Expense,
+                    parentCategoryId = null,
+                    iconResId = null
                 ),
+                transactions = listOf(),
+                plannedTransactions = listOf()
+            )
         )
 }
 
 data class CategorySummaryUiState(
     val category: Category,
     val transactions: List<GroupOfTransactionsAndTransfers> = listOf(),
-    val plannedTransactions: List<FullFutureTransaction> = listOf(),
+    val plannedTransactions: List<FullFutureTransaction> = listOf()
 )

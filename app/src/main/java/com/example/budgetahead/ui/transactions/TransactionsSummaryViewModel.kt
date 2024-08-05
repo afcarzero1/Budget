@@ -10,14 +10,14 @@ import com.example.budgetahead.data.transactions.FullTransactionRecord
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.data.transfers.TransferWithAccounts
 import com.example.budgetahead.use_cases.GroupTransactionsAndTransfersByDateUseCase
+import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
 
 class TransactionsSummaryViewModel(
     transactionsRepository: TransactionsRepository,
-    currenciesRepository: CurrenciesRepository,
+    currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -26,15 +26,15 @@ class TransactionsSummaryViewModel(
     val transactionsUiState =
         combine(
             transactionsRepository.getAllFullTransactionsStream(),
-            transactionsRepository.getAllTransfersWithAccountsStream(),
+            transactionsRepository.getAllTransfersWithAccountsStream()
         ) { transactions, transfers ->
             TransactionsUiState(
-                GroupTransactionsAndTransfersByDateUseCase().execute(transactions, transfers),
+                GroupTransactionsAndTransfersByDateUseCase().execute(transactions, transfers)
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = TransactionsUiState(),
+            initialValue = TransactionsUiState()
         )
 
     val baseCurrency =
@@ -43,7 +43,7 @@ class TransactionsSummaryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = "USD",
+                initialValue = "USD"
             )
 
     var onFutureTransactionsScreen by mutableStateOf(false)
@@ -61,9 +61,9 @@ class TransactionsSummaryViewModel(
 data class GroupOfTransactionsAndTransfers(
     val transactions: List<FullTransactionRecord>,
     val transfers: List<TransferWithAccounts>,
-    val date: LocalDate,
+    val date: LocalDate
 )
 
 data class TransactionsUiState(
-    val groupedTransactionsAndTransfers: List<GroupOfTransactionsAndTransfers> = listOf(),
+    val groupedTransactionsAndTransfers: List<GroupOfTransactionsAndTransfers> = listOf()
 )

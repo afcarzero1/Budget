@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class AccountsEntryViewModel(
     private val accountsRepository: AccountsRepository,
-    private val currenciesRepository: CurrenciesRepository,
+    private val currenciesRepository: CurrenciesRepository
 ) : ViewModel() {
     var accountUiState by mutableStateOf(AccountUiState())
         private set
@@ -29,7 +29,7 @@ class AccountsEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf(),
+                initialValue = listOf()
             )
 
     fun updateUiState(account: Account) {
@@ -37,19 +37,18 @@ class AccountsEntryViewModel(
         this.accountUiState =
             AccountUiState(
                 account = account,
-                isValid = validateInput(account),
+                isValid = validateInput(account)
             )
     }
 
-    private fun validateInput(account: Account): Boolean =
-        with(account) {
-            name.isNotBlank() &&
-                currency.isNotBlank() &&
-                currenciesListState
-                    .value
-                    .map { it.name }
-                    .contains(currency)
-        }
+    private fun validateInput(account: Account): Boolean = with(account) {
+        name.isNotBlank() &&
+            currency.isNotBlank() &&
+            currenciesListState
+                .value
+                .map { it.name }
+                .contains(currency)
+    }
 
     suspend fun saveAccount() {
         if (validateInput(accountUiState.account)) {
@@ -65,7 +64,7 @@ data class AccountUiState(
             name = "",
             initialBalance = 0f,
             currency = "USD",
-            color = convertColorToLong(AvailableColors.colorsList[0]),
+            color = convertColorToLong(AvailableColors.colorsList[0])
         ),
-    val isValid: Boolean = false,
+    val isValid: Boolean = false
 )

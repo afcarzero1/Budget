@@ -44,7 +44,7 @@ import java.time.LocalDateTime
 @Composable
 fun AccountSummaryScreen(
     navController: NavHostController,
-    viewModel: AccountSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: AccountSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val accountUiState by viewModel.accountState.collectAsState()
     val baseCurrency by viewModel.baseCurrency.collectAsState()
@@ -59,23 +59,23 @@ fun AccountSummaryScreen(
                         modifier = Modifier.padding(horizontal = 8.dp),
                         onClick = {
                             navController.navigate(
-                                "${AccountDetails.route}/${accountUiState.accountWithTransactions.account.id}",
+                                "${AccountDetails.route}/${accountUiState.accountWithTransactions.account.id}"
                             )
-                        },
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
                             contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 containerColor =
-                    convertLongToColor(
-                        accountUiState.accountWithTransactions.account.color,
-                    ).copy(alpha = 0.8f),
+                convertLongToColor(
+                    accountUiState.accountWithTransactions.account.color
+                ).copy(alpha = 0.8f)
             )
-        },
+        }
     ) {
         AccountSummaryBody(
             accountWithTransactions = accountUiState.accountWithTransactions,
@@ -84,9 +84,9 @@ fun AccountSummaryScreen(
             transactionsAndTransfers = accountUiState.transactionsAndTransfers,
             navController = navController,
             modifier =
-                Modifier
-                    .padding(it)
-                    .fillMaxSize(),
+            Modifier
+                .padding(it)
+                .fillMaxSize()
         )
     }
 }
@@ -98,32 +98,32 @@ fun AccountSummaryBody(
     baseCurrency: String,
     transactionsAndTransfers: List<GroupOfTransactionsAndTransfers>,
     navController: NavHostController,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val backgroundColor =
         convertLongToColor(
-            accountWithTransactions.account.color,
+            accountWithTransactions.account.color
         ).copy(alpha = 0.15f)
     Column(
         modifier =
-            modifier.background(
-                backgroundColor,
-            ),
+        modifier.background(
+            backgroundColor
+        )
     ) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        bottom = 16.dp,
-                    ).background(
-                        color =
-                            convertLongToColor(
-                                accountWithTransactions.account.color,
-                            ).copy(alpha = 0.8f),
-                    ),
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    bottom = 16.dp
+                ).background(
+                    color =
+                    convertLongToColor(
+                        accountWithTransactions.account.color
+                    ).copy(alpha = 0.8f)
+                ),
             verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -131,7 +131,7 @@ fun AccountSummaryBody(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = accountWithTransactions.account.name,
                 color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -139,11 +139,11 @@ fun AccountSummaryBody(
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text =
-                    accountCurrency.formatAmount(
-                        accountWithTransactions.balance,
-                    ),
+                accountCurrency.formatAmount(
+                    accountWithTransactions.balance
+                ),
                 color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -156,7 +156,7 @@ fun AccountSummaryBody(
             baseCurrency = baseCurrency,
             navController = navController,
             modifier = Modifier.padding(horizontal = 16.dp),
-            dividerColor = backgroundColor,
+            dividerColor = backgroundColor
         )
     }
 }
@@ -166,26 +166,26 @@ fun AccountSummaryBody(
 fun PreviewAccountSummaryBody() {
     AccountSummaryBody(
         accountWithTransactions =
-            AccountWithTransactions(
-                account =
-                    Account(
-                        id = 0,
-                        name = "Bank Account",
-                        currency = "EUR",
-                        initialBalance = 0f,
-                        color = convertColorToLong(AvailableColors.colorsList[1]),
-                        hidden = false,
-                    ),
-                transactionRecords = listOf(),
+        AccountWithTransactions(
+            account =
+            Account(
+                id = 0,
+                name = "Bank Account",
+                currency = "EUR",
+                initialBalance = 0f,
+                color = convertColorToLong(AvailableColors.colorsList[1]),
+                hidden = false
             ),
+            transactionRecords = listOf()
+        ),
         accountCurrency =
-            Currency(
-                name = "EUR",
-                value = 1.09f,
-                updatedTime = LocalDateTime.now(),
-            ),
+        Currency(
+            name = "EUR",
+            value = 1.09f,
+            updatedTime = LocalDateTime.now()
+        ),
         baseCurrency = "USD",
         transactionsAndTransfers = listOf(),
-        navController = rememberNavController(),
+        navController = rememberNavController()
     )
 }

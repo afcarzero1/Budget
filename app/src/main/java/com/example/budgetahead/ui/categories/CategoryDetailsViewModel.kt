@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class CategoryDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val categoriesRepository: CategoriesRepository,
+    private val categoriesRepository: CategoriesRepository
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -35,7 +35,7 @@ class CategoryDetailsViewModel(
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = CategoryDetailsUiState(),
+                initialValue = CategoryDetailsUiState()
             )
 
     var categoryUiState by mutableStateOf(CategoryDetailsUiState())
@@ -52,7 +52,7 @@ class CategoryDetailsViewModel(
         this.categoryUiState =
             CategoryDetailsUiState(
                 category = category,
-                isValid = validateInput(category),
+                isValid = validateInput(category)
             )
         showUpdatedState = true
     }
@@ -80,7 +80,7 @@ data class CategoryDetailsUiState(
             name = "",
             defaultType = CategoryType.Expense,
             parentCategoryId = -1,
-            iconResId = null,
+            iconResId = null
         ),
-    val isValid: Boolean = false,
+    val isValid: Boolean = false
 )

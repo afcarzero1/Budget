@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 enum class CategoryType {
     Income,
-    Expense,
+    Expense
 }
 
 @Entity(
@@ -16,9 +16,9 @@ enum class CategoryType {
             entity = Category::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("parentCategoryId"),
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ]
 )
 data class Category(
     @PrimaryKey(autoGenerate = true)
@@ -26,5 +26,5 @@ data class Category(
     val name: String,
     val defaultType: CategoryType,
     val parentCategoryId: Int?,
-    val iconResId: String? = null,
+    val iconResId: String? = null
 )

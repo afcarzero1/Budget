@@ -38,10 +38,7 @@ import androidx.compose.ui.unit.dp
 
 // https://github.com/developerchunk/Custom-Bar-Chart-Jetpack-Compose/tree/main/app
 
-data class TextPiece(
-    val text: AnnotatedString,
-    val alignToCenter: Boolean = true,
-)
+data class TextPiece(val text: AnnotatedString, val alignToCenter: Boolean = true)
 
 @Composable
 fun <T> PieChart(
@@ -52,7 +49,7 @@ fun <T> PieChart(
     radiusOuter: Dp = 90.dp,
     chartBarWidth: Dp = 20.dp,
     animDuration: Int = 4000,
-    middleText: List<TextPiece>,
+    middleText: List<TextPiece>
 ) {
     val totalSum = data.map { itemToWeight(it) }.sum()
     val floatValue = mutableListOf<Float>()
@@ -69,21 +66,21 @@ fun <T> PieChart(
     val animateSize by animateFloatAsState(
         targetValue = if (animationPlayed) radiusOuter.value * 2f else radiusOuter.value * 0.1f,
         animationSpec =
-            tween(
-                durationMillis = animDuration,
-                delayMillis = 0,
-                easing = LinearOutSlowInEasing,
-            ),
+        tween(
+            durationMillis = animDuration,
+            delayMillis = 0,
+            easing = LinearOutSlowInEasing
+        )
     )
 
     val animateRotation by animateFloatAsState(
         targetValue = if (animationPlayed) 90f * 4f else 0f,
         animationSpec =
-            tween(
-                durationMillis = animDuration,
-                delayMillis = 0,
-                easing = LinearOutSlowInEasing,
-            ),
+        tween(
+            durationMillis = animDuration,
+            delayMillis = 0,
+            easing = LinearOutSlowInEasing
+        )
     )
 
     // to play the animation only once when the function is Created or Recomposed
@@ -95,24 +92,24 @@ fun <T> PieChart(
 
     Column(
         modifier =
-            Modifier
-                .wrapContentWidth()
-                .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        Modifier
+            .wrapContentWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier =
-                Modifier
-                    .size(animateSize.dp)
-                    .padding(top = 32.dp)
-                    .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center,
+            Modifier
+                .size(animateSize.dp)
+                .padding(top = 32.dp)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
             Canvas(
                 modifier =
-                    Modifier
-                        .size(radiusOuter * 2f)
-                        .rotate(animateRotation),
+                Modifier
+                    .size(radiusOuter * 2f)
+                    .rotate(animateRotation)
             ) {
                 // draw each Arc for each data entry in Pie Chart
                 if (totalSum != 0f) {
@@ -122,7 +119,7 @@ fun <T> PieChart(
                             lastValue,
                             value,
                             useCenter = false,
-                            style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt),
+                            style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
                         )
                         lastValue += value
                     }
@@ -149,10 +146,10 @@ fun <T> PieChart(
                         textMeasurer = textMeasurer,
                         text = text,
                         topLeft =
-                            Offset(
-                                (canvasWidth - textSize.width) / 2f,
-                                yOffset,
-                            ),
+                        Offset(
+                            (canvasWidth - textSize.width) / 2f,
+                            yOffset
+                        )
                     )
 
                     // Update yOffset to the next line
@@ -170,44 +167,44 @@ fun <T> PieChart(
 fun <T> DetailsPieChart(
     data: List<T>,
     itemToColor: (T) -> Color,
-    itemDetails: @Composable (T) -> Unit,
+    itemDetails: @Composable (T) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
         modifier =
-            Modifier
-                .padding(top = 36.dp)
-                .fillMaxWidth()
-                .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        Modifier
+            .padding(top = 36.dp)
+            .fillMaxWidth()
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
             modifier =
-                Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(bottom = 8.dp),
+            Modifier
+                .padding(horizontal = 10.dp)
+                .padding(bottom = 8.dp)
         )
 
         data.forEachIndexed { index, item ->
             Surface(
                 modifier =
-                    Modifier
-                        .padding(vertical = 10.dp, horizontal = 16.dp),
-                color = Color.Transparent,
+                Modifier
+                    .padding(vertical = 10.dp, horizontal = 16.dp),
+                color = Color.Transparent
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier =
-                            Modifier
-                                .background(
-                                    color = itemToColor(item),
-                                    shape = RoundedCornerShape(10.dp),
-                                ).size(25.dp),
+                        Modifier
+                            .background(
+                                color = itemToColor(item),
+                                shape = RoundedCornerShape(10.dp)
+                            ).size(25.dp)
                     )
                     itemDetails(item)
                 }

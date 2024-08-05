@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-class CategoryEntryViewModel(
-    private val categoriesRepository: CategoriesRepository,
-) : ViewModel() {
+class CategoryEntryViewModel(private val categoriesRepository: CategoriesRepository) :
+    ViewModel() {
     var categoryUiState by mutableStateOf(CategoryUiState())
         private set
 
@@ -25,14 +24,14 @@ class CategoryEntryViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf(),
+                initialValue = listOf()
             )
 
     fun updateUiState(category: Category) {
         categoryUiState =
             CategoryUiState(
                 category = category,
-                isValid = validateInput(category),
+                isValid = validateInput(category)
             )
     }
 
@@ -52,7 +51,7 @@ data class CategoryUiState(
             name = "",
             defaultType = CategoryType.Expense,
             parentCategoryId = null,
-            iconResId = AvailableIcons.icons[0],
+            iconResId = AvailableIcons.icons[0]
         ),
-    val isValid: Boolean = false,
+    val isValid: Boolean = false
 )

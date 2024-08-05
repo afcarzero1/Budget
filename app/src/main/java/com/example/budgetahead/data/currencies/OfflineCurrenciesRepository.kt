@@ -2,9 +2,7 @@ package com.example.budgetahead.data.currencies
 
 import kotlinx.coroutines.flow.Flow
 
-class OfflineCurrenciesRepository(
-    private val currencyDao: CurrencyDao,
-) : CurrenciesRepository {
+class OfflineCurrenciesRepository(private val currencyDao: CurrencyDao) : CurrenciesRepository {
     override fun getAllCurrenciesStream(): Flow<List<Currency>> = currencyDao.getAllCurrencies()
 
     override fun getDefaultCurrencyStream(): Flow<String> {

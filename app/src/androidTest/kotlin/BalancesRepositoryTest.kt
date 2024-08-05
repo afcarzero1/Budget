@@ -29,6 +29,10 @@ import com.example.budgetahead.data.transactions.TransactionDao
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
+import java.io.IOException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -36,10 +40,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.YearMonth
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -67,26 +67,26 @@ class BalancesRepositoryTest {
                 id = 1,
                 name = "Food",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null,
+                parentCategoryId = null
             ),
             Category(
                 id = 2,
                 name = "Transportation",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null,
+                parentCategoryId = null
             ),
             Category(
                 id = 3,
                 name = "Rent",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null,
+                parentCategoryId = null
             ),
             Category(
                 id = 4,
                 name = "Salary",
                 defaultType = CategoryType.Income,
-                parentCategoryId = null,
-            ),
+                parentCategoryId = null
+            )
         )
 
     @Before
@@ -108,31 +108,31 @@ class BalancesRepositoryTest {
         currenciesRepository = MockCurrenciesRepository()
         transactionsRepository =
             OfflineTransactionsRepository(
-                transactionDao,
+                transactionDao
             )
 
         accountRepository =
             OfflineAccountsRepository(
                 accountDao,
                 currenciesRepository,
-                transactionsRepository,
+                transactionsRepository
             )
 
         futureTransactionsRepository =
             OfflineFutureTransactionsRepository(
-                futureTransactionDao,
+                futureTransactionDao
             )
 
         categoriesRepository =
             OfflineCategoriesRepository(
-                categoryDao,
+                categoryDao
             )
 
         offlineBalancesRepository =
             OfflineBalancesRepository(
                 accountRepository,
                 transactionsRepository,
-                futureTransactionsRepository,
+                futureTransactionsRepository
             )
     }
 
@@ -144,400 +144,438 @@ class BalancesRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun testSimpleTransactions() =
-        runBlocking {
-            currenciesRepository.getAllCurrenciesStream().first().forEach {
-                currencyDao.insert(it)
-            }
+    fun testSimpleTransactions() = runBlocking {
+        currenciesRepository.getAllCurrenciesStream().first().forEach {
+            currencyDao.insert(it)
+        }
 
-            accountRepository.insertAccount(
-                Account(
-                    id = 1,
-                    name = "JPMorgan Chase",
-                    currency = "USD",
-                    initialBalance = 100.0f,
-                ),
+        accountRepository.insertAccount(
+            Account(
+                id = 1,
+                name = "JPMorgan Chase",
+                currency = "USD",
+                initialBalance = 100.0f
             )
+        )
 
-            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
+        assertTrue(
+            "Account must be inserted into the repository",
+            accountRepository.getAllAccountsStream().first().size == 1
+        )
 
-            for (category in fakeCategories) {
-                categoriesRepository.insert(
-                    category,
-                )
-            }
-
-            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
-
-            // Start by inserting a transaction that happens only once!!
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0,
-                    name = "First budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 10f,
-                    currency = "USD",
-                    startDate = LocalDateTime.parse("2024-07-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-07-31T12:00:00"),
-                    recurrenceType = RecurrenceType.NONE,
-                    recurrenceValue = 0,
-                ),
-            )
-
-            // We should see a unique pending transaction
-            var pendingTransaction =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-06-30T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-07-02T12:00:00").toLocalDate(),
-                    ).first()
-
-            assertTrue("One transaction must be returned", pendingTransaction.size == 1)
-            assertTrue("Amount should match", pendingTransaction[0].transactionRecord.amount == 10f)
-
-            // Recurrent future transaction
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0, // auto-generate
-                    name = "Second budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 20f,
-                    currency = "EUR",
-                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-08-31T12:00:00"),
-                    recurrenceType = RecurrenceType.WEEKLY,
-                    recurrenceValue = 1,
-                ),
-            )
-
-            pendingTransaction =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-08-01T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate(),
-                    ).first()
-
-            assertTrue("The generated transactions must be returned", pendingTransaction.size == 5)
-            for (pend in pendingTransaction) {
-                assertTrue("Transaction given currency must match", pend.account.currency.name == "EUR")
-                assertTrue("Transactions must have value in given currency", pend.transactionRecord.amount == 20f)
-            }
-
-            assertTrue(
-                "The generated transactions must be cropped",
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-08-15T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate(),
-                    ).first()
-                    .size == 3,
-            )
-
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0, // auto-generate
-                    name = "Second budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 1.5f,
-                    currency = "USD",
-                    startDate = LocalDateTime.parse("2024-09-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-09-07T12:00:00"),
-                    recurrenceType = RecurrenceType.DAILY,
-                    recurrenceValue = 2,
-                ),
-            )
-
-            assertTrue(
-                "All transactions must be generated",
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-08T12:00:00").toLocalDate(),
-                    ).first()
-                    .size == 4,
-            )
-
-            assertTrue(
-                "All transactions must be generated",
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-08T12:00:00").toLocalDate(),
-                    ).first()
-                    .size == 4,
-            )
-
-            assertTrue(
-                "All transactions must be generated",
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-07T12:00:00").toLocalDate(),
-                    ).first()
-                    .size == 4,
+        for (category in fakeCategories) {
+            categoriesRepository.insert(
+                category
             )
         }
+
+        assertTrue(
+            "Categories must be inserted",
+            categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size
+        )
+
+        // Start by inserting a transaction that happens only once!!
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0,
+                name = "First budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 10f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-07-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-07-31T12:00:00"),
+                recurrenceType = RecurrenceType.NONE,
+                recurrenceValue = 0
+            )
+        )
+
+        // We should see a unique pending transaction
+        var pendingTransaction =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-06-30T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-07-02T12:00:00").toLocalDate()
+                ).first()
+
+        assertTrue("One transaction must be returned", pendingTransaction.size == 1)
+        assertTrue("Amount should match", pendingTransaction[0].transactionRecord.amount == 10f)
+
+        // Recurrent future transaction
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0, // auto-generate
+                name = "Second budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 20f,
+                currency = "EUR",
+                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-08-31T12:00:00"),
+                recurrenceType = RecurrenceType.WEEKLY,
+                recurrenceValue = 1
+            )
+        )
+
+        pendingTransaction =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-08-01T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate()
+                ).first()
+
+        assertTrue("The generated transactions must be returned", pendingTransaction.size == 5)
+        for (pend in pendingTransaction) {
+            assertTrue(
+                "Transaction given currency must match",
+                pend.account.currency.name == "EUR"
+            )
+            assertTrue(
+                "Transactions must have value in given currency",
+                pend.transactionRecord.amount == 20f
+            )
+        }
+
+        assertTrue(
+            "The generated transactions must be cropped",
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-08-15T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate()
+                ).first()
+                .size == 3
+        )
+
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0, // auto-generate
+                name = "Second budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 1.5f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-09-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-09-07T12:00:00"),
+                recurrenceType = RecurrenceType.DAILY,
+                recurrenceValue = 2
+            )
+        )
+
+        assertTrue(
+            "All transactions must be generated",
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-08-31T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-08T12:00:00").toLocalDate()
+                ).first()
+                .size == 4
+        )
+
+        assertTrue(
+            "All transactions must be generated",
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-08T12:00:00").toLocalDate()
+                ).first()
+                .size == 4
+        )
+
+        assertTrue(
+            "All transactions must be generated",
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-07T12:00:00").toLocalDate()
+                ).first()
+                .size == 4
+        )
+    }
 
     @Test
     @Throws(Exception::class)
-    fun testContinuousTransactions() =
-        runBlocking {
-            currenciesRepository.getAllCurrenciesStream().first().forEach {
-                currencyDao.insert(it)
-            }
-
-            accountRepository.insertAccount(
-                Account(
-                    id = 1,
-                    name = "JPMorgan Chase",
-                    currency = "USD",
-                    initialBalance = 100.0f,
-                ),
-            )
-
-            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
-
-            for (category in fakeCategories) {
-                categoriesRepository.insert(
-                    category,
-                )
-            }
-
-            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
-
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0, // auto-generate
-                    name = "First budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 20f,
-                    currency = "USD",
-                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-08-31T12:00:00"),
-                    recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
-                    recurrenceValue = 1,
-                ),
-            )
-
-            var pendingTransaction =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
-                    ).first()
-
-            assertTrue("Weekly transactions", pendingTransaction.size == 5)
-            val possibleDates =
-                hashSetOf(
-                    LocalDate.parse("2024-08-31"),
-                    LocalDate.parse("2024-08-08"),
-                    LocalDate.parse("2024-08-15"),
-                    LocalDate.parse("2024-08-22"),
-                    LocalDate.parse("2024-08-29"),
-                )
-            for (pending in pendingTransaction) {
-                assertTrue(possibleDates.contains(pending.transactionRecord.date.toLocalDate()))
-            }
-            assertTrue("Value must be cropped.", pendingTransaction.last().transactionRecord.amount == 20f * 2f / 7f)
-
-            transactionsRepository.insert(
-                TransactionRecord(
-                    id = 0,
-                    name = "Fake transaction",
-                    type = TransactionType.EXPENSE,
-                    amount = 5f,
-                    accountId = 1,
-                    categoryId = 1,
-                    date = LocalDateTime.parse("2024-08-05T12:00:00"),
-                ),
-            )
-
-            pendingTransaction =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
-                    ).first()
-
-            // Transactions should still be inserted but the first one should have the value reduced!
-            assertTrue("Weekly transactions", pendingTransaction.size == 5)
-            assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
-
-            accountRepository.insertAccount(
-                Account(
-                    id = 2,
-                    name = "Deutsche Bank",
-                    currency = "EUR",
-                    initialBalance = 100.0f,
-                ),
-            )
-
-            transactionsRepository.insert(
-                TransactionRecord(
-                    id = 0,
-                    name = "Fake transaction",
-                    type = TransactionType.EXPENSE,
-                    amount = 5f,
-                    accountId = 2, // Transaction in EUR
-                    categoryId = 1,
-                    date = LocalDateTime.parse("2024-08-12T12:00:00"),
-                ),
-            )
-
-            pendingTransaction =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
-                        LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate(),
-                    ).first()
-
-            assertTrue("Weekly transactions", pendingTransaction.size == 5)
-            assertTrue("Value should be reduced", pendingTransaction[0].transactionRecord.amount == 15f)
-            assertTrue("Value should be reduced taking into account exchange rate", pendingTransaction[1].transactionRecord.amount == 14.5f)
+    fun testContinuousTransactions() = runBlocking {
+        currenciesRepository.getAllCurrenciesStream().first().forEach {
+            currencyDao.insert(it)
         }
+
+        accountRepository.insertAccount(
+            Account(
+                id = 1,
+                name = "JPMorgan Chase",
+                currency = "USD",
+                initialBalance = 100.0f
+            )
+        )
+
+        assertTrue(
+            "Account must be inserted into the repository",
+            accountRepository.getAllAccountsStream().first().size == 1
+        )
+
+        for (category in fakeCategories) {
+            categoriesRepository.insert(
+                category
+            )
+        }
+
+        assertTrue(
+            "Categories must be inserted",
+            categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size
+        )
+
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0, // auto-generate
+                name = "First budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 20f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-08-31T12:00:00"),
+                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                recurrenceValue = 1
+            )
+        )
+
+        var pendingTransaction =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+                ).first()
+
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        val possibleDates =
+            hashSetOf(
+                LocalDate.parse("2024-08-31"),
+                LocalDate.parse("2024-08-08"),
+                LocalDate.parse("2024-08-15"),
+                LocalDate.parse("2024-08-22"),
+                LocalDate.parse("2024-08-29")
+            )
+        for (pending in pendingTransaction) {
+            assertTrue(possibleDates.contains(pending.transactionRecord.date.toLocalDate()))
+        }
+        assertTrue(
+            "Value must be cropped.",
+            pendingTransaction.last().transactionRecord.amount == 20f * 2f / 7f
+        )
+
+        transactionsRepository.insert(
+            TransactionRecord(
+                id = 0,
+                name = "Fake transaction",
+                type = TransactionType.EXPENSE,
+                amount = 5f,
+                accountId = 1,
+                categoryId = 1,
+                date = LocalDateTime.parse("2024-08-05T12:00:00")
+            )
+        )
+
+        pendingTransaction =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+                ).first()
+
+        // Transactions should still be inserted but the first one should have the value reduced!
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        assertTrue(
+            "Value should be reduced",
+            pendingTransaction[0].transactionRecord.amount == 15f
+        )
+
+        accountRepository.insertAccount(
+            Account(
+                id = 2,
+                name = "Deutsche Bank",
+                currency = "EUR",
+                initialBalance = 100.0f
+            )
+        )
+
+        transactionsRepository.insert(
+            TransactionRecord(
+                id = 0,
+                name = "Fake transaction",
+                type = TransactionType.EXPENSE,
+                amount = 5f,
+                accountId = 2, // Transaction in EUR
+                categoryId = 1,
+                date = LocalDateTime.parse("2024-08-12T12:00:00")
+            )
+        )
+
+        pendingTransaction =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    LocalDateTime.parse("2024-07-31T12:00:00").toLocalDate(),
+                    LocalDateTime.parse("2024-09-01T12:00:00").toLocalDate()
+                ).first()
+
+        assertTrue("Weekly transactions", pendingTransaction.size == 5)
+        assertTrue(
+            "Value should be reduced",
+            pendingTransaction[0].transactionRecord.amount == 15f
+        )
+        assertTrue(
+            "Value should be reduced taking into account exchange rate",
+            pendingTransaction[1].transactionRecord.amount == 14.5f
+        )
+    }
 
     @Test
     @Throws(Exception::class)
-    fun testBalancesByDay() =
-        runBlocking {
-            currenciesRepository.getAllCurrenciesStream().first().forEach {
-                currencyDao.insert(it)
-            }
+    fun testBalancesByDay() = runBlocking {
+        currenciesRepository.getAllCurrenciesStream().first().forEach {
+            currencyDao.insert(it)
+        }
 
-            accountRepository.insertAccount(
-                Account(
-                    id = 1,
-                    name = "JPMorgan Chase",
-                    currency = "USD",
-                    initialBalance = 1000.0f,
-                ),
+        accountRepository.insertAccount(
+            Account(
+                id = 1,
+                name = "JPMorgan Chase",
+                currency = "USD",
+                initialBalance = 1000.0f
             )
+        )
 
-            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
+        assertTrue(
+            "Account must be inserted into the repository",
+            accountRepository.getAllAccountsStream().first().size == 1
+        )
 
-            for (category in fakeCategories) {
-                categoriesRepository.insert(
-                    category,
-                )
-            }
-
-            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
-
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0, // auto-generate
-                    name = "First budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 20f,
-                    currency = "USD",
-                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-09-30T12:00:00"),
-                    recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
-                    recurrenceValue = 1,
-                ),
-            )
-
-            var expectedBalances =
-                offlineBalancesRepository
-                    .getBalanceByDay(
-                        LocalDate.parse("2024-08-01"),
-                        LocalDate.parse("2024-09-30"),
-                        LocalDate.parse("2024-07-31"),
-                    ).first()
-
-            assertTrue(expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f - 20f)
-
-            expectedBalances =
-                offlineBalancesRepository
-                    .getBalanceByDay(
-                        LocalDate.parse("2024-08-01"),
-                        LocalDate.parse("2024-09-30"),
-                        LocalDate.parse("2024-08-08"),
-                    ).first()
-
-            assertTrue(
-                "The reality date should not include expected transactions!",
-                expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f,
+        for (category in fakeCategories) {
+            categoriesRepository.insert(
+                category
             )
         }
+
+        assertTrue(
+            "Categories must be inserted",
+            categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size
+        )
+
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0, // auto-generate
+                name = "First budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 20f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-09-30T12:00:00"),
+                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                recurrenceValue = 1
+            )
+        )
+
+        var expectedBalances =
+            offlineBalancesRepository
+                .getBalanceByDay(
+                    LocalDate.parse("2024-08-01"),
+                    LocalDate.parse("2024-09-30"),
+                    LocalDate.parse("2024-07-31")
+                ).first()
+
+        assertTrue(expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f - 20f)
+
+        expectedBalances =
+            offlineBalancesRepository
+                .getBalanceByDay(
+                    LocalDate.parse("2024-08-01"),
+                    LocalDate.parse("2024-09-30"),
+                    LocalDate.parse("2024-08-08")
+                ).first()
+
+        assertTrue(
+            "The reality date should not include expected transactions!",
+            expectedBalances[LocalDate.parse("2024-08-08")!!] == 1000f
+        )
+    }
 
     @Test
     @Throws(Exception::class)
-    fun testBalancesByMonth() =
-        runBlocking {
-            currenciesRepository.getAllCurrenciesStream().first().forEach {
-                currencyDao.insert(it)
-            }
-
-            accountRepository.insertAccount(
-                Account(
-                    id = 1,
-                    name = "JPMorgan Chase",
-                    currency = "USD",
-                    initialBalance = 1000.0f,
-                ),
-            )
-
-            assertTrue("Account must be inserted into the repository", accountRepository.getAllAccountsStream().first().size == 1)
-
-            for (category in fakeCategories) {
-                categoriesRepository.insert(
-                    category,
-                )
-            }
-
-            assertTrue("Categories must be inserted", categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size)
-
-            futureTransactionsRepository.insert(
-                FutureTransaction(
-                    id = 0, // auto-generate
-                    name = "First budget",
-                    type = TransactionType.EXPENSE,
-                    categoryId = 1,
-                    amount = 20f,
-                    currency = "USD",
-                    startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
-                    endDate = LocalDateTime.parse("2024-10-30T12:00:00"),
-                    recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
-                    recurrenceValue = 1,
-                ),
-            )
-
-            // October
-            var transactions =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        YearMonth.parse("2024-10").atDay(1),
-                        YearMonth.parse("2024-10").atEndOfMonth(),
-                    ).first()
-            assertTrue("5 transactions in October", transactions.size == 5)
-            val sumOctober = transactions.sumOf { it.transactionRecord.amount.toDouble() }
-
-            // September
-            transactions =
-                offlineBalancesRepository
-                    .getPendingTransactions(
-                        YearMonth.parse("2024-09").atDay(1),
-                        YearMonth.parse("2024-09").atEndOfMonth(),
-                    ).first()
-            assertTrue("", transactions.size == 5)
-            val sumSeptember = transactions.sumOf { it.transactionRecord.amount.toDouble() }
-
-            // August
-
-            val expectedBalances =
-                offlineBalancesRepository
-                    .getPlannedBalancesByMonthStream(
-                        YearMonth.parse("2024-08"),
-                        YearMonth.parse("2024-09"),
-                    ).first()
-
-            assertTrue(expectedBalances.containsKey(YearMonth.parse("2024-08")))
-            assertTrue(expectedBalances[YearMonth.parse("2024-08")]!![fakeCategories[0]]!! == -80f)
+    fun testBalancesByMonth() = runBlocking {
+        currenciesRepository.getAllCurrenciesStream().first().forEach {
+            currencyDao.insert(it)
         }
+
+        accountRepository.insertAccount(
+            Account(
+                id = 1,
+                name = "JPMorgan Chase",
+                currency = "USD",
+                initialBalance = 1000.0f
+            )
+        )
+
+        assertTrue(
+            "Account must be inserted into the repository",
+            accountRepository.getAllAccountsStream().first().size == 1
+        )
+
+        for (category in fakeCategories) {
+            categoriesRepository.insert(
+                category
+            )
+        }
+
+        assertTrue(
+            "Categories must be inserted",
+            categoriesRepository.getAllCategoriesStream().first().size == fakeCategories.size
+        )
+
+        futureTransactionsRepository.insert(
+            FutureTransaction(
+                id = 0, // auto-generate
+                name = "First budget",
+                type = TransactionType.EXPENSE,
+                categoryId = 1,
+                amount = 20f,
+                currency = "USD",
+                startDate = LocalDateTime.parse("2024-08-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-10-30T12:00:00"),
+                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                recurrenceValue = 1
+            )
+        )
+
+        // October
+        var transactions =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    YearMonth.parse("2024-10").atDay(1),
+                    YearMonth.parse("2024-10").atEndOfMonth()
+                ).first()
+        assertTrue("5 transactions in October", transactions.size == 5)
+        val sumOctober = transactions.sumOf { it.transactionRecord.amount.toDouble() }
+
+        // September
+        transactions =
+            offlineBalancesRepository
+                .getPendingTransactions(
+                    YearMonth.parse("2024-09").atDay(1),
+                    YearMonth.parse("2024-09").atEndOfMonth()
+                ).first()
+        assertTrue("", transactions.size == 5)
+        val sumSeptember = transactions.sumOf { it.transactionRecord.amount.toDouble() }
+
+        // August
+
+        val expectedBalances =
+            offlineBalancesRepository
+                .getPlannedBalancesByMonthStream(
+                    YearMonth.parse("2024-08"),
+                    YearMonth.parse("2024-09")
+                ).first()
+
+        assertTrue(expectedBalances.containsKey(YearMonth.parse("2024-08")))
+        assertTrue(expectedBalances[YearMonth.parse("2024-08")]!![fakeCategories[0]]!! == -80f)
+    }
 }

@@ -1,7 +1,7 @@
 package com.example.budgetahead.data.categories
 
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
+import kotlinx.coroutines.flow.Flow
 
 interface CategoriesRepository {
     suspend fun insert(category: Category)
@@ -22,6 +22,6 @@ interface CategoriesRepository {
 
     fun getAllCategoriesWithTransactionsStream(
         start: LocalDateTime,
-        end: LocalDateTime,
+        end: LocalDateTime
     ): Flow<List<CategoryWithTransactions>>
 }

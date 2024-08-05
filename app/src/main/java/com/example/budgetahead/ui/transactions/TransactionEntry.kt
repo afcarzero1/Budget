@@ -46,13 +46,13 @@ import com.example.budgetahead.ui.components.LargeDropdownMenu
 import com.example.budgetahead.ui.components.inputs.FloatOutlinedText
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import com.example.budgetahead.use_cases.IconFromReIdUseCase
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransactionEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: TransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: TransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScore = rememberCoroutineScope()
     val accountsListState by viewModel.accountsListState.collectAsState()
@@ -61,7 +61,7 @@ fun TransactionEntryScreen(
     Scaffold(topBar = {
         SecondaryScreenTopBar(
             navigateBack = navigateBack,
-            titleResId = R.string.entry_transaction_title,
+            titleResId = R.string.entry_transaction_title
         )
     }) { innerPadding ->
         TransactionEntryBody(
@@ -79,10 +79,10 @@ fun TransactionEntryScreen(
                 }
             },
             modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+            Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
         )
     }
 }
@@ -94,24 +94,24 @@ fun TransactionEntryBody(
     availableCategories: List<Category>,
     onTransactionValueChanged: (TransactionRecord) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
+        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
     ) {
         TransactionForm(
             transactionRecord = transactionUiState.transaction,
             availableAccounts = availableAccounts,
             availableCategories = availableCategories,
             onValueChange = onTransactionValueChanged,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = onSaveClick,
             enabled = transactionUiState.isValid,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(R.string.entry_transaction_save))
         }
@@ -125,12 +125,12 @@ fun TransactionForm(
     availableAccounts: List<Account>,
     availableCategories: List<Category>,
     onValueChange: (TransactionRecord) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Log.d("TransactionForm", "TransactionForm: ${transactionRecord.id}")
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             FloatOutlinedText(
@@ -143,18 +143,18 @@ fun TransactionForm(
                 },
                 recordToFloat = { it.amount },
                 modifier =
-                    Modifier
-                        .weight(1.5f)
-                        .padding(end = 8.dp),
+                Modifier
+                    .weight(1.5f)
+                    .padding(end = 8.dp)
             )
             DatePickerField(
                 label = stringResource(id = R.string.entry_transaction_date),
                 onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
                 date = transactionRecord.date,
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp),
+                Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
             )
         }
 
@@ -164,7 +164,7 @@ fun TransactionForm(
             onItemSelected = { index, item ->
                 onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id))
             },
-            initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId },
+            initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId }
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_category),
@@ -174,14 +174,14 @@ fun TransactionForm(
                     transactionRecord.copy(
                         categoryId = availableCategories[index].id,
                         type =
-                            if (item.defaultType ==
-                                CategoryType.Expense
-                            ) {
-                                TransactionType.EXPENSE
-                            } else {
-                                TransactionType.INCOME
-                            },
-                    ),
+                        if (item.defaultType ==
+                            CategoryType.Expense
+                        ) {
+                            TransactionType.EXPENSE
+                        } else {
+                            TransactionType.INCOME
+                        }
+                    )
                 )
             },
             selectedItemToString = {
@@ -190,30 +190,30 @@ fun TransactionForm(
             leadingIcon = {
                 val iconResourceId =
                     IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                        it.iconResId,
+                        it.iconResId
                     )
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Category Icon",
                     modifier =
-                        Modifier
-                            .size(30.dp)
-                            .clip(CircleShape)
-                            .border(
-                                2.dp,
-                                if (it.defaultType == CategoryType.Expense) {
-                                    Color.Red.copy(alpha = 0.3f)
-                                } else {
-                                    Color.Green.copy(alpha = 0.3f)
-                                },
-                                CircleShape,
-                            ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+                    Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(
+                            2.dp,
+                            if (it.defaultType == CategoryType.Expense) {
+                                Color.Red.copy(alpha = 0.3f)
+                            } else {
+                                Color.Green.copy(alpha = 0.3f)
+                            },
+                            CircleShape
+                        ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                 )
             },
             initialIndex =
-                availableCategories.indexOfFirst {
-                    it.id == transactionRecord.categoryId
-                },
+            availableCategories.indexOfFirst {
+                it.id == transactionRecord.categoryId
+            }
         )
 
         OutlinedTextField(
@@ -221,12 +221,12 @@ fun TransactionForm(
             onValueChange = { onValueChange(transactionRecord.copy(name = it)) },
             label = { Text(text = stringResource(R.string.entry_transaction_name)) },
             colors =
-                TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                ),
+            TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
             modifier = Modifier.fillMaxWidth(),
             enabled = true,
-            singleLine = true,
+            singleLine = true
         )
     }
 }
@@ -241,7 +241,7 @@ fun TransactionFormPreview() {
             id = 1,
             name = "Groceries",
             defaultType = CategoryType.Expense,
-            parentCategoryId = null,
+            parentCategoryId = null
         )
     val sampleTransaction =
         TransactionRecord(
@@ -251,13 +251,13 @@ fun TransactionFormPreview() {
             accountId = 1,
             categoryId = 1,
             amount = 150f,
-            date = LocalDateTime.now(),
+            date = LocalDateTime.now()
         )
 
     TransactionForm(
         transactionRecord = sampleTransaction,
         availableAccounts = listOf(sampleAccount),
         availableCategories = listOf(sampleCategory),
-        onValueChange = {},
+        onValueChange = {}
     )
 }

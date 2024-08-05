@@ -54,4 +54,5 @@
   <string name="delete_future_transaction">Deleting Planned Transaction</string>
   <string name="delete_transfer">Deleting transfer!</string>
   <string name="edit">edit</string>
+  <string name="cashflow_overview">Cashflow Overview</string>
 </resources>

@@ -11,6 +11,11 @@ import com.example.budgetahead.data.currencies.CurrenciesApiService
 import com.example.budgetahead.data.currencies.CurrenciesResponse
 import com.example.budgetahead.data.currencies.CurrencyDao
 import com.example.budgetahead.data.currencies.OnlineCurrenciesRepository
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -24,11 +29,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import kotlin.time.Duration.Companion.seconds
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -44,7 +44,7 @@ internal class MockCurrenciesApiService : CurrenciesApiService {
             "AUD" to "1.43", // Australian Dollar
             "CAD" to "1.35", // Canadian Dollar
             "CHF" to "0.92", // Swiss Franc
-            "CNY" to "7.15", // Chinese Yuan
+            "CNY" to "7.15" // Chinese Yuan
         )
 
     override suspend fun getCurrencies(apiKey: String): CurrenciesResponse {
@@ -53,7 +53,7 @@ internal class MockCurrenciesApiService : CurrenciesApiService {
         return CurrenciesResponse(
             date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")),
             base = "USD",
-            rates = rates,
+            rates = rates
         )
     }
 }
@@ -89,7 +89,7 @@ class onlineCurrenciesRepositoryMockTest {
                 currencyDao,
                 currenciesApiService,
                 apiKey,
-                context.dataStore,
+                context.dataStore
             )
     }
 
@@ -114,7 +114,7 @@ class onlineCurrenciesRepositoryMockTest {
             val daoCurrencies = currencyDao.getAllCurrencies().first()
             assertTrue(
                 "The currencies database must be empty for this test to run",
-                daoCurrencies.size == 0,
+                daoCurrencies.size == 0
             )
         }
 
@@ -141,7 +141,7 @@ class onlineCurrenciesRepositoryMockTest {
 
             assertTrue(
                 "No Extra requests should be done once updated!",
-                currenciesApiService.servedRequests == 2,
+                currenciesApiService.servedRequests == 2
             )
         }
     }

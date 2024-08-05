@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class AccountDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val accountsRepository: AccountsRepository,
+    private val accountsRepository: AccountsRepository
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -35,7 +35,7 @@ class AccountDetailsViewModel(
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = AccountDetailsUiState(),
+                initialValue = AccountDetailsUiState()
             )
 
     var accountUiState by mutableStateOf(AccountDetailsUiState())
@@ -54,15 +54,14 @@ class AccountDetailsViewModel(
         this.accountUiState =
             AccountDetailsUiState(
                 account = account,
-                isValid = validateInput(account),
+                isValid = validateInput(account)
             )
         showUpdatedState = true
     }
 
-    private fun validateInput(account: Account): Boolean =
-        with(account) {
-            name.isNotBlank() && currency.isNotBlank()
-        }
+    private fun validateInput(account: Account): Boolean = with(account) {
+        name.isNotBlank() && currency.isNotBlank()
+    }
 
     suspend fun updateAccount() {
         if (accountUiState.isValid) {
@@ -77,5 +76,5 @@ class AccountDetailsViewModel(
 
 data class AccountDetailsUiState(
     val account: Account = Account(-1, "", 0.0f, "USD"),
-    val isValid: Boolean = false,
+    val isValid: Boolean = false
 )

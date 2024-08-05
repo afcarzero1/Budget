@@ -2,9 +2,9 @@ package com.example.budgetahead.data.balances
 
 import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.transactions.FullTransactionRecord
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlinx.coroutines.flow.Flow
 
 /**
  * A repository for retrieving balance data for different timeframes.
@@ -22,7 +22,7 @@ interface BalancesRepository {
      */
     fun getExecutedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Flow<Map<YearMonth, Map<Category, Float>>>
 
     /**
@@ -34,7 +34,7 @@ interface BalancesRepository {
      */
     fun getPlannedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Flow<Map<YearMonth, Map<Category, Float>>>
 
     /**
@@ -48,7 +48,7 @@ interface BalancesRepository {
     fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
-        realityDate: LocalDate = LocalDate.now(),
+        realityDate: LocalDate = LocalDate.now()
     ): Flow<Map<YearMonth, Map<Category, Float>>>
 
     /**
@@ -58,7 +58,7 @@ interface BalancesRepository {
     fun getBalanceByDay(
         fromDate: LocalDate,
         toDate: LocalDate,
-        realityDate: LocalDate = LocalDate.now(),
+        realityDate: LocalDate = LocalDate.now()
     ): Flow<Map<LocalDate, Float>>
 
     /**
@@ -66,7 +66,7 @@ interface BalancesRepository {
      */
     fun getPlannedTransactions(
         fromDate: LocalDate,
-        toDate: LocalDate,
+        toDate: LocalDate
     ): Flow<List<FullTransactionRecord>>
 
     /**
@@ -76,6 +76,6 @@ interface BalancesRepository {
      */
     fun getPendingTransactions(
         fromDate: LocalDate,
-        toDate: LocalDate,
+        toDate: LocalDate
     ): Flow<List<FullTransactionRecord>>
 }

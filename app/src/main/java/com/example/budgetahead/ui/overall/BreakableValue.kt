@@ -69,78 +69,78 @@ fun TemporalChartByCategory(
     transactionsInterval: Pair<YearMonth, YearMonth>,
     baseCurrency: Currency,
     @StringRes titleResId: Int,
-    onRangeChanged: ((fromDate: YearMonth, toDate: YearMonth) -> Unit)? = null,
+    onRangeChanged: ((fromDate: YearMonth, toDate: YearMonth) -> Unit)? = null
 ) {
     var showDateDialog by remember { mutableStateOf(false) }
     var showDetails by remember { mutableStateOf(false) }
 
     Card(
         colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation =
-            CardDefaults.cardElevation(
-                defaultElevation = 2.dp,
-            ),
+        CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 Text(
                     text = stringResource(titleResId),
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Row(
-                    modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+                    modifier = Modifier.padding(start = 16.dp, end = 8.dp)
                 ) {
                     IconButton(
-                        onClick = { showDetails = !showDetails },
+                        onClick = { showDetails = !showDetails }
                     ) {
                         Icon(
                             painter =
-                                if (!showDetails) {
-                                    painterResource(
-                                        id = R.drawable.toc_24dp_fill0_wght400_grad0_opsz24,
-                                    )
-                                } else {
-                                    painterResource(
-                                        id = R.drawable.monitoring_24dp_fill0_wght400_grad0_opsz24,
-                                    )
-                                },
+                            if (!showDetails) {
+                                painterResource(
+                                    id = R.drawable.toc_24dp_fill0_wght400_grad0_opsz24
+                                )
+                            } else {
+                                painterResource(
+                                    id = R.drawable.monitoring_24dp_fill0_wght400_grad0_opsz24
+                                )
+                            },
                             contentDescription = "Calendar",
                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                     onRangeChanged?.let {
                         IconButton(
-                            onClick = { showDateDialog = true },
+                            onClick = { showDateDialog = true }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = "Calendar",
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
@@ -150,55 +150,55 @@ fun TemporalChartByCategory(
             AnimatedVisibility(visible = showDetails) {
                 Column(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                 ) {
                     expenses.forEach { (yearMonth, expensesMap) ->
                         val incomesMap = incomes[yearMonth] ?: mapOf()
                         Card(
                             modifier = Modifier.padding(vertical = 8.dp),
                             colors =
-                                CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                ),
+                            CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            )
                         ) {
                             Row(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                horizontalArrangement = Arrangement.Start,
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.Start
                             ) {
                                 Text(
                                     text =
-                                        DateTimeFormatter
-                                            .ofPattern("MMMM yyyy")
-                                            .format(yearMonth),
+                                    DateTimeFormatter
+                                        .ofPattern("MMMM yyyy")
+                                        .format(yearMonth),
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
 
                             Row(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 BreakableValue(
                                     breakedValue = expensesMap,
                                     baseCurrency = baseCurrency,
                                     color = Color(0xFFCF3B2A),
-                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 )
 
                                 BreakableValue(
                                     breakedValue = incomesMap,
                                     baseCurrency = baseCurrency,
                                     color = Color(0xFF68A462),
-                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 )
                             }
                         }
@@ -209,26 +209,26 @@ fun TemporalChartByCategory(
             AnimatedVisibility(
                 visible = !showDetails,
                 enter =
-                    fadeIn(animationSpec = tween(500)) +
-                        expandVertically(
-                            animationSpec =
-                                tween(
-                                    500,
-                                ),
-                        ),
+                fadeIn(animationSpec = tween(500)) +
+                    expandVertically(
+                        animationSpec =
+                        tween(
+                            500
+                        )
+                    ),
                 exit =
-                    fadeOut(animationSpec = tween(500)) +
-                        shrinkVertically(
-                            animationSpec =
-                                tween(
-                                    500,
-                                ),
-                        ),
+                fadeOut(animationSpec = tween(500)) +
+                    shrinkVertically(
+                        animationSpec =
+                        tween(
+                            500
+                        )
+                    )
             ) {
                 MonthExpensesChart(
                     expenses = expenses,
                     incomes = incomes,
-                    baseCurrency = baseCurrency,
+                    baseCurrency = baseCurrency
                 )
             }
         }
@@ -240,7 +240,7 @@ fun TemporalChartByCategory(
             onClose = {
                 showDateDialog = false
                 onRangeChanged(it.first, it.second)
-            },
+            }
         )
     }
 }
@@ -250,7 +250,7 @@ fun BreakableValue(
     breakedValue: Map<Category, Float>,
     baseCurrency: Currency,
     color: Color,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val totalValue = breakedValue.values.sum()
     var expanded by remember { mutableStateOf(false) }
@@ -259,24 +259,24 @@ fun BreakableValue(
         Row(
             modifier = Modifier.wrapContentWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = baseCurrency.formatAmount(totalValue),
                 color = color,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(end = 4.dp),
+                modifier = Modifier.padding(end = 4.dp)
             )
             IconButton(
                 onClick = {
                     expanded = !expanded
                 },
-                modifier = Modifier.padding(horizontal = 4.dp),
+                modifier = Modifier.padding(horizontal = 4.dp)
             ) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown,
-                    contentDescription = "Dropdown",
+                    contentDescription = "Dropdown"
                 )
             }
         }
@@ -285,21 +285,21 @@ fun BreakableValue(
             breakedValue.forEach { (category, value) ->
                 Column(
                     modifier =
-                        Modifier
-                            .wrapContentWidth()
-                            .padding(8.dp),
+                    Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = category.name,
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge
                     )
                     Text(
                         text = baseCurrency.formatAmount(value),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Light,
-                        color = color,
+                        color = color
                     )
                 }
             }
@@ -311,7 +311,7 @@ fun BreakableValue(
 fun MonthExpensesChart(
     expenses: Map<YearMonth, Map<Category, Float>>,
     incomes: Map<YearMonth, Map<Category, Float>>,
-    baseCurrency: Currency,
+    baseCurrency: Currency
 ) {
     val sortedExpenses = expenses.entries.sortedBy { it.key }
     val sortedIncomes = incomes.entries.sortedBy { it.key }
@@ -334,7 +334,7 @@ fun MonthExpensesChart(
     val chartEntryModelProducer =
         ChartEntryModelProducer(
             transformedExpenses.map { (k, v) -> entryOf(k, v) },
-            transformedIncomes.map { (k, v) -> entryOf(k, v) },
+            transformedIncomes.map { (k, v) -> entryOf(k, v) }
         )
 
     val dateTimeFormatter = DateTimeFormatter.ofPattern("MM y")
@@ -355,17 +355,17 @@ fun MonthExpensesChart(
     val columnChart =
         columnChart(
             columns =
-                listOf(
-                    LineComponent(
-                        color = Color(0xFFCC3333).toArgb(),
-                        thicknessDp = 3f,
-                    ),
-                    LineComponent(
-                        color = Color(0xFF33CC33).toArgb(),
-                        thicknessDp = 3f,
-                    ),
+            listOf(
+                LineComponent(
+                    color = Color(0xFFCC3333).toArgb(),
+                    thicknessDp = 3f
                 ),
-            mergeMode = ColumnChart.MergeMode.Grouped,
+                LineComponent(
+                    color = Color(0xFF33CC33).toArgb(),
+                    thicknessDp = 3f
+                )
+            ),
+            mergeMode = ColumnChart.MergeMode.Grouped
         )
 
     ProvideChartStyle(chartStyle = m3ChartStyle()) {
@@ -373,15 +373,15 @@ fun MonthExpensesChart(
             chart = columnChart,
             chartModelProducer = chartEntryModelProducer,
             startAxis =
-                rememberStartAxis(
-                    valueFormatter = startAxisValueFormatter,
-                ),
+            rememberStartAxis(
+                valueFormatter = startAxisValueFormatter
+            ),
             bottomAxis =
-                rememberBottomAxis(
-                    valueFormatter = horizontalAxisValueFormatter,
-                    labelRotationDegrees = 90f,
-                ),
-            runInitialAnimation = false,
+            rememberBottomAxis(
+                valueFormatter = horizontalAxisValueFormatter,
+                labelRotationDegrees = 90f
+            ),
+            runInitialAnimation = false
         )
     }
 }
@@ -390,7 +390,7 @@ fun MonthExpensesChart(
 fun DateRangeDialog(
     isOpen: Boolean,
     currentSelection: Pair<YearMonth, YearMonth>,
-    onClose: (Pair<YearMonth, YearMonth>) -> Unit,
+    onClose: (Pair<YearMonth, YearMonth>) -> Unit
 ) {
     var startDate by remember { mutableStateOf(currentSelection.first) }
     var endDate by remember { mutableStateOf(currentSelection.second) }
@@ -401,7 +401,7 @@ fun DateRangeDialog(
             title = {
                 Text(
                     text = "Select Date Range",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             },
             text = {
@@ -412,7 +412,7 @@ fun DateRangeDialog(
                         startDate = start
                         endDate = end
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             confirmButton = {
@@ -423,7 +423,7 @@ fun DateRangeDialog(
                 }
             },
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -434,6 +434,6 @@ fun PreviewDateRangeDialog() {
     DateRangeDialog(
         isOpen = true,
         currentSelection = Pair(YearMonth.now(), YearMonth.now().plusMonths(1)),
-        onClose = {},
+        onClose = {}
     )
 }

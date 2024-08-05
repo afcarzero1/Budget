@@ -32,21 +32,21 @@ fun <T> BaseRow(
     currency: String,
     negative: Boolean,
     holdedItem: T,
-    onItemSelected: (T) -> Unit = {},
+    onItemSelected: (T) -> Unit = {}
 ) {
     val formattedAmount = Currency.formatAmountStatic(currency, amount)
 
     Row(
         modifier =
-            Modifier
-                .height(68.dp)
-                .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier
+            .height(68.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         // Color bar in the left side
         VerticalBar(
             color = color,
-            modifier = Modifier.width(2.dp),
+            modifier = Modifier.width(2.dp)
         )
 
         Spacer(Modifier.width(12.dp))
@@ -63,24 +63,24 @@ fun <T> BaseRow(
 
         // Amount
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = if (negative) "-" else " ",
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = formattedAmount,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(4.dp))
             IconButton(onClick = { onItemSelected(holdedItem) }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
+                    contentDescription = null
                 )
             }
         }
@@ -90,14 +90,11 @@ fun <T> BaseRow(
 }
 
 @Composable
-fun VerticalBar(
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
+fun VerticalBar(color: Color, modifier: Modifier = Modifier) {
     Spacer(
         modifier
             .size(4.dp, 36.dp)
-            .background(color = color),
+            .background(color = color)
     )
 }
 

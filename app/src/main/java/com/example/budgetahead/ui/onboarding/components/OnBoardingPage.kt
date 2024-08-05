@@ -22,32 +22,29 @@ import com.example.budgetahead.ui.onboarding.Page
 import com.example.budgetahead.ui.theme.BudgetApplicationTheme
 
 @Composable
-fun OnBoardingPage(
-    modifier: Modifier = Modifier,
-    page: Page,
-) {
+fun OnBoardingPage(modifier: Modifier = Modifier, page: Page) {
     Column(modifier = modifier) {
         Image(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.60f),
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.60f),
             painter = painterResource(id = page.image),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium)))
         Text(
             modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.medium)),
             text = page.title,
             style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.medium)),
             text = page.description,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
         )
     }
 }
@@ -59,11 +56,11 @@ fun OnBoardingPagePreview() {
     BudgetApplicationTheme {
         OnBoardingPage(
             page =
-                Page(
-                    title = "Lorem Ipsum is simply dummy",
-                    description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                    image = R.drawable.budget,
-                ),
+            Page(
+                title = "Lorem Ipsum is simply dummy",
+                description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                image = R.drawable.budget
+            )
         )
     }
 }

@@ -13,214 +13,210 @@ import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
 import com.example.budgetahead.use_cases.ComputeDeltaFromTransactionsUseCase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import java.lang.IllegalStateException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import kotlin.math.max
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 class OfflineBalancesRepository(
     private val accountsRepository: AccountsRepository,
     private val transactionsRepository: TransactionsRepository,
-    private val futureTransactionsRepository: FutureTransactionsRepository,
+    private val futureTransactionsRepository: FutureTransactionsRepository
 ) : BalancesRepository {
     override fun getExecutedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
-    ): Flow<Map<YearMonth, Map<Category, Float>>> =
-        transactionsRepository
-            .getFullTransactionsByMonthsStream(
-                fromDate = fromDate,
-                toDate = toDate,
-            ).map {
-                groupTransactionsByMonthAndCategory(it, fromDate, toDate)
-            }
+        toDate: YearMonth
+    ): Flow<Map<YearMonth, Map<Category, Float>>> = transactionsRepository
+        .getFullTransactionsByMonthsStream(
+            fromDate = fromDate,
+            toDate = toDate
+        ).map {
+            groupTransactionsByMonthAndCategory(it, fromDate, toDate)
+        }
 
     override fun getPlannedBalancesByMonthStream(
         fromDate: YearMonth,
-        toDate: YearMonth,
-    ): Flow<Map<YearMonth, Map<Category, Float>>> =
-        futureTransactionsRepository
-            .getAllFutureFullTransactionsStream()
-            .map { futureTransactions ->
-                val pendingTransactions =
-                    generatePendingTransactions(
-                        futureTransactions,
-                        listOf(),
-                        fromDate,
-                        toDate,
-                    )
-                groupTransactionsByMonthAndCategory(pendingTransactions, fromDate, toDate)
-            }
+        toDate: YearMonth
+    ): Flow<Map<YearMonth, Map<Category, Float>>> = futureTransactionsRepository
+        .getAllFutureFullTransactionsStream()
+        .map { futureTransactions ->
+            val pendingTransactions =
+                generatePendingTransactions(
+                    futureTransactions,
+                    listOf(),
+                    fromDate,
+                    toDate
+                )
+            groupTransactionsByMonthAndCategory(pendingTransactions, fromDate, toDate)
+        }
 
     override fun getExpectedBalancesByMonthStream(
         fromDate: YearMonth,
         toDate: YearMonth,
-        realityDate: LocalDate,
-    ): Flow<Map<YearMonth, Map<Category, Float>>> =
-        combine(
-            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-            transactionsRepository.getAllFullTransactionsStream(),
-        ) { futureTransactions, executedTransactions ->
-            if (toDate.atEndOfMonth() < realityDate) {
-                Log.w("BalancesRepository", "toDate is after realityDate")
-            }
-            // Take only the future pending transactions
-            val allExpectedTransactions: List<FullTransactionRecord> =
-                generatePendingTransactions(
-                    futureTransactions,
-                    executedTransactions,
-                    fromDate,
-                    toDate,
-                ).filter {
-                    it.transactionRecord.date > realityDate.atTime(23, 59, 59) &&
-                        it.transactionRecord.date <= toDate.atEndOfMonth().atTime(23, 59, 59)
-                }
-
-            val relevantTransactions =
-                executedTransactions.filter {
-                    it.transactionRecord.date.toLocalDate() >= fromDate.atDay(1) && it.transactionRecord.date.toLocalDate() <= realityDate
-                }
-
-            groupTransactionsByMonthAndCategory(
-                allExpectedTransactions.plus(relevantTransactions).sortedBy {
-                    it.transactionRecord.date
-                },
-                fromDate,
-                toDate,
-            )
+        realityDate: LocalDate
+    ): Flow<Map<YearMonth, Map<Category, Float>>> = combine(
+        futureTransactionsRepository.getAllFutureFullTransactionsStream(),
+        transactionsRepository.getAllFullTransactionsStream()
+    ) { futureTransactions, executedTransactions ->
+        if (toDate.atEndOfMonth() < realityDate) {
+            Log.w("BalancesRepository", "toDate is after realityDate")
         }
-
-    override fun getBalanceByDay(
-        fromDate: LocalDate,
-        toDate: LocalDate,
-        realityDate: LocalDate,
-    ): Flow<Map<LocalDate, Float>> =
-        combine(
-            accountsRepository.getAllFullAccountsStream(),
-            transactionsRepository.getAllFullTransactionsStream(),
-            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-        ) { accounts, transactions, futureTransactions ->
-            Triple(accounts, transactions, futureTransactions)
-        }.map { (allAccounts, allTransactions, allFutureTransactions) ->
-
-            val balanceByDay: MutableMap<LocalDate, Float> = generateDayInterval(fromDate, toDate)
-
-            // Compute the initial balance at "fromDate" in the
-            // base currency
-            var initialBalance = 0f
-            for (accountInfo in allAccounts) {
-                initialBalance += accountInfo.account.computeBalance(
-                    accountInfo.transactionRecords.map { it.transactionRecord },
-                    fromDate.minusDays(1),
-                ) / accountInfo.currency.value
-            }
-
-            // Apply all the real transactions until "realityDate" (end of the day)
-            val relevantTransactions =
-                allTransactions
-                    .filter {
-                        it.transactionRecord.date.toLocalDate() >= fromDate && it.transactionRecord.date.toLocalDate() <= realityDate
-                    }.sortedBy {
-                        it.transactionRecord.date.toLocalDate()
-                    }
-
-            // Apply all the expected transactions until "toDate" (end of the day)
-            val relevantFutureTransactions =
-                generatePendingTransactions(
-                    allFutureTransactions,
-                    allTransactions,
-                    realityDate,
-                    toDate,
-                )
-
-            var currentDate = fromDate
-
-            while (currentDate <= toDate) {
-                if (currentDate <= realityDate) {
-                    // TODO: Group before and use hash map, this is VERY inefficient
-                    val dateTransactions =
-                        relevantTransactions.filter {
-                            it.transactionRecord.date.toLocalDate() == currentDate
-                        }
-
-                    val dateDelta =
-                        dateTransactions
-                            .sumOf {
-                                val value =
-                                    when (it.transactionRecord.type) {
-                                        TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
-                                        TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
-                                        TransactionType.EXPENSE_TRANSFER -> 0f.toDouble()
-                                        TransactionType.INCOME_TRANSFER -> 0f.toDouble()
-                                    }
-                                value /
-                                    it.account.currency.value
-                                        .toDouble()
-                            }.toFloat()
-
-                    initialBalance += dateDelta
-                }
-
-                if (currentDate > realityDate) {
-                    val dateTransactions =
-                        relevantFutureTransactions.filter {
-                            it.transactionRecord.date.toLocalDate() == currentDate
-                        }
-
-                    val dateDelta =
-                        dateTransactions
-                            .sumOf {
-                                val value =
-                                    when (it.transactionRecord.type) {
-                                        TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
-                                        TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
-                                        TransactionType.EXPENSE_TRANSFER -> 0F.toDouble()
-                                        TransactionType.INCOME_TRANSFER -> 0f.toDouble()
-                                    }
-                                value /
-                                    it.account.currency.value
-                                        .toDouble()
-                            }.toFloat()
-
-                    initialBalance += dateDelta
-                }
-
-                balanceByDay[currentDate] = initialBalance
-                currentDate = currentDate.plusDays(1)
-            }
-
-            balanceByDay
-        }
-
-    override fun getPlannedTransactions(
-        fromDate: LocalDate,
-        toDate: LocalDate,
-    ): Flow<List<FullTransactionRecord>> =
-        futureTransactionsRepository
-            .getAllFutureFullTransactionsStream()
-            .map { futureTransactions ->
-                generatePendingTransactions(futureTransactions, listOf(), fromDate, toDate)
-            }
-
-    override fun getPendingTransactions(
-        fromDate: LocalDate,
-        toDate: LocalDate,
-    ): Flow<List<FullTransactionRecord>> =
-        combine(
-            futureTransactionsRepository.getAllFutureFullTransactionsStream(),
-            transactionsRepository.getAllFullTransactionsStream(),
-        ) { futureTransactions, executedTransactions ->
+        // Take only the future pending transactions
+        val allExpectedTransactions: List<FullTransactionRecord> =
             generatePendingTransactions(
                 futureTransactions,
                 executedTransactions,
                 fromDate,
-                toDate,
-            )
+                toDate
+            ).filter {
+                it.transactionRecord.date > realityDate.atTime(23, 59, 59) &&
+                    it.transactionRecord.date <= toDate.atEndOfMonth().atTime(23, 59, 59)
+            }
+
+        val relevantTransactions =
+            executedTransactions.filter {
+                it.transactionRecord.date.toLocalDate() >= fromDate.atDay(1) &&
+                    it.transactionRecord.date.toLocalDate() <= realityDate
+            }
+
+        groupTransactionsByMonthAndCategory(
+            allExpectedTransactions.plus(relevantTransactions).sortedBy {
+                it.transactionRecord.date
+            },
+            fromDate,
+            toDate
+        )
+    }
+
+    override fun getBalanceByDay(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        realityDate: LocalDate
+    ): Flow<Map<LocalDate, Float>> = combine(
+        accountsRepository.getAllFullAccountsStream(),
+        transactionsRepository.getAllFullTransactionsStream(),
+        futureTransactionsRepository.getAllFutureFullTransactionsStream()
+    ) { accounts, transactions, futureTransactions ->
+        Triple(accounts, transactions, futureTransactions)
+    }.map { (allAccounts, allTransactions, allFutureTransactions) ->
+
+        val balanceByDay: MutableMap<LocalDate, Float> = generateDayInterval(fromDate, toDate)
+
+        // Compute the initial balance at "fromDate" in the
+        // base currency
+        var initialBalance = 0f
+        for (accountInfo in allAccounts) {
+            initialBalance += accountInfo.account.computeBalance(
+                accountInfo.transactionRecords.map { it.transactionRecord },
+                fromDate.minusDays(1)
+            ) / accountInfo.currency.value
         }
+
+        // Apply all the real transactions until "realityDate" (end of the day)
+        val relevantTransactions =
+            allTransactions
+                .filter {
+                    it.transactionRecord.date.toLocalDate() >= fromDate &&
+                        it.transactionRecord.date.toLocalDate() <= realityDate
+                }.sortedBy {
+                    it.transactionRecord.date.toLocalDate()
+                }
+
+        // Apply all the expected transactions until "toDate" (end of the day)
+        val relevantFutureTransactions =
+            generatePendingTransactions(
+                allFutureTransactions,
+                allTransactions,
+                realityDate,
+                toDate
+            )
+
+        var currentDate = fromDate
+
+        while (currentDate <= toDate) {
+            if (currentDate <= realityDate) {
+                // TODO: Group before and use hash map, this is VERY inefficient
+                val dateTransactions =
+                    relevantTransactions.filter {
+                        it.transactionRecord.date.toLocalDate() == currentDate
+                    }
+
+                val dateDelta =
+                    dateTransactions
+                        .sumOf {
+                            val value =
+                                when (it.transactionRecord.type) {
+                                    TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE_TRANSFER -> 0f.toDouble()
+                                    TransactionType.INCOME_TRANSFER -> 0f.toDouble()
+                                }
+                            value /
+                                it.account.currency.value
+                                    .toDouble()
+                        }.toFloat()
+
+                initialBalance += dateDelta
+            }
+
+            if (currentDate > realityDate) {
+                val dateTransactions =
+                    relevantFutureTransactions.filter {
+                        it.transactionRecord.date.toLocalDate() == currentDate
+                    }
+
+                val dateDelta =
+                    dateTransactions
+                        .sumOf {
+                            val value =
+                                when (it.transactionRecord.type) {
+                                    TransactionType.INCOME -> it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE -> -it.transactionRecord.amount.toDouble()
+                                    TransactionType.EXPENSE_TRANSFER -> 0F.toDouble()
+                                    TransactionType.INCOME_TRANSFER -> 0f.toDouble()
+                                }
+                            value /
+                                it.account.currency.value
+                                    .toDouble()
+                        }.toFloat()
+
+                initialBalance += dateDelta
+            }
+
+            balanceByDay[currentDate] = initialBalance
+            currentDate = currentDate.plusDays(1)
+        }
+
+        balanceByDay
+    }
+
+    override fun getPlannedTransactions(
+        fromDate: LocalDate,
+        toDate: LocalDate
+    ): Flow<List<FullTransactionRecord>> = futureTransactionsRepository
+        .getAllFutureFullTransactionsStream()
+        .map { futureTransactions ->
+            generatePendingTransactions(futureTransactions, listOf(), fromDate, toDate)
+        }
+
+    override fun getPendingTransactions(
+        fromDate: LocalDate,
+        toDate: LocalDate
+    ): Flow<List<FullTransactionRecord>> = combine(
+        futureTransactionsRepository.getAllFutureFullTransactionsStream(),
+        transactionsRepository.getAllFullTransactionsStream()
+    ) { futureTransactions, executedTransactions ->
+        generatePendingTransactions(
+            futureTransactions,
+            executedTransactions,
+            fromDate,
+            toDate
+        )
+    }
 
     private fun generateDates(
         startDate: LocalDate,
@@ -228,7 +224,7 @@ class OfflineBalancesRepository(
         timePeriod: TimePeriod?,
         periods: Int,
         intervalStart: LocalDate,
-        intervalEnd: LocalDate,
+        intervalEnd: LocalDate
     ): List<LocalDate> {
         val dates = mutableListOf<LocalDate>()
         var currentDate = startDate // cannot use max because we need it to be a "multiple" of this day
@@ -261,7 +257,7 @@ class OfflineBalancesRepository(
 
     private fun generateInterval(
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Map<YearMonth, MutableMap<Category, Float>> {
         val balancesByMonth = mutableMapOf<YearMonth, MutableMap<Category, Float>>()
         var currentDate = fromDate
@@ -274,7 +270,7 @@ class OfflineBalancesRepository(
 
     private fun generateDayInterval(
         fromDate: LocalDate,
-        toDate: LocalDate,
+        toDate: LocalDate
     ): MutableMap<LocalDate, Float> {
         val balancesByDay = mutableMapOf<LocalDate, Float>()
 
@@ -297,14 +293,13 @@ class OfflineBalancesRepository(
         futureTransactions: List<FullFutureTransaction>,
         executedTransactions: List<FullTransactionRecord>,
         fromDate: YearMonth,
-        toDate: YearMonth,
-    ): List<FullTransactionRecord> =
-        generatePendingTransactions(
-            futureTransactions,
-            executedTransactions,
-            fromDate.atDay(1),
-            toDate.atEndOfMonth(),
-        )
+        toDate: YearMonth
+    ): List<FullTransactionRecord> = generatePendingTransactions(
+        futureTransactions,
+        executedTransactions,
+        fromDate.atDay(1),
+        toDate.atEndOfMonth()
+    )
 
     /**
      * Generate the pending transactions given a list of future transactions and executed transactions.
@@ -313,7 +308,7 @@ class OfflineBalancesRepository(
         futureTransactions: List<FullFutureTransaction>,
         executedTransactions: List<FullTransactionRecord>,
         fromDate: LocalDate,
-        toDate: LocalDate,
+        toDate: LocalDate
     ): List<FullTransactionRecord> {
         val pendingTransactions: MutableList<FullTransactionRecord> = mutableListOf()
 
@@ -323,12 +318,14 @@ class OfflineBalancesRepository(
                 futureTransactions,
                 executedTransactions,
                 fromDate,
-                toDate,
-            ),
+                toDate
+            )
         )
 
         // Handle remaining future transactions
-        for (futureTransaction in futureTransactions.filter { !it.futureTransaction.recurrenceType.isContinuous() }) {
+        for (futureTransaction in futureTransactions.filter {
+            !it.futureTransaction.recurrenceType.isContinuous()
+        }) {
             val recurrenceType = futureTransaction.futureTransaction.recurrenceType
             for (date in generateDates(
                 startDate = futureTransaction.futureTransaction.startDate.toLocalDate(),
@@ -336,13 +333,13 @@ class OfflineBalancesRepository(
                 timePeriod = recurrenceType.timePeriod(),
                 periods = futureTransaction.futureTransaction.recurrenceValue,
                 intervalStart = fromDate,
-                intervalEnd = toDate,
+                intervalEnd = toDate
             )) {
                 pendingTransactions.add(
                     generateTransaction(
                         date,
-                        futureTransaction,
-                    ),
+                        futureTransaction
+                    )
                 )
             }
         }
@@ -354,7 +351,7 @@ class OfflineBalancesRepository(
         futureTransactions: List<FullFutureTransaction>,
         executedTransactions: List<FullTransactionRecord>,
         fromDate: LocalDate,
-        toDate: LocalDate,
+        toDate: LocalDate
     ): List<FullTransactionRecord> {
         val pendingTransactions: MutableList<FullTransactionRecord> = mutableListOf()
 
@@ -367,7 +364,7 @@ class OfflineBalancesRepository(
                         start1 = fromDate,
                         end1= toDate,
                         start2 = it.futureTransaction.startDate.toLocalDate(),
-                        end2 = it.futureTransaction.endDate.toLocalDate(),
+                        end2 = it.futureTransaction.endDate.toLocalDate()
                     )
             }.groupBy {
                 it.category
@@ -391,12 +388,23 @@ class OfflineBalancesRepository(
                         var nextDate =
                             timePeriod?.let { date: TimePeriod ->
                                 when (date) {
-                                    TimePeriod.YEAR -> currentDate.plusYears(futureTransaction.futureTransaction.recurrenceValue.toLong())
-                                    TimePeriod.DAY -> currentDate.plusDays(futureTransaction.futureTransaction.recurrenceValue.toLong())
-                                    TimePeriod.WEEK -> currentDate.plusWeeks(futureTransaction.futureTransaction.recurrenceValue.toLong())
-                                    TimePeriod.MONTH -> currentDate.plusMonths(futureTransaction.futureTransaction.recurrenceValue.toLong())
+                                    TimePeriod.YEAR -> currentDate.plusYears(
+                                        futureTransaction.futureTransaction.recurrenceValue.toLong()
+                                    )
+                                    TimePeriod.DAY -> currentDate.plusDays(
+                                        futureTransaction.futureTransaction.recurrenceValue.toLong()
+                                    )
+                                    TimePeriod.WEEK -> currentDate.plusWeeks(
+                                        futureTransaction.futureTransaction.recurrenceValue.toLong()
+                                    )
+                                    TimePeriod.MONTH -> currentDate.plusMonths(
+                                        futureTransaction.futureTransaction.recurrenceValue.toLong()
+                                    )
                                 }
-                            } ?: throw IllegalStateException("Continuous events cant be single pointed in time")
+                            }
+                                ?: throw IllegalStateException(
+                                    "Continuous events cant be single pointed in time"
+                                )
                         // TODO: Maybe the best solution is to spread on a day to day basis (this might create a lot of transactions)
                         // Understand if we under-shooted
                         if (nextDate < fromDate) {
@@ -407,9 +415,13 @@ class OfflineBalancesRepository(
                         var totalExpectedMultiplier = 1f
                         if (currentDate < fromDate) {
                             val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
-                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(fromDate, nextDate)
+                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(
+                                fromDate,
+                                nextDate
+                            )
 
-                            totalExpectedMultiplier *= (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
+                            totalExpectedMultiplier *=
+                                (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
                         }
 
                         // Understand if we over-shooted!
@@ -417,18 +429,24 @@ class OfflineBalancesRepository(
 
                         if (nextDate > maxDate) {
                             val timePeriodLength = ChronoUnit.DAYS.between(currentDate, nextDate)
-                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(currentDate, maxDate)
+                            val nonOvershootPeriodLength = ChronoUnit.DAYS.between(
+                                currentDate,
+                                maxDate
+                            )
 
-                            totalExpectedMultiplier *= (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
+                            totalExpectedMultiplier *=
+                                (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
                             nextDate = maxDate
                         }
 
-                        val periodExecutedTransactions: MutableList<FullTransactionRecord> = mutableListOf()
+                        val periodExecutedTransactions: MutableList<FullTransactionRecord> =
+                            mutableListOf()
 
                         // Get those transactions that were executed between currentDate and nextDate
                         while (
                             currentExpectedTransactionIndex < relevantExecutedTransactions.size &&
-                            relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() < nextDate
+                            relevantExecutedTransactions[currentExpectedTransactionIndex].transactionRecord.date.toLocalDate() <
+                            nextDate
                         ) {
                             // Add it only if it falls within the examined period AND it was not already counted
                             if (
@@ -441,7 +459,9 @@ class OfflineBalancesRepository(
                                 ) {
                                     throw IllegalStateException("This is not supported yet!!")
                                 }
-                                periodExecutedTransactions.add(relevantExecutedTransactions[currentExpectedTransactionIndex])
+                                periodExecutedTransactions.add(
+                                    relevantExecutedTransactions[currentExpectedTransactionIndex]
+                                )
                                 alreadyCounted[currentExpectedTransactionIndex] = true
                             }
 
@@ -451,21 +471,22 @@ class OfflineBalancesRepository(
                         // Sum how much those transactions are worth! IN BASE CURRENCY
                         val totalExecuted =
                             ComputeDeltaFromTransactionsUseCase().computeDelta(
-                                periodExecutedTransactions,
+                                periodExecutedTransactions
                             )
 
                         // Convert that value to the transaction currency
                         val totalExecutedInCurrency =
                             ComputeDeltaFromTransactionsUseCase().fromBaseCurrency(
                                 totalExecuted,
-                                futureTransaction.currency,
+                                futureTransaction.currency
                             )
 
                         // Subtract the value from the expected transaction for this period.
                         val totalPending =
                             max(
-                                futureTransaction.futureTransaction.amount * totalExpectedMultiplier - totalExecutedInCurrency,
-                                0f,
+                                futureTransaction.futureTransaction.amount * totalExpectedMultiplier -
+                                    totalExecutedInCurrency,
+                                0f
                             )
 
                         // Add the "planned" modified transaction at the end of the period
@@ -473,8 +494,8 @@ class OfflineBalancesRepository(
                             generateTransaction(
                                 nextDate,
                                 futureTransaction,
-                                totalPending,
-                            ),
+                                totalPending
+                            )
                         )
 
                         // Advance to next period
@@ -489,39 +510,38 @@ class OfflineBalancesRepository(
         start1: LocalDate,
         end1: LocalDate,
         start2: LocalDate,
-        end2: LocalDate,
+        end2: LocalDate
     ): Boolean = end1.isBefore(start2) || start1.isAfter(end2)
 
     private fun generateTransaction(
         date: LocalDate,
         futureTransaction: FullFutureTransaction,
-        amount: Float? = null,
-    ): FullTransactionRecord =
-        FullTransactionRecord(
-            transactionRecord =
-                TransactionRecord(
-                    id = 0,
-                    date = date.atStartOfDay(),
-                    amount = amount ?: futureTransaction.futureTransaction.amount,
-                    name = "",
-                    categoryId = futureTransaction.futureTransaction.categoryId,
-                    accountId = 0,
-                    type = futureTransaction.futureTransaction.type,
-                ),
-            category = futureTransaction.category,
+        amount: Float? = null
+    ): FullTransactionRecord = FullTransactionRecord(
+        transactionRecord =
+        TransactionRecord(
+            id = 0,
+            date = date.atStartOfDay(),
+            amount = amount ?: futureTransaction.futureTransaction.amount,
+            name = "",
+            categoryId = futureTransaction.futureTransaction.categoryId,
+            accountId = 0,
+            type = futureTransaction.futureTransaction.type
+        ),
+        category = futureTransaction.category,
+        account =
+        AccountWithCurrency(
             account =
-                AccountWithCurrency(
-                    account =
-                        Account(
-                            id = 0,
-                            name = "",
-                            initialBalance = 0f,
-                            currency = futureTransaction.currency.name,
-                            color = 0x000000,
-                        ),
-                    currency = futureTransaction.currency,
-                ),
+            Account(
+                id = 0,
+                name = "",
+                initialBalance = 0f,
+                currency = futureTransaction.currency.name,
+                color = 0x000000
+            ),
+            currency = futureTransaction.currency
         )
+    )
 
     /**
      * Groups the transactions by month and category in the specified interval and returns a map
@@ -534,7 +554,7 @@ class OfflineBalancesRepository(
     private fun groupTransactionsByMonthAndCategory(
         transactions: List<FullTransactionRecord>,
         fromDate: YearMonth,
-        toDate: YearMonth,
+        toDate: YearMonth
     ): Map<YearMonth, Map<Category, Float>> {
         val balancesByMonth = generateInterval(fromDate, toDate)
 
@@ -551,7 +571,7 @@ class OfflineBalancesRepository(
             val transactionAbsoluteValue =
                 ComputeDeltaFromTransactionsUseCase().toBaseCurrency(
                     transaction.transactionRecord.amount,
-                    transaction.account.currency,
+                    transaction.account.currency
                 )
 
             val transactionValue: Float =

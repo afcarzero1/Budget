@@ -15,9 +15,9 @@ import java.time.LocalDate
             entity = Currency::class,
             parentColumns = arrayOf("name"),
             childColumns = arrayOf("currency"),
-            onDelete = ForeignKey.RESTRICT,
-        ),
-    ],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ]
 )
 data class Account(
     @PrimaryKey(autoGenerate = true)
@@ -26,7 +26,7 @@ data class Account(
     val initialBalance: Float,
     val currency: String,
     val color: Long = 0xFF0000FF,
-    val hidden: Boolean = false,
+    val hidden: Boolean = false
 ) {
     /**
      * Compute the balance of the account at the start of the day (not considering transactions
@@ -36,7 +36,7 @@ data class Account(
      */
     fun computeBalance(
         transactionRecords: List<TransactionRecord>,
-        atDate: LocalDate = LocalDate.now(),
+        atDate: LocalDate = LocalDate.now()
     ): Float {
         var balance = initialBalance
 

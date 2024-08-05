@@ -10,6 +10,7 @@ import com.example.budgetahead.data.BudgetDatabase
 import com.example.budgetahead.data.currencies.CurrenciesApiService
 import com.example.budgetahead.data.currencies.OnlineCurrenciesRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -19,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
-import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -61,7 +61,7 @@ class onlineCurrenciesRepositoryTest {
                 BudgetDatabase.getDatabase(context).currencyDao(),
                 currenciesApiService,
                 apiKey,
-                context.dataStore,
+                context.dataStore
             )
     }
 

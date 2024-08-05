@@ -32,17 +32,17 @@ import androidx.navigation.NavHostController
 fun BudgetNavigationBar(
     allScreens: List<BudgetDestination>,
     onTabSelected: (BudgetDestination) -> Unit,
-    currentScreen: BudgetDestination,
+    currentScreen: BudgetDestination
 ) {
     BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             allScreens.forEach { screen ->
                 val isSelected = screen == currentScreen
@@ -50,23 +50,23 @@ fun BudgetNavigationBar(
                     onClick = { if (!isSelected) onTabSelected(screen) },
                     // Set the icon tint color based on the selection state
                     colors =
-                        IconButtonDefaults.iconButtonColors(
-                            contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                        ),
+                    IconButtonDefaults.iconButtonColors(
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                    ),
                     modifier =
-                        Modifier
-                            .then(
-                                if (isSelected) {
-                                    Modifier
-                                        .background(
-                                            MaterialTheme.colorScheme.secondaryContainer,
-                                            CircleShape,
-                                        ).padding(4.dp)
-                                        .clip(CircleShape)
-                                } else {
-                                    Modifier
-                                },
-                            ),
+                    Modifier
+                        .then(
+                            if (isSelected) {
+                                Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                        CircleShape
+                                    ).padding(4.dp)
+                                    .clip(CircleShape)
+                            } else {
+                                Modifier
+                            }
+                        )
                 ) {
                     screen.icon(isSelected)
                 }
@@ -76,24 +76,18 @@ fun BudgetNavigationBar(
 }
 
 @Composable
-fun BudgetTopBar(
-    currentScreen: BudgetDestination,
-    navHostController: NavHostController,
-) {
+fun BudgetTopBar(currentScreen: BudgetDestination, navHostController: NavHostController) {
     currentScreen.topBar?.invoke(navHostController) ?: DefaultTopBar(currentScreen = currentScreen)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefaultTopBar(
-    currentScreen: BudgetDestination,
-    actions: @Composable (() -> Unit)? = null,
-) {
+fun DefaultTopBar(currentScreen: BudgetDestination, actions: @Composable (() -> Unit)? = null) {
     TopAppBar(
         title = {
             Text(
                 text = currentScreen.route.lowercase().replaceFirstChar { it.titlecase() },
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall
             )
         },
         /*navigationIcon = {
@@ -106,7 +100,7 @@ fun DefaultTopBar(
         }*/
         actions = {
             actions?.invoke()
-        },
+        }
     )
 }
 
@@ -116,7 +110,7 @@ fun SecondaryScreenTopBar(
     navigateBack: () -> Unit,
     title: String?,
     actions: @Composable (() -> Unit)? = null,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     TopAppBar(
         title = {
@@ -125,7 +119,7 @@ fun SecondaryScreenTopBar(
                     text = it,
                     color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         },
@@ -134,7 +128,7 @@ fun SecondaryScreenTopBar(
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Go back",
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         },
@@ -143,9 +137,9 @@ fun SecondaryScreenTopBar(
         },
         modifier = Modifier.fillMaxWidth(),
         colors =
-            TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = containerColor,
-            ),
+        TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = containerColor
+        )
     )
 }
 
@@ -154,14 +148,14 @@ fun SecondaryScreenTopBar(
     navigateBack: () -> Unit,
     @StringRes titleResId: Int?,
     actions: @Composable (() -> Unit)? = null,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val title = titleResId?.let { stringResource(id = it) }
     SecondaryScreenTopBar(
         navigateBack = navigateBack,
         title = title,
         actions = actions,
-        containerColor = containerColor,
+        containerColor = containerColor
     )
 }
 
@@ -175,7 +169,7 @@ fun PreviewBudgetNavigationBar() {
         BudgetNavigationBar(
             allScreens = sampleScreens,
             onTabSelected = {}, // No-op for preview purposes
-            currentScreen = currentScreen,
+            currentScreen = currentScreen
         )
     }
 }
