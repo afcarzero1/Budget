@@ -44,7 +44,9 @@ interface AppContainer {
     val localUserManager: LocalUserManager
 }
 
-class AppDataContainer(private val context: Context) : AppContainer {
+class AppDataContainer(
+    private val context: Context,
+) : AppContainer {
     private val currenciesBaseUrl = "https://api.currencyfreaks.com/v2.0/"
     private val currenciesApiKey: String = context.getString(R.string.CURRENCY_API_KEY)
 
@@ -66,7 +68,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
             BudgetDatabase.getDatabase(context).currencyDao(),
             currenciesApiService,
             currenciesApiKey,
-            context.dataStore
+            context.dataStore,
         )
     }
 
@@ -74,7 +76,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
         OfflineAccountsRepository(
             BudgetDatabase.getDatabase(context).accountDao(),
             currenciesRepository,
-            transactionsRepository
+            transactionsRepository,
         )
     }
 
@@ -88,7 +90,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
 
     override val futureTransactionsRepository: FutureTransactionsRepository by lazy {
         OfflineFutureTransactionsRepository(
-            BudgetDatabase.getDatabase(context).futureTransactionDao()
+            BudgetDatabase.getDatabase(context).futureTransactionDao(),
         )
     }
 
@@ -96,13 +98,13 @@ class AppDataContainer(private val context: Context) : AppContainer {
         OfflineBalancesRepository(
             accountsRepository = accountsRepository,
             transactionsRepository = transactionsRepository,
-            futureTransactionsRepository = futureTransactionsRepository
+            futureTransactionsRepository = futureTransactionsRepository,
         )
     }
 
     override val localUserManager: LocalUserManager by lazy {
         LocalUserManagerImpl(
-            context.dataStore
+            context.dataStore,
         )
     }
 }

@@ -12,7 +12,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MainViewModel(private val localUserManager: LocalUserManager) : ViewModel() {
+class MainViewModel(
+    private val localUserManager: LocalUserManager,
+) : ViewModel() {
     private val _splashCondition = mutableStateOf(true)
     val splashCondition: State<Boolean> = _splashCondition
 

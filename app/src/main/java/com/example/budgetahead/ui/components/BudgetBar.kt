@@ -28,7 +28,7 @@ import kotlin.math.absoluteValue
 fun BudgetSummary(
     expenses: Map<Category, Float>,
     expectedExpenses: Map<Category, Float>,
-    baseCurrency: Currency
+    baseCurrency: Currency,
 ) {
     val expectedExpensesList = expectedExpenses.entries.toList()
 
@@ -40,7 +40,7 @@ fun BudgetSummary(
                 categoryAmount = actualAmount.absoluteValue,
                 categoryLimit = expectedAmount.absoluteValue,
                 baseCurrency = baseCurrency,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         }
     }
@@ -52,7 +52,7 @@ fun BudgetBar(
     categoryAmount: Float,
     categoryLimit: Float,
     baseCurrency: Currency,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // Assume Currency.formatAmount() exists and returns a formatted string
     val formattedAmount = baseCurrency.formatAmount(categoryAmount)
@@ -64,25 +64,25 @@ fun BudgetBar(
     Column(modifier = modifier) {
         Row(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = categoryName, style = MaterialTheme.typography.titleSmall)
             Text(
                 text = "$formattedAmount / $formattedLimit",
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
             )
         }
 
         LinearProgressIndicator(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(8.dp),
-            progress = progress
+                Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+            progress = progress,
         )
     }
 }
@@ -94,7 +94,7 @@ fun LinearProgressIndicator(
     startColor: Color = Color(0xFF4CAF50), // Green color for 0% progress
     endColor: Color = Color(0xFFF44336), // Red color for 100% progress
     backgroundColor: Color = Color(0xFFC8E6C9),
-    clipShape: Shape = RoundedCornerShape(16.dp)
+    clipShape: Shape = RoundedCornerShape(16.dp),
 ) {
     // Coerce the progress value to be between 0f and 1f
     val innerProgress = progress.coerceIn(0f, 1f)
@@ -104,17 +104,17 @@ fun LinearProgressIndicator(
 
     Box(
         modifier =
-        modifier
-            .clip(clipShape)
-            .background(backgroundColor)
-            .height(8.dp)
+            modifier
+                .clip(clipShape)
+                .background(backgroundColor)
+                .height(8.dp),
     ) {
         Box(
             modifier =
-            Modifier
-                .background(progressColor)
-                .fillMaxHeight()
-                .fillMaxWidth(innerProgress)
+                Modifier
+                    .background(progressColor)
+                    .fillMaxHeight()
+                    .fillMaxWidth(innerProgress),
         )
     }
 }

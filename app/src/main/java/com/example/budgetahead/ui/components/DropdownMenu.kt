@@ -40,6 +40,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
+
+sealed class ExpansionState {
+    object Uncontrolled : ExpansionState() // Internal control
+
+    data class Controlled(
+        val expanded: Boolean,
+        val onExpandedChange: (Boolean) -> Unit
+    ) : ExpansionState() // External control
+}
+
 @Composable
 fun <T> LargeDropdownMenu(
     modifier: Modifier = Modifier,
@@ -54,22 +64,29 @@ fun <T> LargeDropdownMenu(
         T,
         Boolean,
         Boolean,
-        () -> Unit
+        () -> Unit,
     ) -> Unit = { item, selected, itemEnabled, onClick ->
         DefaultDrawItem(item, selected, itemEnabled, onClick, selectedItemToString, leadingIcon)
     },
     leadingIcon: (@Composable (T) -> Unit)? = null,
-    initialIndex: Int = -1
+    initialIndex: Int = -1,
+    expansionState: ExpansionState = ExpansionState.Uncontrolled
 ) {
-    var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
+    var internalExpanded by remember { mutableStateOf(false) }
 
-    // Case in which the initial index is out of bounds (probably items has not received data yet)
+    // Determine the current expansion state
+    val isExpanded = when (expansionState) {
+        is ExpansionState.Controlled -> expansionState.expanded
+        is ExpansionState.Uncontrolled -> internalExpanded
+    }
+
     if (initialIndex > items.size) {
         selectedIndex = -1
     }
     val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
 
+    
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
             label = { Text(label) },
@@ -78,16 +95,16 @@ fun <T> LargeDropdownMenu(
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 val icon =
-                    if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown
+                    if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.ArrowDropDown
                 Icon(icon, "")
             },
             leadingIcon =
-            items.getOrNull(uiIndex)?.let { item ->
+            items.getOrNull(selectedIndex)?.let { item ->
                 leadingIcon?.let { { leadingIcon(item) } }
             },
             onValueChange = { },
             readOnly = true,
-            colors = colors
+            colors = colors,
         )
 
         // Transparent clickable surface on top of OutlinedTextField
@@ -97,29 +114,39 @@ fun <T> LargeDropdownMenu(
                 .fillMaxSize()
                 .padding(top = 8.dp)
                 .clip(MaterialTheme.shapes.extraSmall)
-                .clickable(enabled = enabled) { expanded = true },
-            color = Color.Transparent
+                .clickable(enabled = enabled) {
+                    when (expansionState) {
+                        is ExpansionState.Controlled -> expansionState.onExpandedChange(true)
+                        is ExpansionState.Uncontrolled -> internalExpanded = true
+                    }
+                },
+            color = Color.Transparent,
         ) {}
     }
 
-    if (expanded) {
+    if (isExpanded) {
         Dialog(
-            onDismissRequest = { expanded = false }
+            onDismissRequest = {
+                when (expansionState) {
+                    is ExpansionState.Controlled -> expansionState.onExpandedChange(false)
+                    is ExpansionState.Uncontrolled -> internalExpanded = false
+                }
+            },
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(all = 16.dp)
+                modifier = Modifier.padding(all = 16.dp),
             ) {
                 val listState = rememberLazyListState()
-                if (uiIndex > -1) {
+                if (selectedIndex > -1) {
                     LaunchedEffect("ScrollToSelected") {
-                        listState.scrollToItem(index = uiIndex)
+                        listState.scrollToItem(index = selectedIndex)
                     }
                 }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    state = listState
+                    state = listState,
                 ) {
                     if (notSetLabel != null) {
                         item {
@@ -127,20 +154,23 @@ fun <T> LargeDropdownMenu(
                                 text = notSetLabel,
                                 selected = false,
                                 enabled = false,
-                                onClick = { }
+                                onClick = { },
                             )
                         }
                     }
                     itemsIndexed(items) { index, item ->
-                        val selectedItem: Boolean = index == uiIndex
+                        val selectedItem: Boolean = index == selectedIndex
                         drawItem(
                             item,
                             selectedItem,
-                            true
+                            true,
                         ) {
                             selectedIndex = index
                             onItemSelected(index, item)
-                            expanded = false
+                            when (expansionState) {
+                                is ExpansionState.Controlled -> expansionState.onExpandedChange(false)
+                                is ExpansionState.Uncontrolled -> internalExpanded = false
+                            }
                         }
 
                         if (index < items.lastIndex) {
@@ -160,14 +190,14 @@ fun <T> DefaultDrawItem(
     enabled: Boolean,
     onClick: () -> Unit,
     selectedItemToString: (T) -> String,
-    leadingIcon: (@Composable (T) -> Unit)? = null
+    leadingIcon: (@Composable (T) -> Unit)? = null,
 ) {
     LargeDropdownMenuItem(
         text = selectedItemToString(item),
         selected = selected,
         enabled = enabled,
         onClick = onClick,
-        leadingIcon = leadingIcon?.let { { leadingIcon(item) } }
+        leadingIcon = leadingIcon?.let { { leadingIcon(item) } },
     )
 }
 
@@ -177,7 +207,7 @@ fun LargeDropdownMenuItem(
     selected: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,
-    leadingIcon: (@Composable () -> Unit)? = null
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val contentColor =
         when {
@@ -189,10 +219,10 @@ fun LargeDropdownMenuItem(
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(
             modifier =
-            Modifier
-                .clickable(enabled) { onClick() }
-                .fillMaxWidth()
-                .padding(16.dp)
+                Modifier
+                    .clickable(enabled) { onClick() }
+                    .fillMaxWidth()
+                    .padding(16.dp),
         ) {
             Row {
                 leadingIcon?.let {
@@ -201,7 +231,7 @@ fun LargeDropdownMenuItem(
                 }
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
                 )
             }
         }

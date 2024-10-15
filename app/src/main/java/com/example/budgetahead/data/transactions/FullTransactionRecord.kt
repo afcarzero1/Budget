@@ -11,12 +11,12 @@ data class FullTransactionRecord(
     @Relation(
         entity = Account::class,
         parentColumn = "accountId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
     val account: AccountWithCurrency,
     @Relation(
         parentColumn = "categoryId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
-    val category: Category?
+    val category: Category?,
 )

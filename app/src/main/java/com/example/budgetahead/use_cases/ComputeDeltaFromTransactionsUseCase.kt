@@ -30,7 +30,13 @@ class ComputeDeltaFromTransactionsUseCase {
     }
 
     // TODO: Add here protection for currencies that are too close to 0 in value.
-    fun toBaseCurrency(amount: Float, currency: Currency): Float = amount * 1 / currency.value
+    fun toBaseCurrency(
+        amount: Float,
+        currency: Currency,
+    ): Float = amount * 1 / currency.value
 
-    fun fromBaseCurrency(amount: Float, currency: Currency): Float = amount * currency.value
+    fun fromBaseCurrency(
+        amount: Float,
+        currency: Currency,
+    ): Float = amount * currency.value
 }

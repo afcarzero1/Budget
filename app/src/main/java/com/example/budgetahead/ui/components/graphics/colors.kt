@@ -66,7 +66,7 @@ object AvailableColors {
             Color(0xFFE91E63),
             Color(0xFF9C27B0),
             Color(0xFF2196F3),
-            Color(0xFF4CAF50)
+            Color(0xFF4CAF50),
         )
 }
 
@@ -75,44 +75,44 @@ fun ColorPicker(
     modifier: Modifier = Modifier,
     color: Color,
     options: List<Color>,
-    onColorChanged: (Color) -> Unit
+    onColorChanged: (Color) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier =
-        modifier
-            .size(35.dp)
-            .background(color = color, shape = RoundedCornerShape(10.dp))
-            .border(
-                border = BorderStroke(1.dp, Color(0x80000000)),
-                shape = RoundedCornerShape(10.dp)
-            ).clickable { expanded = true }
+            modifier
+                .size(35.dp)
+                .background(color = color, shape = RoundedCornerShape(10.dp))
+                .border(
+                    border = BorderStroke(1.dp, Color(0x80000000)),
+                    shape = RoundedCornerShape(10.dp),
+                ).clickable { expanded = true },
     )
 
     if (expanded) {
         Dialog(onDismissRequest = { expanded = false }) {
             Surface(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 color = Color.White,
                 shape = RoundedCornerShape(8.dp),
                 border =
-                BorderStroke(
-                    width = 2.dp,
-                    color = Color.Gray.copy(alpha = 0.8f)
-                )
+                    BorderStroke(
+                        width = 2.dp,
+                        color = Color.Gray.copy(alpha = 0.8f),
+                    ),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         "Select a Color",
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.Black
+                        color = Color.Black,
                     )
                     Spacer(modifier = Modifier.height(16.dp)) // Space between the title and grid
                     LazyVerticalGrid(
@@ -121,9 +121,9 @@ fun ColorPicker(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp) // Padding at the bottom
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp), // Padding at the bottom
                     ) {
                         items(options.size) { index ->
                             ColorBox(color = options[index], onColorSelected = {
@@ -139,24 +139,27 @@ fun ColorPicker(
 }
 
 @Composable
-fun ColorBox(color: Color, onColorSelected: (Color) -> Unit) {
+fun ColorBox(
+    color: Color,
+    onColorSelected: (Color) -> Unit,
+) {
     Surface(
         modifier =
-        Modifier
-            .aspectRatio(1f)
-            .size(32.dp)
-            // Sets the size directly on the Surface
-            .clickable { onColorSelected(color) },
+            Modifier
+                .aspectRatio(1f)
+                .size(32.dp)
+                // Sets the size directly on the Surface
+                .clickable { onColorSelected(color) },
         // Clickable modifier for color selection
         shape = RoundedCornerShape(10.dp), // Sets the shape of the Surface
         color = color, // Background color of the Surface
         border =
-        BorderStroke(
-            1.dp,
-            if (color == Color.Black) Color.Black else Color.Transparent
-        ),
+            BorderStroke(
+                1.dp,
+                if (color == Color.Black) Color.Black else Color.Transparent,
+            ),
         // Border condition
-        tonalElevation = 0.dp // Optional: You can set elevation if needed for a shadow effect
+        tonalElevation = 0.dp, // Optional: You can set elevation if needed for a shadow effect
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
         }
@@ -179,7 +182,7 @@ object AvailableIcons {
             "hotel",
             "groceries",
             "others",
-            "salary"
+            "salary",
         )
 }
 
@@ -188,7 +191,7 @@ fun IconPicker(
     modifier: Modifier = Modifier,
     currentIconName: String,
     iconOptions: List<String>,
-    onIconChanged: (String) -> Unit
+    onIconChanged: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -199,20 +202,20 @@ fun IconPicker(
     IconButton(
         onClick = { expanded = true },
         modifier =
-        modifier
-            .size(35.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(10.dp)
-            ).border(
-                border = BorderStroke(1.dp, Color(0x80000000)),
-                shape = RoundedCornerShape(10.dp)
-            )
+            modifier
+                .size(35.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(10.dp),
+                ).border(
+                    border = BorderStroke(1.dp, Color(0x80000000)),
+                    shape = RoundedCornerShape(10.dp),
+                ),
     ) {
         Icon(
             painter = currentIcon,
             contentDescription = currentIconName,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 
@@ -220,25 +223,25 @@ fun IconPicker(
         Dialog(onDismissRequest = { expanded = false }) {
             Surface(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(8.dp),
                 border =
-                BorderStroke(
-                    width = 2.dp,
-                    color = Color.Gray.copy(alpha = 0.8f)
-                )
+                    BorderStroke(
+                        width = 2.dp,
+                        color = Color.Gray.copy(alpha = 0.8f),
+                    ),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         "Select an Icon",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyVerticalGrid(
@@ -247,9 +250,9 @@ fun IconPicker(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp)
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
                     ) {
                         items(iconOptions) { iconName ->
                             IconBox(
@@ -257,7 +260,7 @@ fun IconPicker(
                                 onIconSelected = {
                                     onIconChanged(it)
                                     expanded = false
-                                }
+                                },
                             )
                         }
                     }
@@ -268,7 +271,10 @@ fun IconPicker(
 }
 
 @Composable
-fun IconBox(iconName: String, onIconSelected: (String) -> Unit) {
+fun IconBox(
+    iconName: String,
+    onIconSelected: (String) -> Unit,
+) {
     val context = LocalContext.current
     val resourceId =
         context.resources.getIdentifier("cat_$iconName", "drawable", context.packageName)
@@ -276,7 +282,7 @@ fun IconBox(iconName: String, onIconSelected: (String) -> Unit) {
     IconButton(onClick = { onIconSelected(iconName) }) {
         Icon(
             painter = icon,
-            contentDescription = iconName
+            contentDescription = iconName,
         )
     }
 }
@@ -294,7 +300,7 @@ fun ColorPickerPreview() {
             Color.Yellow,
             Color.Black,
             Color.Gray,
-            Color.White
+            Color.White,
         )
 
     // Creating a fake function for handling color changes
@@ -305,6 +311,6 @@ fun ColorPickerPreview() {
         modifier = Modifier,
         color = Color.Blue, // Current selected color
         options = sampleColors,
-        onColorChanged = onColorChanged
+        onColorChanged = onColorChanged,
     )
 }

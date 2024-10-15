@@ -10,6 +10,6 @@ class TransactionWithCurrency(
     @Relation(
         entity = Account::class,
         parentColumn = "accountId",
-        entityColumn = "id"
-    ) val account: AccountWithCurrency
+        entityColumn = "id",
+    ) val account: AccountWithCurrency,
 )

@@ -15,7 +15,11 @@ import com.example.budgetahead.ui.components.YearMonthSelector
 import java.time.YearMonth
 
 @Composable
-fun YearMonthDialog(isOpen: Boolean, currentSelection: YearMonth, onClose: (YearMonth) -> Unit) {
+fun YearMonthDialog(
+    isOpen: Boolean,
+    currentSelection: YearMonth,
+    onClose: (YearMonth) -> Unit,
+) {
     var endDate by remember { mutableStateOf(currentSelection) }
 
     if (isOpen) {
@@ -24,7 +28,7 @@ fun YearMonthDialog(isOpen: Boolean, currentSelection: YearMonth, onClose: (Year
             title = {
                 Text(
                     text = "Select Month",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             },
             text = {
@@ -33,7 +37,7 @@ fun YearMonthDialog(isOpen: Boolean, currentSelection: YearMonth, onClose: (Year
                     onYearMonthChanged = {
                         endDate = it
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             },
             confirmButton = {
@@ -44,7 +48,7 @@ fun YearMonthDialog(isOpen: Boolean, currentSelection: YearMonth, onClose: (Year
                 }
             },
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary
+            titleContentColor = MaterialTheme.colorScheme.primary,
         )
     }
 }

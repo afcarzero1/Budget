@@ -66,7 +66,7 @@ import java.time.YearMonth
 fun CategoriesSummary(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: CategoriesSummaryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val categoriesState by viewModel.categoriesUiState.collectAsState()
     val baseCurrency by viewModel.baseCurrency.collectAsState()
@@ -82,100 +82,100 @@ fun CategoriesSummary(
                 TabbedPage(
                     modifier = modifier.fillMaxSize(),
                     tabs =
-                    listOf(
-                        TabItem(
-                            title = "Expense",
-                            icon = {
-                                Icon(
-                                    painter =
-                                    painterResource(
-                                        id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24
-                                    ),
-                                    contentDescription = "Expenses",
-                                    tint = Color(0xFFE57373)
-                                )
-                            },
-                            screen = {
-                                CategoriesSummaryBody(
-                                    categories =
-                                    categoriesState.categoriesList.filter {
-                                        it.category.defaultType == CategoryType.Expense
-                                    },
-                                    onCategoryClicked = {
-                                        navController.navigate(
-                                            "${CategoryOverview.route}/${it.id}"
-                                        )
-                                    },
-                                    onNextMonth = {
-                                        viewModel.setMonthOfTransactions(
-                                            transactionsYearMonth.plusMonths(
-                                                1
+                        listOf(
+                            TabItem(
+                                title = "Expense",
+                                icon = {
+                                    Icon(
+                                        painter =
+                                            painterResource(
+                                                id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24,
+                                            ),
+                                        contentDescription = "Expenses",
+                                        tint = Color(0xFFE57373),
+                                    )
+                                },
+                                screen = {
+                                    CategoriesSummaryBody(
+                                        categories =
+                                            categoriesState.categoriesList.filter {
+                                                it.category.defaultType == CategoryType.Expense
+                                            },
+                                        onCategoryClicked = {
+                                            navController.navigate(
+                                                "${CategoryOverview.route}/${it.id}",
                                             )
-                                        )
-                                    },
-                                    onPreviousMonth = {
-                                        viewModel.setMonthOfTransactions(
-                                            transactionsYearMonth.minusMonths(
-                                                1
+                                        },
+                                        onNextMonth = {
+                                            viewModel.setMonthOfTransactions(
+                                                transactionsYearMonth.plusMonths(
+                                                    1,
+                                                ),
                                             )
-                                        )
-                                    },
-                                    yearMonthOfTransactions = transactionsYearMonth,
-                                    categoryToColor = {
-                                        viewModel.colorAssigner.assignColor(it.name)
-                                    },
-                                    deltas = categoriesState.categoriesDelta,
-                                    baseCurrency = baseCurrency
-                                )
-                            }
+                                        },
+                                        onPreviousMonth = {
+                                            viewModel.setMonthOfTransactions(
+                                                transactionsYearMonth.minusMonths(
+                                                    1,
+                                                ),
+                                            )
+                                        },
+                                        yearMonthOfTransactions = transactionsYearMonth,
+                                        categoryToColor = {
+                                            viewModel.colorAssigner.assignColor(it.name)
+                                        },
+                                        deltas = categoriesState.categoriesDelta,
+                                        baseCurrency = baseCurrency,
+                                    )
+                                },
+                            ),
+                            TabItem(
+                                title = "Income",
+                                icon = {
+                                    Icon(
+                                        painter =
+                                            painterResource(
+                                                id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24,
+                                            ),
+                                        contentDescription = "Incomes",
+                                        tint = Color(0xFF4CAF50),
+                                    )
+                                },
+                                screen = {
+                                    CategoriesSummaryBody(
+                                        categories =
+                                            categoriesState.categoriesList.filter {
+                                                it.category.defaultType == CategoryType.Income
+                                            },
+                                        onCategoryClicked = {
+                                            navController.navigate(
+                                                "${CategoryOverview.route}/${it.id}",
+                                            )
+                                        },
+                                        onNextMonth = {
+                                            viewModel.setMonthOfTransactions(
+                                                transactionsYearMonth.plusMonths(
+                                                    1,
+                                                ),
+                                            )
+                                        },
+                                        onPreviousMonth = {
+                                            viewModel.setMonthOfTransactions(
+                                                transactionsYearMonth.minusMonths(
+                                                    1,
+                                                ),
+                                            )
+                                        },
+                                        yearMonthOfTransactions = transactionsYearMonth,
+                                        categoryToColor = {
+                                            viewModel.colorAssigner.assignColor(it.name)
+                                        },
+                                        deltas = categoriesState.categoriesDelta,
+                                        baseCurrency = baseCurrency,
+                                    )
+                                },
+                            ),
                         ),
-                        TabItem(
-                            title = "Income",
-                            icon = {
-                                Icon(
-                                    painter =
-                                    painterResource(
-                                        id = R.drawable.payments_24dp_fill0_wght400_grad0_opsz24
-                                    ),
-                                    contentDescription = "Incomes",
-                                    tint = Color(0xFF4CAF50)
-                                )
-                            },
-                            screen = {
-                                CategoriesSummaryBody(
-                                    categories =
-                                    categoriesState.categoriesList.filter {
-                                        it.category.defaultType == CategoryType.Income
-                                    },
-                                    onCategoryClicked = {
-                                        navController.navigate(
-                                            "${CategoryOverview.route}/${it.id}"
-                                        )
-                                    },
-                                    onNextMonth = {
-                                        viewModel.setMonthOfTransactions(
-                                            transactionsYearMonth.plusMonths(
-                                                1
-                                            )
-                                        )
-                                    },
-                                    onPreviousMonth = {
-                                        viewModel.setMonthOfTransactions(
-                                            transactionsYearMonth.minusMonths(
-                                                1
-                                            )
-                                        )
-                                    },
-                                    yearMonthOfTransactions = transactionsYearMonth,
-                                    categoryToColor = {
-                                        viewModel.colorAssigner.assignColor(it.name)
-                                    },
-                                    deltas = categoriesState.categoriesDelta,
-                                    baseCurrency = baseCurrency
-                                )
-                            }
-                        )
-                    )
                 )
             }
         },
@@ -184,14 +184,14 @@ fun CategoriesSummary(
                 onClick = {
                     navController.navigate(CategoryEntry.route)
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Add Category"
+                    contentDescription = "Add Category",
                 )
             }
-        }
+        },
     )
 }
 
@@ -204,7 +204,7 @@ fun CategoriesSummaryBody(
     categoryToColor: (Category) -> Color,
     onNextMonth: () -> Unit,
     onPreviousMonth: () -> Unit,
-    onCategoryClicked: (Category) -> Unit
+    onCategoryClicked: (Category) -> Unit,
 ) {
     val totalDelta = categories.sumOf { deltas[it.category]?.toDouble() ?: 0.0 }
 
@@ -212,16 +212,16 @@ fun CategoriesSummaryBody(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(
                 onClick = onPreviousMonth,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Previous",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp),
                 )
             }
             PieChart(
@@ -234,50 +234,50 @@ fun CategoriesSummaryBody(
                     categoryToColor(it.category)
                 },
                 middleText =
-                listOf(
-                    TextPiece(
-                        text =
-                        buildAnnotatedString {
-                            withStyle(
-                                style =
-                                SpanStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                append(yearMonthOfTransactions.toString())
-                            }
-                        }
+                    listOf(
+                        TextPiece(
+                            text =
+                                buildAnnotatedString {
+                                    withStyle(
+                                        style =
+                                            SpanStyle(
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                            ),
+                                    ) {
+                                        append(yearMonthOfTransactions.toString())
+                                    }
+                                },
+                        ),
+                        TextPiece(
+                            text =
+                                buildAnnotatedString {
+                                    withStyle(
+                                        style =
+                                            SpanStyle(
+                                                fontWeight = FontWeight.Normal,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                            ),
+                                    ) {
+                                        append(
+                                            Currency.formatAmountStatic(
+                                                baseCurrency,
+                                                totalDelta.toFloat(),
+                                            ),
+                                        )
+                                    }
+                                },
+                        ),
                     ),
-                    TextPiece(
-                        text =
-                        buildAnnotatedString {
-                            withStyle(
-                                style =
-                                SpanStyle(
-                                    fontWeight = FontWeight.Normal,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                append(
-                                    Currency.formatAmountStatic(
-                                        baseCurrency,
-                                        totalDelta.toFloat()
-                                    )
-                                )
-                            }
-                        }
-                    )
-                )
             )
             IconButton(
                 onClick = onNextMonth,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Next",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp),
                 )
             }
         }
@@ -285,23 +285,23 @@ fun CategoriesSummaryBody(
             color = Color.Gray,
             thickness = 1.dp,
             modifier =
-            Modifier
-                .padding(horizontal = 10.dp)
-                .padding(vertical = 16.dp)
+                Modifier
+                    .padding(horizontal = 10.dp)
+                    .padding(vertical = 16.dp),
         )
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize(),
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(all = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(categories) {
                 CategoryCard(
                     it,
                     Pair(baseCurrency, deltas[it.category] ?: 0f),
                     onCategoryClicked,
-                    categoryToColor(it.category)
+                    categoryToColor(it.category),
                 )
             }
         }
@@ -313,70 +313,70 @@ fun CategoryCard(
     categoryWithTransactions: CategoryWithTransactions,
     totalAmount: Pair<String, Float>,
     onCategoryClicked: (Category) -> Unit,
-    color: Color
+    color: Color,
 ) {
     Card(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .clickable { onCategoryClicked(categoryWithTransactions.category) }
+            Modifier
+                .fillMaxWidth()
+                .clickable { onCategoryClicked(categoryWithTransactions.category) },
     ) {
         Column(
             modifier =
-            Modifier
-                .padding(2.dp)
-                .fillMaxWidth()
+                Modifier
+                    .padding(2.dp)
+                    .fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Left content with icon and text
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(4f)
+                    modifier = Modifier.weight(4f),
                 ) {
                     val iconResourceId =
                         IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                            categoryWithTransactions.category.iconResId
+                            categoryWithTransactions.category.iconResId,
                         )
 
                     Icon(
                         painter = painterResource(id = iconResourceId),
                         contentDescription = "Category Icon",
                         modifier =
-                        Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, color, CircleShape)
-                            .background(MaterialTheme.colorScheme.tertiaryContainer)
-                            .padding(8.dp),
-                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                            Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, color, CircleShape)
+                                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Column {
                         Text(
                             text = categoryWithTransactions.category.name,
                             style =
-                            MaterialTheme.typography.titleSmall.copy(
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.Bold
-                            ),
+                                MaterialTheme.typography.titleSmall.copy(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.Bold,
+                                ),
                             overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
+                            maxLines = 1,
                         )
                         Text(
                             text =
-                            Currency.formatAmountStatic(
-                                totalAmount.first,
-                                totalAmount.second
-                            ),
+                                Currency.formatAmountStatic(
+                                    totalAmount.first,
+                                    totalAmount.second,
+                                ),
                             style =
-                            MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.ExtraLight
-                            )
+                                MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.ExtraLight,
+                                ),
                         )
                     }
                 }
@@ -477,11 +477,11 @@ onCategoryClicked = {}
 fun EmptyCategoryScreen() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "No categories yet. Create one by clicking the + button",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

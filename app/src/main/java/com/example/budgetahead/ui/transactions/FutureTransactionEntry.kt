@@ -46,13 +46,13 @@ import com.example.budgetahead.ui.components.LargeDropdownMenu
 import com.example.budgetahead.ui.components.inputs.FloatOutlinedText
 import com.example.budgetahead.ui.navigation.SecondaryScreenTopBar
 import com.example.budgetahead.use_cases.IconFromReIdUseCase
-import java.time.LocalDateTime
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun FutureTransactionEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: FutureTransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: FutureTransactionEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val availableCategories by viewModel.categoriesListState.collectAsState()
@@ -62,9 +62,9 @@ fun FutureTransactionEntryScreen(
         topBar = {
             SecondaryScreenTopBar(
                 navigateBack = navigateBack,
-                titleResId = R.string.entry_transaction_title
+                titleResId = R.string.entry_transaction_title,
             )
-        }
+        },
     ) { paddingValue ->
         FutureTransactionEntryBody(
             futureTransactionUiState = viewModel.transactionUiState,
@@ -79,7 +79,7 @@ fun FutureTransactionEntryScreen(
                     navigateBack()
                 }
             },
-            modifier = Modifier.padding(paddingValue)
+            modifier = Modifier.padding(paddingValue),
         )
     }
 }
@@ -91,23 +91,23 @@ fun FutureTransactionEntryBody(
     availableCurrencies: List<Currency>,
     onFutureTransactionValueChanged: (FutureTransaction) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
+        modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
     ) {
         FutureTransactionForm(
             futureTransaction = futureTransactionUiState.futureTransaction,
             availableCategories = availableCategories,
             availableCurrencies = availableCurrencies,
-            onValueChange = onFutureTransactionValueChanged
+            onValueChange = onFutureTransactionValueChanged,
         )
         Button(
             onClick = onSaveClick,
             enabled = futureTransactionUiState.isValid,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = stringResource(R.string.entry_transaction_save))
         }
@@ -120,11 +120,11 @@ fun FutureTransactionForm(
     availableCategories: List<Category>,
     availableCurrencies: List<Currency>,
     onValueChange: (FutureTransaction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.medium)),
     ) {
         Row {
             FloatOutlinedText(
@@ -138,7 +138,7 @@ fun FutureTransactionForm(
                 recordToFloat = {
                     it.amount
                 },
-                modifier = Modifier.weight(1.5f)
+                modifier = Modifier.weight(1.5f),
             )
             Spacer(modifier = Modifier.width(16.dp))
             LargeDropdownMenu(
@@ -147,16 +147,16 @@ fun FutureTransactionForm(
                 onItemSelected = { index, item ->
                     onValueChange(
                         futureTransaction.copy(
-                            currency = availableCurrencies[index].name
-                        )
+                            currency = availableCurrencies[index].name,
+                        ),
                     )
                 },
                 initialIndex =
-                availableCurrencies.indexOfFirst {
-                    it.name ==
-                        futureTransaction.currency
-                },
-                modifier = Modifier.weight(1f)
+                    availableCurrencies.indexOfFirst {
+                        it.name ==
+                            futureTransaction.currency
+                    },
+                modifier = Modifier.weight(1f),
             )
         }
 
@@ -168,12 +168,12 @@ fun FutureTransactionForm(
                     futureTransaction.copy(
                         categoryId = availableCategories[index].id,
                         type =
-                        if (item.defaultType == CategoryType.Expense) {
-                            TransactionType.EXPENSE
-                        } else {
-                            TransactionType.INCOME
-                        }
-                    )
+                            if (item.defaultType == CategoryType.Expense) {
+                                TransactionType.EXPENSE
+                            } else {
+                                TransactionType.INCOME
+                            },
+                    ),
                 )
             },
             selectedItemToString = {
@@ -182,30 +182,30 @@ fun FutureTransactionForm(
             leadingIcon = {
                 val iconResourceId =
                     IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                        it.iconResId
+                        it.iconResId,
                     )
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Category Icon",
                     modifier =
-                    Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
-                        .border(
-                            2.dp,
-                            if (it.defaultType == CategoryType.Expense) {
-                                Color.Red.copy(alpha = 0.3f)
-                            } else {
-                                Color.Green.copy(alpha = 0.3f)
-                            },
-                            CircleShape
-                        ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+                        Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .border(
+                                2.dp,
+                                if (it.defaultType == CategoryType.Expense) {
+                                    Color.Red.copy(alpha = 0.3f)
+                                } else {
+                                    Color.Green.copy(alpha = 0.3f)
+                                },
+                                CircleShape,
+                            ).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
                 )
             },
             initialIndex =
-            availableCategories.indexOfFirst {
-                it.id == futureTransaction.categoryId
-            }
+                availableCategories.indexOfFirst {
+                    it.id == futureTransaction.categoryId
+                },
         )
 
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -213,7 +213,7 @@ fun FutureTransactionForm(
                 label = stringResource(id = R.string.entry_future_transaction_initial_date),
                 onDateChanged = { onValueChange(futureTransaction.copy(startDate = it)) },
                 date = futureTransaction.startDate,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             if (futureTransaction.recurrenceType != RecurrenceType.NONE) {
@@ -222,24 +222,24 @@ fun FutureTransactionForm(
                     label = stringResource(id = R.string.entry_future_transaction_final_date),
                     onDateChanged = { onValueChange(futureTransaction.copy(endDate = it)) },
                     date = futureTransaction.endDate,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             RadioButton(
                 selected = futureTransaction.recurrenceType == RecurrenceType.NONE,
                 onClick = {
                     onValueChange(futureTransaction.copy(recurrenceType = RecurrenceType.NONE))
-                }
+                },
             )
             Text(
                 text = "No repetition.",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
 
@@ -249,21 +249,21 @@ fun FutureTransactionForm(
 
         Column {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
                     selected = repeatedSelected,
                     onClick = {
                         if (!repeatedSelected) {
                             onValueChange(
-                                futureTransaction.copy(recurrenceType = RecurrenceType.DAILY)
+                                futureTransaction.copy(recurrenceType = RecurrenceType.DAILY),
                             )
                         }
-                    }
+                    },
                 )
                 Text(
                     text = "Repeated at specific dates.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (repeatedSelected) {
@@ -271,50 +271,53 @@ fun FutureTransactionForm(
                     Text(
                         text = "Every ",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f).padding(start = 32.dp)
+                        modifier = Modifier.weight(1f).padding(start = 32.dp),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     LargeDropdownMenu(
-                        label = stringResource(
-                            id = R.string.entry_future_transaction_recurrence_value
-                        ),
+                        label =
+                            stringResource(
+                                id = R.string.entry_future_transaction_recurrence_value,
+                            ),
                         items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
-                                    recurrenceValue = item.toInt()
-                                )
+                                    recurrenceValue = item.toInt(),
+                                ),
                             )
                         },
                         initialIndex = futureTransaction.recurrenceValue - 1,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    val validSelections = enumValues<RecurrenceType>().toList().filter {
-                        it !=
-                            RecurrenceType.NONE &&
-                            !it.isContinuous()
-                    }
+                    val validSelections =
+                        enumValues<RecurrenceType>().toList().filter {
+                            it !=
+                                RecurrenceType.NONE &&
+                                !it.isContinuous()
+                        }
 
                     LargeDropdownMenu(
-                        label = stringResource(
-                            id = R.string.entry_future_transaction_recurrence_type
-                        ),
+                        label =
+                            stringResource(
+                                id = R.string.entry_future_transaction_recurrence_type,
+                            ),
                         items = validSelections,
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
-                                    recurrenceType = item
-                                )
+                                    recurrenceType = item,
+                                ),
                             )
                         },
                         initialIndex =
-                        validSelections
-                            .indexOfFirst { it == futureTransaction.recurrenceType },
+                            validSelections
+                                .indexOfFirst { it == futureTransaction.recurrenceType },
                         modifier = Modifier.weight(1.3f),
                         selectedItemToString = {
                             if (futureTransaction.recurrenceValue == 1) {
@@ -322,7 +325,7 @@ fun FutureTransactionForm(
                             } else {
                                 RecurrenceTypeDescriptions.descriptions[it]!!
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -332,7 +335,7 @@ fun FutureTransactionForm(
 
         Column {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
                     selected = futureTransaction.recurrenceType.isContinuous(),
@@ -340,15 +343,15 @@ fun FutureTransactionForm(
                         if (!continuousSelected) {
                             onValueChange(
                                 futureTransaction.copy(
-                                    recurrenceType = RecurrenceType.MONTHLY_CONTINUOUS
-                                )
+                                    recurrenceType = RecurrenceType.MONTHLY_CONTINUOUS,
+                                ),
                             )
                         }
-                    }
+                    },
                 )
                 Text(
                     text = "Spread across periods.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (continuousSelected) {
@@ -356,48 +359,51 @@ fun FutureTransactionForm(
                     Text(
                         text = "Of length ",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f).padding(start = 32.dp)
+                        modifier = Modifier.weight(1f).padding(start = 32.dp),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     LargeDropdownMenu(
-                        label = stringResource(
-                            id = R.string.entry_future_transaction_recurrence_value
-                        ),
+                        label =
+                            stringResource(
+                                id = R.string.entry_future_transaction_recurrence_value,
+                            ),
                         items = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
-                                    recurrenceValue = item.toInt()
-                                )
+                                    recurrenceValue = item.toInt(),
+                                ),
                             )
                         },
                         initialIndex = futureTransaction.recurrenceValue - 1,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    val validSelections = enumValues<RecurrenceType>().toList().filter {
-                        it.isContinuous()
-                    }
+                    val validSelections =
+                        enumValues<RecurrenceType>().toList().filter {
+                            it.isContinuous()
+                        }
 
                     LargeDropdownMenu(
-                        label = stringResource(
-                            id = R.string.entry_future_transaction_recurrence_type
-                        ),
+                        label =
+                            stringResource(
+                                id = R.string.entry_future_transaction_recurrence_type,
+                            ),
                         items = validSelections,
                         onItemSelected = { index, item ->
                             onValueChange(
                                 futureTransaction.copy(
-                                    recurrenceType = item
-                                )
+                                    recurrenceType = item,
+                                ),
                             )
                         },
                         initialIndex =
-                        validSelections
-                            .indexOfFirst { it == futureTransaction.recurrenceType },
+                            validSelections
+                                .indexOfFirst { it == futureTransaction.recurrenceType },
                         modifier = Modifier.weight(1.3f),
                         selectedItemToString = {
                             if (futureTransaction.recurrenceValue == 1) {
@@ -405,7 +411,7 @@ fun FutureTransactionForm(
                             } else {
                                 RecurrenceTypeDescriptions.descriptions[it]!!
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -418,52 +424,52 @@ fun FutureTransactionForm(
 fun PreviewFutureTransactionEntry() {
     FutureTransactionForm(
         futureTransaction =
-        FutureTransaction(
-            name = "Scholarship",
-            categoryId = 0,
-            amount = 1000f,
-            currency = "USD",
-            recurrenceType = RecurrenceType.WEEKLY,
-            recurrenceValue = 1,
-            type = TransactionType.EXPENSE,
-            startDate = LocalDateTime.parse("2024-10-01T12:00:00"),
-            endDate = LocalDateTime.parse("2024-11-30T12:00:00"),
-            id = 0
-        ),
+            FutureTransaction(
+                name = "Scholarship",
+                categoryId = 0,
+                amount = 1000f,
+                currency = "USD",
+                recurrenceType = RecurrenceType.WEEKLY,
+                recurrenceValue = 1,
+                type = TransactionType.EXPENSE,
+                startDate = LocalDateTime.parse("2024-10-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-11-30T12:00:00"),
+                id = 0,
+            ),
         availableCategories =
-        listOf(
-            Category(
-                id = 1,
-                name = "Food",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
+            listOf(
+                Category(
+                    id = 1,
+                    name = "Food",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 2,
+                    name = "Transportation",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 3,
+                    name = "Rent",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 4,
+                    name = "Salary",
+                    defaultType = CategoryType.Income,
+                    parentCategoryId = null,
+                ),
             ),
-            Category(
-                id = 2,
-                name = "Transportation",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
-            ),
-            Category(
-                id = 3,
-                name = "Rent",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
-            ),
-            Category(
-                id = 4,
-                name = "Salary",
-                defaultType = CategoryType.Income,
-                parentCategoryId = null
-            )
-        ),
         availableCurrencies =
-        listOf(
-            Currency("USD", 1.0f, LocalDateTime.now()),
-            Currency("EUR", 1 / 1.1f, LocalDateTime.now()),
-            Currency("SEK", 1 / 0.1f, LocalDateTime.now())
-        ),
-        onValueChange = {}
+            listOf(
+                Currency("USD", 1.0f, LocalDateTime.now()),
+                Currency("EUR", 1 / 1.1f, LocalDateTime.now()),
+                Currency("SEK", 1 / 0.1f, LocalDateTime.now()),
+            ),
+        onValueChange = {},
     )
 }
 
@@ -472,51 +478,51 @@ fun PreviewFutureTransactionEntry() {
 fun PreviewFutureTransactionEntryContinuous() {
     FutureTransactionForm(
         futureTransaction =
-        FutureTransaction(
-            name = "Scholarship",
-            categoryId = 0,
-            amount = 1000f,
-            currency = "USD",
-            recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
-            recurrenceValue = 1,
-            type = TransactionType.EXPENSE,
-            startDate = LocalDateTime.parse("2024-10-01T12:00:00"),
-            endDate = LocalDateTime.parse("2024-11-30T12:00:00"),
-            id = 0
-        ),
+            FutureTransaction(
+                name = "Scholarship",
+                categoryId = 0,
+                amount = 1000f,
+                currency = "USD",
+                recurrenceType = RecurrenceType.WEEKLY_CONTINUOUS,
+                recurrenceValue = 1,
+                type = TransactionType.EXPENSE,
+                startDate = LocalDateTime.parse("2024-10-01T12:00:00"),
+                endDate = LocalDateTime.parse("2024-11-30T12:00:00"),
+                id = 0,
+            ),
         availableCategories =
-        listOf(
-            Category(
-                id = 1,
-                name = "Food",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
+            listOf(
+                Category(
+                    id = 1,
+                    name = "Food",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 2,
+                    name = "Transportation",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 3,
+                    name = "Rent",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                ),
+                Category(
+                    id = 4,
+                    name = "Salary",
+                    defaultType = CategoryType.Income,
+                    parentCategoryId = null,
+                ),
             ),
-            Category(
-                id = 2,
-                name = "Transportation",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
-            ),
-            Category(
-                id = 3,
-                name = "Rent",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null
-            ),
-            Category(
-                id = 4,
-                name = "Salary",
-                defaultType = CategoryType.Income,
-                parentCategoryId = null
-            )
-        ),
         availableCurrencies =
-        listOf(
-            Currency("USD", 1.0f, LocalDateTime.now()),
-            Currency("EUR", 1 / 1.1f, LocalDateTime.now()),
-            Currency("SEK", 1 / 0.1f, LocalDateTime.now())
-        ),
-        onValueChange = {}
+            listOf(
+                Currency("USD", 1.0f, LocalDateTime.now()),
+                Currency("EUR", 1 / 1.1f, LocalDateTime.now()),
+                Currency("SEK", 1 / 0.1f, LocalDateTime.now()),
+            ),
+        onValueChange = {},
     )
 }

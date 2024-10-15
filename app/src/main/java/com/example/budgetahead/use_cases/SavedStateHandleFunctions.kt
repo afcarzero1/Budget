@@ -4,7 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import java.time.YearMonth
 
 // Extension function to put YearMonth
-fun SavedStateHandle.setYearMonth(key: String, value: YearMonth) {
+fun SavedStateHandle.setYearMonth(
+    key: String,
+    value: YearMonth,
+) {
     this[key] = value.toString() // Convert YearMonth to String
 }
 

@@ -78,7 +78,7 @@ fun TransactionsSummary(
     transactionsViewModel: TransactionsSummaryViewModel =
         viewModel(factory = AppViewModelProvider.Factory),
     futureTransactionsViewModel: FutureTransactionsSummaryViewModel =
-        viewModel(factory = AppViewModelProvider.Factory)
+        viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val showFutureTransactions = transactionsViewModel.onFutureTransactionsScreen
     val baseCurrency by transactionsViewModel.baseCurrency.collectAsState()
@@ -95,7 +95,7 @@ fun TransactionsSummary(
                 futureTransactions = futureTransactionsState.futureTransactionsList,
                 baseCurrency = baseCurrency,
                 navController = navController,
-                onTabChanged = { transactionsViewModel.toggleScreen(it == 1) }
+                onTabChanged = { transactionsViewModel.toggleScreen(it == 1) },
             )
         },
         floatingButton = {
@@ -107,9 +107,9 @@ fun TransactionsSummary(
                         navController.navigate(TransactionEntry.route)
                     }
                 },
-                contentDescription = "Add Transaction"
+                contentDescription = "Add Transaction",
             )
-        }
+        },
     )
 }
 
@@ -121,73 +121,73 @@ fun TransactionsAndPlannedSummaryBody(
     navController: NavHostController,
     onTabChanged: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    dividerColor: Color = MaterialTheme.colorScheme.background
+    dividerColor: Color = MaterialTheme.colorScheme.background,
 ) {
     TabbedPage(
         tabs =
-        listOf(
-            TabItem(
-                title = "Present",
-                icon = {
-                    Icon(
-                        painter =
-                        painterResource(
-                            id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24
-                        ),
-                        contentDescription = "Executed Transactions"
-                    )
-                },
-                screen = {
-                    if (transactions.isEmpty()) {
-                        EmptyTransactionScreen()
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            TransactionsSummaryBody(
-                                transactions = transactions,
-                                baseCurrency = baseCurrency,
-                                navController = navController,
-                                dividerColor = dividerColor
-                            )
+            listOf(
+                TabItem(
+                    title = "Present",
+                    icon = {
+                        Icon(
+                            painter =
+                                painterResource(
+                                    id = R.drawable.receipt_long_24dp_fill0_wght400_grad0_opsz24,
+                                ),
+                            contentDescription = "Executed Transactions",
+                        )
+                    },
+                    screen = {
+                        if (transactions.isEmpty()) {
+                            EmptyTransactionScreen()
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                TransactionsSummaryBody(
+                                    transactions = transactions,
+                                    baseCurrency = baseCurrency,
+                                    navController = navController,
+                                    dividerColor = dividerColor,
+                                )
+                            }
                         }
-                    }
-                }
+                    },
+                ),
+                TabItem(
+                    title = "Planned",
+                    icon = {
+                        Icon(
+                            painter =
+                                painterResource(
+                                    id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24,
+                                ),
+                            contentDescription = "Planned Transactions",
+                        )
+                    },
+                    screen = {
+                        if (futureTransactions.isEmpty()) {
+                            EmptyTransactionScreen()
+                        } else {
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                FutureTransactionsSummaryBody(
+                                    futureTransactions = futureTransactions,
+                                    navController = navController,
+                                )
+                            }
+                        }
+                    },
+                ),
             ),
-            TabItem(
-                title = "Planned",
-                icon = {
-                    Icon(
-                        painter =
-                        painterResource(
-                            id = R.drawable.event_upcoming_24dp_fill0_wght400_grad0_opsz24
-                        ),
-                        contentDescription = "Planned Transactions"
-                    )
-                },
-                screen = {
-                    if (futureTransactions.isEmpty()) {
-                        EmptyTransactionScreen()
-                    } else {
-                        Column(
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            FutureTransactionsSummaryBody(
-                                futureTransactions = futureTransactions,
-                                navController = navController
-                            )
-                        }
-                    }
-                }
-            )
-        ),
         onTabChanged = onTabChanged,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -197,14 +197,14 @@ fun TransactionsSummaryBody(
     baseCurrency: String,
     navController: NavHostController?,
     modifier: Modifier = Modifier,
-    dividerColor: Color = MaterialTheme.colorScheme.background
+    dividerColor: Color = MaterialTheme.colorScheme.background,
 ) {
     // Remember the scroll state
     val scrollState = rememberLazyListState()
 
     LazyColumn(
         modifier = modifier,
-        state = scrollState
+        state = scrollState,
     ) {
         transactions.forEach {
             item {
@@ -213,26 +213,28 @@ fun TransactionsSummaryBody(
                     transfers = it.transfers,
                     baseCurrency = baseCurrency,
                     date = it.date,
-                    onTransactionSelected = navController?.let { controller: NavHostController ->
-                        { selectedTransaction: FullTransactionRecord ->
-                            Log.d(
-                                "TransactionsSummary",
-                                "Selected transaction: ${selectedTransaction.transactionRecord.id}"
-                            )
-                            controller.navigate(
-                                TransactionDetails.route +
-                                    "/${selectedTransaction.transactionRecord.id}"
-                            )
-                        }
-                    },
-                    onTransferSelected = navController?.let { controller: NavHostController ->
-                        { transfer: Transfer ->
-                            controller.navigate(
-                                TransferDetails.route + "/${transfer.id}"
-                            )
-                        }
-                    },
-                    dividerColor = dividerColor
+                    onTransactionSelected =
+                        navController?.let { controller: NavHostController ->
+                            { selectedTransaction: FullTransactionRecord ->
+                                Log.d(
+                                    "TransactionsSummary",
+                                    "Selected transaction: ${selectedTransaction.transactionRecord.id}",
+                                )
+                                controller.navigate(
+                                    TransactionDetails.route +
+                                        "/${selectedTransaction.transactionRecord.id}",
+                                )
+                            }
+                        },
+                    onTransferSelected =
+                        navController?.let { controller: NavHostController ->
+                            { transfer: Transfer ->
+                                controller.navigate(
+                                    TransferDetails.route + "/${transfer.id}",
+                                )
+                            }
+                        },
+                    dividerColor = dividerColor,
                 )
             }
         }
@@ -248,7 +250,7 @@ fun DayTransactionsGroup(
     onTransactionSelected: ((FullTransactionRecord) -> Unit)?,
     onTransferSelected: ((Transfer) -> Unit)?,
     modifier: Modifier = Modifier,
-    dividerColor: Color = MaterialTheme.colorScheme.background
+    dividerColor: Color = MaterialTheme.colorScheme.background,
 ) {
     val totalAmount =
         transactions.sumOf {
@@ -264,48 +266,48 @@ fun DayTransactionsGroup(
         (
             transactions.map { ItemWrapper(it.transactionRecord.date, it, true) } +
                 transfers.map { ItemWrapper(it.transfer.date, it, false) }
-            ).sortedBy { it.date }
+        ).sortedBy { it.date }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
         ) {
             Text(
                 text = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = formattedAmount,
                 style = MaterialTheme.typography.bodySmall,
-                color = LocalContentColor.current.copy(alpha = 0.6f)
+                color = LocalContentColor.current.copy(alpha = 0.6f),
             )
         }
 
         Card(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
+                Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 items.forEachIndexed { index, item ->
                     if (item.isTransaction) {
                         TransactionRow(
                             transaction = item.data as FullTransactionRecord,
-                            onItemSelected = onTransactionSelected
+                            onItemSelected = onTransactionSelected,
                         )
                     } else {
                         TransferRow(
                             transfer = item.data as TransferWithAccounts,
-                            onTransferSelected = onTransferSelected
+                            onTransferSelected = onTransferSelected,
                         )
                     }
                     if (index < items.size - 1) {
@@ -317,19 +319,23 @@ fun DayTransactionsGroup(
     }
 }
 
-data class ItemWrapper(val date: LocalDateTime, val data: Any, val isTransaction: Boolean)
+data class ItemWrapper(
+    val date: LocalDateTime,
+    val data: Any,
+    val isTransaction: Boolean,
+)
 
 @Composable
 fun FutureTransactionsSummaryBody(
     futureTransactions: List<FullFutureTransaction>,
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberLazyListState()
 
     LazyColumn(
         modifier = modifier,
-        state = scrollState
+        state = scrollState,
     ) {
         items(futureTransactions.size) { index ->
             val transaction = futureTransactions[index]
@@ -337,10 +343,10 @@ fun FutureTransactionsSummaryBody(
             FutureTransactionRow(futureTransaction = transaction, onItemSelected = {
                 Log.d(
                     "TransactionSummary",
-                    "Details of Future Transaction ID: ${it.futureTransaction.id}"
+                    "Details of Future Transaction ID: ${it.futureTransaction.id}",
                 )
                 navController.navigate(
-                    FutureTransactionDetails.route + "/${transaction.futureTransaction.id}"
+                    FutureTransactionDetails.route + "/${transaction.futureTransaction.id}",
                 )
             })
             ListDivider()
@@ -352,11 +358,11 @@ fun FutureTransactionsSummaryBody(
 fun EmptyTransactionScreen() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "No transactions yet. Create one by clicking the + button",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }
@@ -364,7 +370,7 @@ fun EmptyTransactionScreen() {
 @Composable
 private fun TransactionRow(
     transaction: FullTransactionRecord,
-    onItemSelected: ((FullTransactionRecord) -> Unit)? = {}
+    onItemSelected: ((FullTransactionRecord) -> Unit)? = {},
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
 
@@ -373,20 +379,20 @@ private fun TransactionRow(
     val formattedAmount =
         Currency.formatAmountStatic(
             transaction.account.currency.name,
-            transaction.transactionRecord.amount
+            transaction.transactionRecord.amount,
         )
 
     Row(
         modifier =
-        Modifier
-            .height(68.dp)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            Modifier
+                .height(68.dp)
+                .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Color bar in the left side
         VerticalBar(
             color = color,
-            modifier = Modifier.width(2.dp)
+            modifier = Modifier.width(2.dp),
         )
         Spacer(Modifier.width(12.dp))
         // Title and subtitle
@@ -402,33 +408,33 @@ private fun TransactionRow(
                     painter = painterResource(id = iconResId),
                     contentDescription = "Category Icon",
                     tint = color.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = 8.dp),
                 )
                 Text(
                     text = transaction.category?.name ?: "Transfer",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
                 )
             }
             Text(
                 text = formatter.format(transaction.transactionRecord.date),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
             )
         }
         Spacer(Modifier.weight(1f))
         // Amount
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = if (isExpense) "-" else " ",
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = formattedAmount,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
             Spacer(modifier = Modifier.width(4.dp))
         }
@@ -436,7 +442,7 @@ private fun TransactionRow(
             IconButton(onClick = { onItemSelected(transaction) }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
         }
@@ -445,78 +451,81 @@ private fun TransactionRow(
 }
 
 @Composable
-private fun TransferRow(transfer: TransferWithAccounts, onTransferSelected: ((Transfer) -> Unit)?) {
+private fun TransferRow(
+    transfer: TransferWithAccounts,
+    onTransferSelected: ((Transfer) -> Unit)?,
+) {
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
     val formattedAmountSource =
         Currency.formatAmountStatic(
             transfer.sourceAccount.currency.name,
-            transfer.transfer.amountSource
+            transfer.transfer.amountSource,
         )
     val formattedAmountDestination =
         Currency.formatAmountStatic(
             transfer.destinationAccount.currency.name,
-            transfer.transfer.amountDestination
+            transfer.transfer.amountDestination,
         )
 
     Row(
         modifier =
-        Modifier
-            .height(68.dp)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            Modifier
+                .height(68.dp)
+                .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         VerticalBar(
             color = Color.Blue.copy(alpha = 0.2f),
-            modifier = Modifier.width(2.dp)
+            modifier = Modifier.width(2.dp),
         )
         Spacer(Modifier.width(12.dp))
         Icon(
             painter =
-            painterResource(
-                id = R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24
-            ),
+                painterResource(
+                    id = R.drawable.change_circle_24dp_fill0_wght200_grad0_opsz24,
+                ),
             contentDescription = "Category Icon",
             tint = Color.Blue.copy(alpha = 0.5f),
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(2f)
+            modifier = Modifier.weight(2f),
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = transfer.sourceAccount.account.name,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
                 )
                 Text(
                     text = formattedAmountSource,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             Icon(
                 imageVector = Icons.Filled.ArrowForward,
                 contentDescription = "To",
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp),
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = transfer.destinationAccount.account.name,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
                 )
                 Text(
                     text = formattedAmountDestination,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
         onTransferSelected?.let {
             IconButton(
-                onClick = { onTransferSelected(transfer.transfer) }
+                onClick = { onTransferSelected(transfer.transfer) },
             ) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
         }
@@ -528,7 +537,7 @@ private fun TransferRow(transfer: TransferWithAccounts, onTransferSelected: ((Tr
 @Composable
 private fun FutureTransactionRow(
     futureTransaction: FullFutureTransaction,
-    onItemSelected: (FullFutureTransaction) -> Unit = {}
+    onItemSelected: (FullFutureTransaction) -> Unit = {},
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
 
@@ -539,47 +548,47 @@ private fun FutureTransactionRow(
         modifier = Modifier.fillMaxWidth(),
         onClick = {
             onItemSelected(futureTransaction)
-        }
+        },
     ) {
         Row(
             modifier =
-            Modifier
-                .height(90.dp)
-                .padding(horizontal = 16.dp),
+                Modifier
+                    .height(90.dp)
+                    .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             // Color bar in the left side
             VerticalBar(
                 color = color,
-                modifier = Modifier.width(2.dp)
+                modifier = Modifier.width(2.dp),
             )
 
             Spacer(Modifier.width(8.dp))
             Column {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val icon =
                         IconFromReIdUseCase(LocalContext.current).getCategoryIconResId(
-                            futureTransaction.category.iconResId
+                            futureTransaction.category.iconResId,
                         )
                     Row(
                         modifier = Modifier.weight(2f),
                         horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.Bottom
+                        verticalAlignment = Alignment.Bottom,
                     ) {
                         Icon(
                             painter = painterResource(id = icon),
                             contentDescription = "Category Icon",
-                            tint = color
+                            tint = color,
                         )
 
                         Text(
                             text = futureTransaction.category.name,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),
                         )
                     }
 
@@ -587,21 +596,21 @@ private fun FutureTransactionRow(
                     Row(
                         modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.Bottom
+                        verticalAlignment = Alignment.Bottom,
                     ) {
                         Text(
                             text = if (isExpense) "-" else " ",
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text =
-                            futureTransaction.currency.formatAmount(
-                                futureTransaction.futureTransaction.amount
-                            ),
+                                futureTransaction.currency.formatAmount(
+                                    futureTransaction.futureTransaction.amount,
+                                ),
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically),
                         )
                     }
                 }
@@ -615,37 +624,37 @@ private fun FutureTransactionRow(
                     Icon(
                         painterResource(id = R.drawable.date_range_24dp_fill0_wght400_grad0_opsz24),
                         contentDescription = "Date",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
                     )
                     Text(
                         text = formattedInitialDate,
                         style = MaterialTheme.typography.bodySmall,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
                     )
                     if (futureTransaction.futureTransaction.recurrenceType != RecurrenceType.NONE) {
                         Icon(
                             imageVector = Icons.Filled.ArrowForward,
                             contentDescription = "To",
-                            modifier = Modifier.size(8.dp)
+                            modifier = Modifier.size(8.dp),
                         )
                         Text(
                             text = formattedFinalDate,
                             style = MaterialTheme.typography.bodySmall,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
                         )
                     }
                 }
 
                 if (futureTransaction.futureTransaction.recurrenceType != RecurrenceType.NONE) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             painterResource(
-                                id = R.drawable.event_repeat_24dp_fill0_wght400_grad0_opsz24
+                                id = R.drawable.event_repeat_24dp_fill0_wght400_grad0_opsz24,
                             ),
                             contentDescription = "Event repeated",
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(16.dp),
                         )
                         val text = if (futureTransaction.futureTransaction.recurrenceType.isContinuous())"On periods of" else "Every"
                         var recurrenceDescription =
@@ -657,7 +666,7 @@ private fun FutureTransactionRow(
                         }
 
                         Text(
-                            text = "$text ${futureTransaction.futureTransaction.recurrenceValue} $recurrenceDescription"
+                            text = "$text ${futureTransaction.futureTransaction.recurrenceValue} $recurrenceDescription",
                         )
                     }
                 }
@@ -676,46 +685,46 @@ fun PreviewTransferRow() {
     val transfer =
         TransferWithAccounts(
             transfer =
-            Transfer(
-                amountSource = 10.0f,
-                amountDestination = 15.0f,
-                sourceAccountId = 0,
-                destinationAccountId = 1,
-                id = 0,
-                date = LocalDateTime.now(),
-                destinationAccountTransactionId = 10,
-                sourceAccountTransactionId = 11
-            ),
-            sourceAccount =
-            AccountWithCurrency(
-                account =
-                Account(
+                Transfer(
+                    amountSource = 10.0f,
+                    amountDestination = 15.0f,
+                    sourceAccountId = 0,
+                    destinationAccountId = 1,
                     id = 0,
-                    name = "Bank",
-                    currency = "USD",
-                    initialBalance = 5000.0f
+                    date = LocalDateTime.now(),
+                    destinationAccountTransactionId = 10,
+                    sourceAccountTransactionId = 11,
                 ),
-                Currency(
-                    "USD",
-                    1.0f,
-                    updatedTime = LocalDateTime.now()
-                )
-            ),
+            sourceAccount =
+                AccountWithCurrency(
+                    account =
+                        Account(
+                            id = 0,
+                            name = "Bank",
+                            currency = "USD",
+                            initialBalance = 5000.0f,
+                        ),
+                    Currency(
+                        "USD",
+                        1.0f,
+                        updatedTime = LocalDateTime.now(),
+                    ),
+                ),
             destinationAccount =
-            AccountWithCurrency(
-                account =
-                Account(
-                    id = 1,
-                    name = "Bank",
-                    currency = "EUR",
-                    initialBalance = 4000.0f
+                AccountWithCurrency(
+                    account =
+                        Account(
+                            id = 1,
+                            name = "Bank",
+                            currency = "EUR",
+                            initialBalance = 4000.0f,
+                        ),
+                    Currency(
+                        "EUR",
+                        1.1f,
+                        updatedTime = LocalDateTime.now(),
+                    ),
                 ),
-                Currency(
-                    "EUR",
-                    1.1f,
-                    updatedTime = LocalDateTime.now()
-                )
-            )
         )
     TransferRow(transfer = transfer, onTransferSelected = {})
 }
@@ -734,26 +743,26 @@ fun PreviewFutureTransactionRow() {
             startDate = LocalDateTime.now(),
             endDate = LocalDateTime.now().plusMonths(3),
             recurrenceType = RecurrenceType.MONTHLY,
-            recurrenceValue = 1
+            recurrenceValue = 1,
         )
 
     val fullFutureTransaction =
         FullFutureTransaction(
             futureTransaction = futureTransaction,
             category =
-            Category(
-                id = 0,
-                name = "Sports",
-                defaultType = CategoryType.Expense,
-                parentCategoryId = null,
-                iconResId = "school"
-            ),
+                Category(
+                    id = 0,
+                    name = "Sports",
+                    defaultType = CategoryType.Expense,
+                    parentCategoryId = null,
+                    iconResId = "school",
+                ),
             currency =
-            Currency(
-                "EUR",
-                1.0f,
-                LocalDateTime.now()
-            )
+                Currency(
+                    "EUR",
+                    1.0f,
+                    LocalDateTime.now(),
+                ),
         )
 
     FutureTransactionRow(futureTransaction = fullFutureTransaction)

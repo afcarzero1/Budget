@@ -8,7 +8,7 @@ data class AccountWithCurrency(
     @Embedded val account: Account,
     @Relation(
         parentColumn = "currency",
-        entityColumn = "name"
+        entityColumn = "name",
     )
-    val currency: Currency
+    val currency: Currency,
 )

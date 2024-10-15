@@ -35,7 +35,7 @@ internal fun rememberMarker(): Marker {
             ShapeComponent(labelBackgroundShape, labelBackgroundColor.toArgb()).setShadow(
                 radius = LABEL_BACKGROUND_SHADOW_RADIUS,
                 dy = LABEL_BACKGROUND_SHADOW_DY,
-                applyElevationOverlay = true
+                applyElevationOverlay = true,
             )
         }
     val label =
@@ -43,7 +43,7 @@ internal fun rememberMarker(): Marker {
             background = labelBackground,
             lineCount = LABEL_LINE_COUNT,
             padding = labelPadding,
-            typeface = Typeface.MONOSPACE
+            typeface = Typeface.MONOSPACE,
         )
     val indicatorInnerComponent =
         shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.surface)
@@ -53,18 +53,18 @@ internal fun rememberMarker(): Marker {
         overlayingComponent(
             outer = indicatorOuterComponent,
             inner =
-            overlayingComponent(
-                outer = indicatorCenterComponent,
-                inner = indicatorInnerComponent,
-                innerPaddingAll = indicatorInnerAndCenterComponentPaddingValue
-            ),
-            innerPaddingAll = indicatorCenterAndOuterComponentPaddingValue
+                overlayingComponent(
+                    outer = indicatorCenterComponent,
+                    inner = indicatorInnerComponent,
+                    innerPaddingAll = indicatorInnerAndCenterComponentPaddingValue,
+                ),
+            innerPaddingAll = indicatorCenterAndOuterComponentPaddingValue,
         )
     val guideline =
         lineComponent(
             MaterialTheme.colorScheme.onSurface.copy(GUIDELINE_ALPHA),
             guidelineThickness,
-            guidelineShape
+            guidelineShape,
         )
     return remember(label, indicator, guideline) {
         object : MarkerComponent(label, indicator, guideline) {
@@ -77,7 +77,7 @@ internal fun rememberMarker(): Marker {
                         color = entryColor
                         setShadow(
                             radius = INDICATOR_CENTER_COMPONENT_SHADOW_RADIUS,
-                            color = entryColor
+                            color = entryColor,
                         )
                     }
                 }
@@ -86,7 +86,7 @@ internal fun rememberMarker(): Marker {
             override fun getInsets(
                 context: MeasureContext,
                 outInsets: Insets,
-                horizontalDimensions: HorizontalDimensions
+                horizontalDimensions: HorizontalDimensions,
             ) = with(context) {
                 outInsets.top = label.getHeight(context) + labelBackgroundShape.tickSizeDp.pixels +
                     LABEL_BACKGROUND_SHADOW_RADIUS.pixels * SHADOW_RADIUS_MULTIPLIER -

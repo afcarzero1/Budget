@@ -8,13 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.budgetahead.data.accounts.AccountsRepository
 import com.example.budgetahead.data.accounts.FullAccount
 import com.example.budgetahead.data.transfers.Transfer
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDateTime
 
-class AccountTransferEntryViewModel(private val accountsRepository: AccountsRepository) :
-    ViewModel() {
+class AccountTransferEntryViewModel(
+    private val accountsRepository: AccountsRepository,
+) : ViewModel() {
     var transferUiState by mutableStateOf(AccountTransferUiState())
         private set
 
@@ -24,14 +25,14 @@ class AccountTransferEntryViewModel(private val accountsRepository: AccountsRepo
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = listOf()
+                initialValue = listOf(),
             )
 
     fun updateUiState(transfer: Transfer) {
         this.transferUiState =
             AccountTransferUiState(
                 transfer = transfer,
-                isValid = validateInput(transfer)
+                isValid = validateInput(transfer),
             )
     }
 
@@ -88,7 +89,7 @@ data class AccountTransferUiState(
             destinationAccountTransactionId = -1,
             amountDestination = 0f,
             amountSource = 0f,
-            date = LocalDateTime.now()
+            date = LocalDateTime.now(),
         ),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
 )

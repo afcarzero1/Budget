@@ -51,17 +51,17 @@ fun OnBoardingScreen(onEvent: (OnBoardingEvent) -> Unit) {
 
         Row(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .navigationBarsPadding(),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .navigationBarsPadding(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             PagerIndicator(
                 modifier = Modifier.width(52.dp),
                 pagesSize = pages.size,
-                selectedPage = pagerState.currentPage
+                selectedPage = pagerState.currentPage,
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -71,7 +71,7 @@ fun OnBoardingScreen(onEvent: (OnBoardingEvent) -> Unit) {
                     BudgetTextButton(text = buttonsState.value[0], onClick = {
                         scope.launch {
                             pagerState.animateScrollToPage(
-                                page = pagerState.currentPage - 1
+                                page = pagerState.currentPage - 1,
                             )
                         }
                     })
@@ -82,7 +82,7 @@ fun OnBoardingScreen(onEvent: (OnBoardingEvent) -> Unit) {
                             onEvent(OnBoardingEvent.SaveAppEntry)
                         } else {
                             pagerState.animateScrollToPage(
-                                page = pagerState.currentPage + 1
+                                page = pagerState.currentPage + 1,
                             )
                         }
                     }

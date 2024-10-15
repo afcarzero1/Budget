@@ -7,13 +7,15 @@ import com.example.budgetahead.data.accounts.FullAccount
 import com.example.budgetahead.data.currencies.Currency
 import com.example.budgetahead.ui.components.ColorAssigner
 import com.example.budgetahead.ui.components.graphics.AvailableColors
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDateTime
 
-class AccountsViewModel(accountsRepository: AccountsRepository) : ViewModel() {
+class AccountsViewModel(
+    accountsRepository: AccountsRepository,
+) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -24,12 +26,12 @@ class AccountsViewModel(accountsRepository: AccountsRepository) : ViewModel() {
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = Pair(Currency("USD", 1.0f, LocalDateTime.now()), 0f)
+                initialValue = Pair(Currency("USD", 1.0f, LocalDateTime.now()), 0f),
             )
 
     val accountsColorAssigner: ColorAssigner =
         ColorAssigner(
-            AvailableColors.colorsList
+            AvailableColors.colorsList,
         )
 
     val accountsUiState: StateFlow<AccountsUiState> =
@@ -39,8 +41,10 @@ class AccountsViewModel(accountsRepository: AccountsRepository) : ViewModel() {
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = AccountsUiState()
+                initialValue = AccountsUiState(),
             )
 }
 
-data class AccountsUiState(val accountsList: List<FullAccount> = listOf())
+data class AccountsUiState(
+    val accountsList: List<FullAccount> = listOf(),
+)

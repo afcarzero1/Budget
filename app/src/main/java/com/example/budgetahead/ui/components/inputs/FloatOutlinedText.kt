@@ -36,7 +36,7 @@ fun <T> FloatOutlinedText(
     recordToId: (T) -> Int, // Function to get a unique identifier for T
     recordToFloat: (T) -> Float, // Function to get the float value from T
     label: @Composable (() -> Unit)? = null, // Optional label as a composable lambda
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
 ) {
     var text by remember(recordToId(record)) { mutableStateOf(recordToFloat(record).toString()) }
     var supportText by remember { mutableStateOf("") }
@@ -57,22 +57,22 @@ fun <T> FloatOutlinedText(
         label = label ?: { Text("Enter value") },
         colors = colors,
         modifier =
-        modifier
-            .onFocusChanged { focusState ->
-                if (!focusState.isFocused) {
-                    try {
-                        val parsedFloat = text.toFloat()
-                        onValueChange(record, parsedFloat)
-                        supportText = ""
-                    } catch (e: NumberFormatException) {
-                        text = recordToFloat(record).toString()
-                        supportText = "Please enter a valid number."
+            modifier
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused) {
+                        try {
+                            val parsedFloat = text.toFloat()
+                            onValueChange(record, parsedFloat)
+                            supportText = ""
+                        } catch (e: NumberFormatException) {
+                            text = recordToFloat(record).toString()
+                            supportText = "Please enter a valid number."
+                        }
                     }
-                }
-            },
+                },
         enabled = true,
         singleLine = true,
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-        isError = supportText.isNotEmpty()
+        isError = supportText.isNotEmpty(),
     )
 }

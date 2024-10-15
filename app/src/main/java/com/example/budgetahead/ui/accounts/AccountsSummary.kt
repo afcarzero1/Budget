@@ -53,7 +53,7 @@ import com.example.budgetahead.ui.theme.InitialScreen
 fun AccountsSummary(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: AccountsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val accountsTotalBalance by viewModel.accountsTotalBalance.collectAsState()
 
@@ -65,7 +65,7 @@ fun AccountsSummary(
         } else {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 AccountsSummaryBody(
                     accounts = accountsState.accountsList,
@@ -76,7 +76,7 @@ fun AccountsSummary(
                     },
                     onAccountTransfer = {
                         navController.navigate(AccountTransferEntry.route)
-                    }
+                    },
                 )
             }
         }
@@ -85,11 +85,11 @@ fun AccountsSummary(
             onClick = {
                 navController.navigate(AccountEntry.route)
             },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "Add Account"
+                contentDescription = "Add Account",
             )
         }
     })
@@ -102,7 +102,7 @@ fun AccountsSummaryBody(
     accountsTotalBalance: Pair<Currency, Float>,
     accountColorAssigner: ColorAssigner,
     onAccountClick: (account: Account) -> Unit,
-    onAccountTransfer: () -> Unit
+    onAccountTransfer: () -> Unit,
 ) {
     val amountByCurrency: MutableMap<String, Float> = mutableMapOf()
 
@@ -116,21 +116,21 @@ fun AccountsSummaryBody(
     Column {
         // TODO: Show here the total amount for each currency
         Box(
-            modifier = Modifier.fillMaxSize() // This will make the Box occupy all available space
+            modifier = Modifier.fillMaxSize(), // This will make the Box occupy all available space
         ) {
             Card(
                 colors =
-                CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
                 elevation =
-                CardDefaults.cardElevation(
-                    defaultElevation = 2.dp
-                ),
+                    CardDefaults.cardElevation(
+                        defaultElevation = 2.dp,
+                    ),
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
             ) {
                 Column {
                     PieChart(
@@ -138,40 +138,40 @@ fun AccountsSummaryBody(
                         chartBarWidth = 10.dp,
                         radiusOuter = 120.dp,
                         middleText =
-                        listOf(
-                            TextPiece(
-                                text =
-                                buildAnnotatedString {
-                                    withStyle(
-                                        style =
-                                        SpanStyle(
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    ) {
-                                        append("Total")
-                                    }
-                                }
+                            listOf(
+                                TextPiece(
+                                    text =
+                                        buildAnnotatedString {
+                                            withStyle(
+                                                style =
+                                                    SpanStyle(
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                    ),
+                                            ) {
+                                                append("Total")
+                                            }
+                                        },
+                                ),
+                                TextPiece(
+                                    text =
+                                        buildAnnotatedString {
+                                            withStyle(
+                                                style =
+                                                    SpanStyle(
+                                                        fontWeight = FontWeight.Normal,
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                    ),
+                                            ) {
+                                                append(
+                                                    accountsTotalBalance.first.formatAmount(
+                                                        accountsTotalBalance.second,
+                                                    ),
+                                                )
+                                            }
+                                        },
+                                ),
                             ),
-                            TextPiece(
-                                text =
-                                buildAnnotatedString {
-                                    withStyle(
-                                        style =
-                                        SpanStyle(
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    ) {
-                                        append(
-                                            accountsTotalBalance.first.formatAmount(
-                                                accountsTotalBalance.second
-                                            )
-                                        )
-                                    }
-                                }
-                            )
-                        ),
                         itemToWeight = {
                             if (it.balance >
                                 0
@@ -184,19 +184,19 @@ fun AccountsSummaryBody(
                         itemDetails = {
                             Row(
                                 modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp)
-                                    .clickable {
-                                        onAccountClick(it.account)
-                                    },
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                        .clickable {
+                                            onAccountClick(it.account)
+                                        },
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Column(
                                     modifier =
-                                    Modifier
-                                        .weight(1f)
-                                        .padding(start = 8.dp)
+                                        Modifier
+                                            .weight(1f)
+                                            .padding(start = 8.dp),
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(start = 15.dp),
@@ -204,43 +204,43 @@ fun AccountsSummaryBody(
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                        fontWeight = MaterialTheme.typography.bodyLarge.fontWeight
+                                        fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
                                     )
                                     Text(
                                         modifier = Modifier.padding(start = 15.dp),
                                         text =
-                                        baseCurrency.formatAmount(
-                                            if (it.balance >
-                                                0
-                                            ) {
-                                                it.balance * (1 / it.currency.value)
-                                            } else {
-                                                0f
-                                            }
-                                        ),
+                                            baseCurrency.formatAmount(
+                                                if (it.balance >
+                                                    0
+                                                ) {
+                                                    it.balance * (1 / it.currency.value)
+                                                } else {
+                                                    0f
+                                                },
+                                            ),
                                         fontWeight = MaterialTheme.typography.bodySmall.fontWeight,
                                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                                        color = Color.Gray
+                                        color = Color.Gray,
                                     )
                                 }
                                 Column(
                                     modifier =
-                                    Modifier
-                                        .padding(vertical = 8.dp)
-                                        .align(Alignment.CenterVertically)
+                                        Modifier
+                                            .padding(vertical = 8.dp)
+                                            .align(Alignment.CenterVertically),
                                 ) {
                                     Text(
                                         text = it.currency.formatAmount(it.balance),
                                         fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
                                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             }
                         },
                         itemToColor = {
                             convertLongToColor(it.account.color)
-                        }
+                        },
                     )
                 }
             }
@@ -248,14 +248,14 @@ fun AccountsSummaryBody(
             FloatingActionButton(
                 onClick = onAccountTransfer,
                 modifier =
-                Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(32.dp) // This positions the FAB to the left (start) and a bit up from the bottom, with some padding
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(32.dp), // This positions the FAB to the left (start) and a bit up from the bottom, with some padding
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.switch_icon),
                     contentDescription = "Transfer",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }
@@ -267,7 +267,7 @@ fun AccountsSummaryBody(
 private fun AccountRow(
     accountWithTransactions: FullAccount,
     color: Color,
-    onAccountClick: (account: Account) -> Unit
+    onAccountClick: (account: Account) -> Unit,
 ) {
     // TODO: move navigation code to appropriate place
     BaseRow(
@@ -280,7 +280,7 @@ private fun AccountRow(
         holdedItem = accountWithTransactions,
         onItemSelected = {
             onAccountClick(it.account)
-        }
+        },
     )
 }
 
@@ -289,11 +289,11 @@ private fun AccountRow(
 fun EmptyAccountScreen() {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "No accounts yet. Create one by clicking the + button",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

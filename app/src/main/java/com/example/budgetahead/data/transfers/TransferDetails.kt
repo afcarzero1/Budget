@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransferDetailsScreen(
     navigateBack: () -> Unit,
-    viewModel: TransferDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TransferDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val transferDBState by viewModel.transferDBState.collectAsState()
     val transferUiState = viewModel.transferUiState
@@ -55,12 +55,12 @@ fun TransferDetailsScreen(
             actions = {
                 IconButton(
                     onClick = { deleteConfirmationRequired = true },
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = stringResource(R.string.delete),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
                 IconButton(
@@ -71,18 +71,18 @@ fun TransferDetailsScreen(
                         }
                         navigateBack()
                     },
-                    enabled = transferUiState.isValid
+                    enabled = transferUiState.isValid,
                 ) {
                     Icon(
                         painter =
-                        painterResource(
-                            id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24
-                        ),
+                            painterResource(
+                                id = R.drawable.save_24dp_fill0_wght400_grad0_opsz24,
+                            ),
                         contentDescription = stringResource(R.string.save),
-                        tint = if (transferUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray
+                        tint = if (transferUiState.isValid) MaterialTheme.colorScheme.onPrimary else Color.Gray,
                     )
                 }
-            }
+            },
         )
     }) { innerPadding ->
         TransferDetailsBody(
@@ -91,7 +91,7 @@ fun TransferDetailsScreen(
                 viewModel.updateUiState(it)
             },
             availableAccounts = availableAccounts,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         )
 
         if (deleteConfirmationRequired) {
@@ -107,14 +107,14 @@ fun TransferDetailsScreen(
                                 .makeText(
                                     context,
                                     "Error deleting transfer",
-                                    Toast.LENGTH_SHORT
+                                    Toast.LENGTH_SHORT,
                                 ).show()
                         }
                     }
                     navigateBack()
                 },
                 onDeleteCancel = { deleteConfirmationRequired = false },
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
             )
         }
     }
@@ -125,11 +125,11 @@ fun TransferDetailsBody(
     transactionDetailsUiState: TransferDetailsUiState,
     availableAccounts: List<FullAccount>,
     onTransferValueChange: (Transfer) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Log.d(
         "TRANSFER DETAILS",
-        "Id: ${transactionDetailsUiState.transfer.id} Amount Source: ${transactionDetailsUiState.transfer.amountSource}"
+        "Id: ${transactionDetailsUiState.transfer.id} Amount Source: ${transactionDetailsUiState.transfer.amountSource}",
     )
     Column(modifier = modifier.fillMaxWidth()) {
         AccountTransferForm(
@@ -138,7 +138,7 @@ fun TransferDetailsBody(
             onValueChange = {
                 onTransferValueChange(it)
             },
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium))
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.medium)),
         )
     }
 }

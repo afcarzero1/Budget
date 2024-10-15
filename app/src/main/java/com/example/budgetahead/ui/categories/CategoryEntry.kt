@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CategoryEntryScreen(
     navigateBack: () -> Unit,
-    viewModel: CategoryEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: CategoryEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     // val availableCategories by viewModel.categoriesListState.collectAsState()
@@ -46,9 +46,9 @@ fun CategoryEntryScreen(
         topBar = {
             SecondaryScreenTopBar(
                 navigateBack = navigateBack,
-                titleResId = R.string.entry_category_title
+                titleResId = R.string.entry_category_title,
             )
-        }
+        },
     ) { innerPadding ->
         CategoryEntryBody(
             categoryUiState = viewModel.categoryUiState,
@@ -60,10 +60,10 @@ fun CategoryEntryScreen(
                 }
             },
             modifier =
-            Modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+                Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
         )
     }
 }
@@ -73,23 +73,23 @@ fun CategoryEntryBody(
     categoryUiState: CategoryUiState,
     onCategoryValueChange: (Category) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
-        modifier = modifier.padding(dimensionResource(id = R.dimen.medium))
+        modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
     ) {
         CategoryForm(
             category = categoryUiState.category,
             // availableCategories = availableCategories,
             onValueChange = onCategoryValueChange,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Button(
             onClick = onSaveClick,
             enabled = categoryUiState.isValid,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = stringResource(R.string.entry_category_save))
         }
@@ -101,25 +101,25 @@ fun CategoryForm(
     category: Category,
     // availableCategories: List<Category>,
     onValueChange: (Category) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val colors =
         OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
             unfocusedContainerColor =
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                alpha = 0.05f
-            ),
-            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.05f,
+                ),
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
         )
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             IconPicker(
                 currentIconName = category.iconResId ?: "groceries",
@@ -127,7 +127,7 @@ fun CategoryForm(
                 onIconChanged = {
                     onValueChange(category.copy(iconResId = it))
                 },
-                modifier = Modifier.padding(end = 16.dp)
+                modifier = Modifier.padding(end = 16.dp),
             )
 
             OutlinedTextField(
@@ -136,7 +136,7 @@ fun CategoryForm(
                 label = { Text(text = stringResource(R.string.entry_category_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = colors
+                colors = colors,
             )
         }
 
@@ -145,7 +145,7 @@ fun CategoryForm(
             items = listOf(CategoryType.Expense, CategoryType.Income),
             onItemSelected = { index, item -> onValueChange(category.copy(defaultType = item)) },
             initialIndex = if (category.defaultType == CategoryType.Expense) 0 else 1,
-            colors = colors
+            colors = colors,
         )
         /*
         LargeDropdownMenu(
@@ -169,7 +169,7 @@ fun PreviewCategoryForm() {
             name = "Groceries",
             iconResId = "groceries",
             defaultType = CategoryType.Expense,
-            parentCategoryId = null
+            parentCategoryId = null,
         )
 
     // Create a list of categories for the dropdown
@@ -180,15 +180,15 @@ fun PreviewCategoryForm() {
                 name = "Groceries",
                 iconResId = "groceries",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null
+                parentCategoryId = null,
             ),
             Category(
                 id = 2,
                 name = "Utilities",
                 iconResId = "bar",
                 defaultType = CategoryType.Expense,
-                parentCategoryId = null
-            )
+                parentCategoryId = null,
+            ),
         )
 
     // Provide necessary Theme and Modifier
@@ -198,9 +198,9 @@ fun PreviewCategoryForm() {
             // availableCategories = categoriesList,
             onValueChange = {},
             modifier =
-            Modifier
-                .padding(16.dp)
-                .fillMaxHeight()
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxHeight(),
         )
     }
 }
