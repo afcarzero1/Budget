@@ -64,7 +64,13 @@ class FutureTransactionEntryViewModel(
 
     suspend fun saveTransaction() {
         if (validateInput(transactionUiState.futureTransaction)) {
-            futureTransactionsRepository.insert(transactionUiState.futureTransaction)
+            if (transactionUiState.futureTransaction.recurrenceType == RecurrenceType.NONE) {
+                futureTransactionsRepository.insert(
+                    transactionUiState.futureTransaction.copy(endDate = transactionUiState.futureTransaction.endDate),
+                )
+            } else {
+                futureTransactionsRepository.insert(transactionUiState.futureTransaction)
+            }
         }
     }
 }

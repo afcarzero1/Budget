@@ -110,10 +110,11 @@ fun TransactionEntryBody(
             availableAccounts = availableAccounts,
             availableCategories = availableCategories,
             onValueChange = onTransactionValueChanged,
-            categoryExpansionState = ExpansionState.Controlled(
-                expanded=expanded,
-                onExpandedChange = {expanded = it}
-            ),
+            categoryExpansionState =
+                ExpansionState.Controlled(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                ),
             modifier = Modifier.fillMaxWidth(),
         )
         Button(
@@ -135,7 +136,7 @@ fun TransactionForm(
     availableCategories: List<Category>,
     onValueChange: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier,
-    categoryExpansionState: ExpansionState = ExpansionState.Uncontrolled
+    categoryExpansionState: ExpansionState = ExpansionState.Uncontrolled,
 ) {
     Log.d("TransactionForm", "TransactionForm: ${transactionRecord.id}")
     Column(
@@ -224,7 +225,7 @@ fun TransactionForm(
                 availableCategories.indexOfFirst {
                     it.id == transactionRecord.categoryId
                 },
-            expansionState = categoryExpansionState
+            expansionState = categoryExpansionState,
         )
 
         OutlinedTextField(

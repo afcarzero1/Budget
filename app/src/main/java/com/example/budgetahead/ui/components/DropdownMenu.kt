@@ -40,13 +40,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
-
 sealed class ExpansionState {
     object Uncontrolled : ExpansionState() // Internal control
 
     data class Controlled(
         val expanded: Boolean,
-        val onExpandedChange: (Boolean) -> Unit
+        val onExpandedChange: (Boolean) -> Unit,
     ) : ExpansionState() // External control
 }
 
@@ -70,23 +69,23 @@ fun <T> LargeDropdownMenu(
     },
     leadingIcon: (@Composable (T) -> Unit)? = null,
     initialIndex: Int = -1,
-    expansionState: ExpansionState = ExpansionState.Uncontrolled
+    expansionState: ExpansionState = ExpansionState.Uncontrolled,
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var internalExpanded by remember { mutableStateOf(false) }
 
     // Determine the current expansion state
-    val isExpanded = when (expansionState) {
-        is ExpansionState.Controlled -> expansionState.expanded
-        is ExpansionState.Uncontrolled -> internalExpanded
-    }
+    val isExpanded =
+        when (expansionState) {
+            is ExpansionState.Controlled -> expansionState.expanded
+            is ExpansionState.Uncontrolled -> internalExpanded
+        }
 
     if (initialIndex > items.size) {
         selectedIndex = -1
     }
     val uiIndex = if (selectedIndex == -1) initialIndex else selectedIndex
 
-    
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
             label = { Text(label) },
@@ -99,9 +98,9 @@ fun <T> LargeDropdownMenu(
                 Icon(icon, "")
             },
             leadingIcon =
-            items.getOrNull(selectedIndex)?.let { item ->
-                leadingIcon?.let { { leadingIcon(item) } }
-            },
+                items.getOrNull(selectedIndex)?.let { item ->
+                    leadingIcon?.let { { leadingIcon(item) } }
+                },
             onValueChange = { },
             readOnly = true,
             colors = colors,
@@ -110,16 +109,16 @@ fun <T> LargeDropdownMenu(
         // Transparent clickable surface on top of OutlinedTextField
         Surface(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .clickable(enabled = enabled) {
-                    when (expansionState) {
-                        is ExpansionState.Controlled -> expansionState.onExpandedChange(true)
-                        is ExpansionState.Uncontrolled -> internalExpanded = true
-                    }
-                },
+                Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .clickable(enabled = enabled) {
+                        when (expansionState) {
+                            is ExpansionState.Controlled -> expansionState.onExpandedChange(true)
+                            is ExpansionState.Uncontrolled -> internalExpanded = true
+                        }
+                    },
             color = Color.Transparent,
         ) {}
     }

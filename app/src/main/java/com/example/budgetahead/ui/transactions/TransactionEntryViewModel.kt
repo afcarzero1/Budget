@@ -23,7 +23,6 @@ class TransactionEntryViewModel(
     private val accountsRepository: AccountsRepository,
     private val categoriesRepository: CategoriesRepository,
 ) : ViewModel() {
-
     val accountsListState: StateFlow<List<Account>> =
         accountsRepository
             .getAllAccountsStream()
@@ -39,10 +38,11 @@ class TransactionEntryViewModel(
             accountsListState.collect { accounts ->
                 if (accounts.isNotEmpty() && transactionUiState.transaction.accountId == -1) {
                     // Set the first account id in the UI state
-                    transactionUiState = TransactionUiState(
-                        transactionUiState.transaction.copy(accountId = accounts.first().id),
-                        transactionUiState.isValid
-                    )
+                    transactionUiState =
+                        TransactionUiState(
+                            transactionUiState.transaction.copy(accountId = accounts.first().id),
+                            transactionUiState.isValid,
+                        )
                 }
             }
         }
