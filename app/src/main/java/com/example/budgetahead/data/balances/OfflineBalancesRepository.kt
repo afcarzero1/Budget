@@ -236,6 +236,10 @@ class OfflineBalancesRepository(
         var currentDate = startDate // cannot use max because we need it to be a "multiple" of this day
 
         // TODO: Potential optimization here to avoid starting from the beginning every time
+        if (timePeriod == null && currentDate in intervalStart..intervalEnd) {
+            dates.add(currentDate)
+            return dates
+        }
 
         while (currentDate <= endDate) {
             // Check if currentDate is within the intervalStart and intervalEnd

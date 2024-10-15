@@ -282,6 +282,7 @@ fun SubdividedValue(
     negativeValue: Float,
     currency: Currency,
     modifier: Modifier = Modifier,
+    smaller: Boolean = false,
 ) {
     val totalValue = positiveValue + negativeValue
     Column(
@@ -303,9 +304,15 @@ fun SubdividedValue(
             value = totalValue,
             currency = currency,
             textStyle =
-                MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                ),
+                if (smaller) {
+                    MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                } else {
+                    MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                },
         )
 
         if (positiveValue != 0f || negativeValue != 0f) {

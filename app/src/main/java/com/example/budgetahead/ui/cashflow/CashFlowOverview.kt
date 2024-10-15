@@ -91,12 +91,14 @@ fun CashFlowOverview(
                 positiveValue = monthPlannedCashFlow.ingoing,
                 negativeValue = monthPlannedCashFlow.outgoing,
                 currency = baseCurrency,
+                smaller = true,
             )
             SubdividedValue(
                 title = "Projected",
                 positiveValue = monthExpectedCashFlow.ingoing,
                 negativeValue = monthExpectedCashFlow.outgoing,
                 currency = baseCurrency,
+                smaller = true,
             )
         }
 

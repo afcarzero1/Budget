@@ -2,7 +2,6 @@ package com.example.budgetahead.data.currencies
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,9 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -60,70 +57,30 @@ class OnlineCurrenciesRepository(
     }
 
     private val isFetching = AtomicBoolean(false)
+    private val isEmpty = AtomicBoolean(false)
 
     init {
-        // CoroutineScope(Dispatchers.IO).launch {
-        //    initializeDatabaseIfNeeded()
-        // }
+        CoroutineScope(Dispatchers.IO).launch {
+            initializeDatabaseIfNeeded()
+        }
     }
 
     private suspend fun initializeDatabaseIfNeeded() {
-        val hasCurrencies = currencyDao.getAllCurrencies().first().isNotEmpty()
-        if (!hasCurrencies) {
-            Log.d(TAG, "Database is empty. Initializing with default currencies.")
-            defaultCurrencies.forEach {
-                currencyDao.insert(it)
+        val currencies = currencyDao.getAllCurrencies().first()
+
+        if (currencies.isEmpty() || currencies[0].updatedTime < LocalDateTime.now().minusDays(1)) {
+            val currentTime = LocalDateTime.now()
+            Log.d(TAG, "Getting all currencies stream at: $currentTime")
+
+            if (currencies.isEmpty()) {
+                isEmpty.set(true)
             }
+
+            fetchApi()
         }
     }
 
-    override fun getAllCurrenciesStream(): Flow<List<Currency>> {
-        val currentTime = LocalDateTime.now()
-        Log.d(TAG, "Getting all currencies stream at: $currentTime")
-
-        return currencyDao.getAllCurrencies().onEach {
-            if (it.isNotEmpty()) {
-                val lastUpdatedTime = it[0].updatedTime
-
-                if (lastUpdatedTime < currentTime.minusDays(1)) {
-                    Log.d(TAG, "Fetching API data because last update is older than 1 day.")
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            fetchApi()
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        "Error fetching currencies",
-                                        Toast.LENGTH_LONG,
-                                    ).show()
-                            }
-                        }
-                    }
-                } else {
-                    Log.d(TAG, "Current data is from $lastUpdatedTime")
-                    Log.d(TAG, "Not refreshing data.")
-                }
-            } else {
-                Log.d(TAG, "Fetching API data because database is empty.")
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        fetchApi()
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Error fetching currencies",
-                                    Toast.LENGTH_LONG,
-                                ).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
+    override fun getAllCurrenciesStream(): Flow<List<Currency>> = currencyDao.getAllCurrencies()
 
     override fun getDefaultCurrencyStream(): Flow<String> =
         dataStore.data
@@ -160,6 +117,7 @@ class OnlineCurrenciesRepository(
             Log.d(TAG, "Fetching data from API...")
             try {
                 val responses: CurrenciesResponse = currenciesApiService.getCurrencies(apiKey)
+
                 val currentBaseCurrency: String = getDefaultCurrencyStream().first()
                 val currentBaseCurrencyRate = responses.rates[currentBaseCurrency]?.toFloat()
 
@@ -185,6 +143,11 @@ class OnlineCurrenciesRepository(
 
                 Log.d(TAG, "Data fetched from API and inserted into database.")
             } catch (e: Exception) {
+                if (isEmpty.compareAndSet(true, false)) {
+                    for (defaultCurrency in defaultCurrencies) {
+                        currencyDao.insertOrReplace(defaultCurrency)
+                    }
+                }
                 Log.e(TAG, "Error while fetching data $e")
             } finally {
                 isFetching.set(false)
