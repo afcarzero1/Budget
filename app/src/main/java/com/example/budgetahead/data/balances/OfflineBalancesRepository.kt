@@ -389,6 +389,7 @@ class OfflineBalancesRepository(
                         }
                 val alreadyCounted = MutableList(relevantExecutedTransactions.size) { false }
 
+                // A category might have manny
                 for (futureTransaction in categoryFutureTransactions) {
                     var currentDate = futureTransaction.futureTransaction.startDate.toLocalDate()
                     val endDate = futureTransaction.futureTransaction.endDate.toLocalDate()
@@ -438,6 +439,7 @@ class OfflineBalancesRepository(
 
                             totalExpectedMultiplier *=
                                 (nonOvershootPeriodLength.toFloat() / timePeriodLength.toFloat())
+                            currentDate = fromDate
                         }
 
                         // Understand if we over-shooted!
@@ -506,14 +508,31 @@ class OfflineBalancesRepository(
                                 0f,
                             )
 
+
+
                         // Add the "planned" modified transaction at the end of the period
-                        pendingTransactions.add(
-                            generateTransaction(
-                                nextDate,
-                                futureTransaction,
-                                totalPending,
-                            ),
-                        )
+                        // Calculate the number of days between currentDate and nextDate
+                        val daysBetween = ChronoUnit.DAYS.between(currentDate, nextDate)
+
+                        if (daysBetween > 0) {
+                            // Calculate daily pending amount
+                            val dailyPendingAmount = totalPending / daysBetween
+
+                            // Generate and add a transaction for each day
+                            var dayCounter = 0L
+                            while (dayCounter < daysBetween) {
+                                val transactionDate = currentDate.plusDays(dayCounter)
+
+                                pendingTransactions.add(
+                                    generateTransaction(
+                                        transactionDate,
+                                        futureTransaction,
+                                        dailyPendingAmount,
+                                    )
+                                )
+                                dayCounter++
+                            }
+                        }
 
                         // Advance to next period
                         currentDate = nextDate
