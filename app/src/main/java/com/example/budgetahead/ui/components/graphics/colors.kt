@@ -171,6 +171,7 @@ object AvailableIcons {
         listOf(
             "bar",
             "groceries",
+            "medicine",
             "rent",
             "restaurants",
             "school",

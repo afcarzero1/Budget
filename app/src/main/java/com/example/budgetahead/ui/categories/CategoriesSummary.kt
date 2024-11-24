@@ -350,7 +350,6 @@ fun CategoryCard(
                                 .size(40.dp)
                                 .clip(CircleShape)
                                 .border(2.dp, color, CircleShape)
-                                .background(MaterialTheme.colorScheme.tertiaryContainer)
                                 .padding(8.dp),
                         tint = MaterialTheme.colorScheme.onTertiaryContainer,
                     )

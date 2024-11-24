@@ -242,12 +242,12 @@ fun CashFlowCard(
             CardDefaults.cardElevation(
                 defaultElevation = 2.dp,
             ),
-        modifier = modifier.padding(16.dp),
+        modifier = modifier,
     ) {
         Column(
             modifier =
                 Modifier
-                    .padding(16.dp)
+                    .padding(8.dp)
                     .fillMaxWidth(),
         ) {
             Row(

@@ -252,12 +252,11 @@ fun DayTransactionsGroup(
     modifier: Modifier = Modifier,
     dividerColor: Color = MaterialTheme.colorScheme.background,
 ) {
-    val totalAmount =
-        transactions.sumOf {
-            it.transactionRecord.amount.toDouble() /
-                it.account.currency.value
-                    .toDouble()
-        }
+    val totalAmount = transactions.sumOf {
+        val multiplier = if (it.transactionRecord.type == TransactionType.EXPENSE) -1.0 else 1.0
+        multiplier * (it.transactionRecord.amount.toDouble() / it.account.currency.value.toDouble())
+    }
+
 
     val formattedAmount = Currency.formatAmountStatic(baseCurrency, totalAmount.toFloat())
 
