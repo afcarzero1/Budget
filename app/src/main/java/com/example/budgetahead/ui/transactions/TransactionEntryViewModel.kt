@@ -12,6 +12,8 @@ import com.example.budgetahead.data.categories.Category
 import com.example.budgetahead.data.transactions.TransactionRecord
 import com.example.budgetahead.data.transactions.TransactionType
 import com.example.budgetahead.data.transactions.TransactionsRepository
+import com.example.budgetahead.ui.components.ExpansionState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -32,22 +34,6 @@ class TransactionEntryViewModel(
                 initialValue = listOf(),
             )
 
-    init {
-        // Automatically set the first account when the accounts are loaded
-        viewModelScope.launch {
-            accountsListState.collect { accounts ->
-                if (accounts.isNotEmpty() && transactionUiState.transaction.accountId == -1) {
-                    // Set the first account id in the UI state
-                    transactionUiState =
-                        TransactionUiState(
-                            transactionUiState.transaction.copy(accountId = accounts.first().id),
-                            transactionUiState.isValid,
-                        )
-                }
-            }
-        }
-    }
-
     val categoriesListState: StateFlow<List<Category>> =
         categoriesRepository
             .getAllCategoriesStream()
@@ -59,6 +45,17 @@ class TransactionEntryViewModel(
 
     var transactionUiState by mutableStateOf(TransactionUiState())
         private set
+
+    val accountsExpanded: MutableStateFlow<ExpansionState> = MutableStateFlow(ExpansionState.Controlled(false) { this.closeAccountMenu() })
+    val categoriesExpanded: MutableStateFlow<ExpansionState> = MutableStateFlow(ExpansionState.Controlled(true){this.closeCategoriesMenu()})
+
+    fun closeCategoriesMenu(){
+        categoriesExpanded.value = ExpansionState.Uncontrolled
+        accountsExpanded.value = ExpansionState.Controlled(true){this.closeAccountMenu()}
+    }
+    fun closeAccountMenu(){
+        accountsExpanded.value = ExpansionState.Uncontrolled
+    }
 
     fun updateUiState(transaction: TransactionRecord) {
         this.transactionUiState =

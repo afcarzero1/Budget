@@ -62,6 +62,9 @@ fun TransactionEntryScreen(
     val accountsListState by viewModel.accountsListState.collectAsState()
     val categoriesListState by viewModel.categoriesListState.collectAsState()
 
+    val accountsExpanded by viewModel.accountsExpanded.collectAsState()
+    val categoriesExpanded by viewModel.categoriesExpanded.collectAsState()
+
     Scaffold(topBar = {
         SecondaryScreenTopBar(
             navigateBack = navigateBack,
@@ -82,11 +85,13 @@ fun TransactionEntryScreen(
                     navigateBack()
                 }
             },
+            accountsExpanded = accountsExpanded,
+            categoriesExpanded = categoriesExpanded,
             modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+            Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth(),
         )
     }
 }
@@ -98,9 +103,10 @@ fun TransactionEntryBody(
     availableCategories: List<Category>,
     onTransactionValueChanged: (TransactionRecord) -> Unit,
     onSaveClick: () -> Unit,
+    accountsExpanded: ExpansionState,
+    categoriesExpanded: ExpansionState,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(true) }
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.medium)),
@@ -110,11 +116,8 @@ fun TransactionEntryBody(
             availableAccounts = availableAccounts,
             availableCategories = availableCategories,
             onValueChange = onTransactionValueChanged,
-            categoryExpansionState =
-                ExpansionState.Controlled(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                ),
+            accountExpansionState = accountsExpanded,
+            categoryExpansionState = categoriesExpanded,
             modifier = Modifier.fillMaxWidth(),
         )
         Button(
@@ -137,6 +140,7 @@ fun TransactionForm(
     onValueChange: (TransactionRecord) -> Unit,
     modifier: Modifier = Modifier,
     categoryExpansionState: ExpansionState = ExpansionState.Uncontrolled,
+    accountExpansionState: ExpansionState = ExpansionState.Uncontrolled
 ) {
     Log.d("TransactionForm", "TransactionForm: ${transactionRecord.id}")
     Column(
@@ -154,18 +158,18 @@ fun TransactionForm(
                 },
                 recordToFloat = { it.amount },
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp),
+                Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
             )
             DatePickerField(
                 label = stringResource(id = R.string.entry_transaction_date),
                 onDateChanged = { onValueChange(transactionRecord.copy(date = it)) },
                 date = transactionRecord.date,
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp),
+                Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp),
             )
         }
 
@@ -176,6 +180,7 @@ fun TransactionForm(
                 onValueChange(transactionRecord.copy(accountId = availableAccounts[index].id))
             },
             initialIndex = availableAccounts.indexOfFirst { it.id == transactionRecord.accountId },
+            expansionState = accountExpansionState
         )
         LargeDropdownMenu(
             label = stringResource(id = R.string.entry_transaction_category),

@@ -46,6 +46,7 @@ class OfflineBalancesRepository(
         futureTransactionsRepository
             .getAllFutureFullTransactionsStream()
             .map { futureTransactions ->
+                //Log.d("OfflineBalancesRepository", "Calling generate pending from planned!")
                 val pendingTransactions =
                     generatePendingTransactions(
                         futureTransactions,
@@ -73,8 +74,8 @@ class OfflineBalancesRepository(
                 generatePendingTransactions(
                     futureTransactions,
                     executedTransactions,
-                    fromDate,
-                    toDate,
+                    maxOf(fromDate.atDay(1), realityDate), //TODO: Consider here realityDate + 1 (today is "over")
+                    toDate.atEndOfMonth(),
                 ).filter {
                     it.transactionRecord.date > realityDate.atTime(23, 59, 59) &&
                         it.transactionRecord.date <= toDate.atEndOfMonth().atTime(23, 59, 59)
@@ -216,6 +217,8 @@ class OfflineBalancesRepository(
             futureTransactionsRepository.getAllFutureFullTransactionsStream(),
             transactionsRepository.getAllFullTransactionsStream(),
         ) { futureTransactions, executedTransactions ->
+            Log.d("BalancesRepository", "Calling with ${futureTransactions.size} future transactions and" +
+                    "${executedTransactions.size} executed transactions.")
             generatePendingTransactions(
                 futureTransactions,
                 executedTransactions,
@@ -321,6 +324,7 @@ class OfflineBalancesRepository(
         fromDate: LocalDate,
         toDate: LocalDate,
     ): List<FullTransactionRecord> {
+        Log.d("PendingTransactions", "${executedTransactions.size}")
         val pendingTransactions: MutableList<FullTransactionRecord> = mutableListOf()
 
         // Add the pending transactions coming from continuous kind of future transactions
@@ -507,7 +511,7 @@ class OfflineBalancesRepository(
                                     totalExecutedInCurrency,
                                 0f,
                             )
-
+                        //Log.d("OfflineBalancesRepository", "Total pending $totalPending")
 
 
                         // Add the "planned" modified transaction at the end of the period

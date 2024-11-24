@@ -1,5 +1,6 @@
 package com.example.budgetahead.ui.cashflow
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -67,6 +68,7 @@ class CashFlowOverviewViewModel(
     private val monthExpectedExpenseFlow =
         dateToShowFlow
             .flatMapLatest {
+                Log.d("CashflowOverviewViewModel", "Calling get expected (projected) balances by month")
                 balancesRepository.getExpectedBalancesByMonthStream(it, it)
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
@@ -89,6 +91,7 @@ class CashFlowOverviewViewModel(
     private val monthPlannedExpenseFlow =
         dateToShowFlow
             .flatMapLatest {
+                Log.d("CashflowOverviewViewModel", "Calling get planned balances by month")
                 balancesRepository.getPlannedBalancesByMonthStream(it, it)
             }.map {
                 ClassifyCategoriesUseCaseImpl().execute(
@@ -179,6 +182,7 @@ class CashFlowOverviewViewModel(
                 )
             },
         ) { expenses, incomes, date, currency ->
+            Log.d("CashflowOverviewViewModel", "Computing planned cashflow")
             CashFlow(
                 outgoing = expenses[date]?.values?.sum() ?: 0.0f,
                 ingoing = incomes[date]?.values?.sum() ?: 0.0f,
@@ -195,33 +199,21 @@ class CashFlowOverviewViewModel(
                 ),
         )
 
-    val balancesByDay =
-        dateToShowFlow
-            .flatMapLatest {
-                balancesRepository.getBalanceByDay(
-                    fromDate = it.atDay(1),
-                    toDate = it.atEndOfMonth(),
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = mapOf(),
-            )
-
     val pendingTransactions =
         dateToShowFlow
             .flatMapLatest {
                 if (it.isBefore(YearMonth.now())) {
                     flow { emit(emptyList<FullTransactionRecord>()) }
                 } else {
-                    val startingDate = minOf(LocalDate.now().plusDays(1), it.atEndOfMonth())
-
+                    val startingDate = minOf(LocalDate.now(), it.atEndOfMonth())
+                    Log.d("CashflowOverviewViewModel", "Calling pending transactions")
                     balancesRepository.getPendingTransactions(
                         startingDate,
                         it.atEndOfMonth(),
                     )
                 }
             }.map {
+                Log.d("CashflowOverviewViewModel", "${it}")
                 GroupTransactionsAndTransfersByDateUseCase().execute(
                     transactions = it,
                     transfers = listOf(),
