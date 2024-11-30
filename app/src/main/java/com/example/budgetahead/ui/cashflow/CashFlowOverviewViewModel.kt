@@ -204,11 +204,16 @@ class CashFlowOverviewViewModel(
             .flatMapLatest {
                 if (it.isBefore(YearMonth.now())) {
                     flow { emit(emptyList<FullTransactionRecord>()) }
-                } else {
-                    val startingDate = minOf(LocalDate.now(), it.atEndOfMonth())
+                } else if(it.isAfter(YearMonth.now())) {
+                    balancesRepository.getPendingTransactions(
+                        it.atDay(1),
+                        it.atEndOfMonth(),
+                    )
+                }
+                else {
                     Log.d("CashflowOverviewViewModel", "Calling pending transactions")
                     balancesRepository.getPendingTransactions(
-                        startingDate,
+                        minOf(LocalDate.now(), it.atEndOfMonth()),
                         it.atEndOfMonth(),
                     )
                 }
