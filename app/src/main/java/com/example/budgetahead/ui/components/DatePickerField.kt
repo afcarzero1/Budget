@@ -27,8 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
@@ -37,83 +40,67 @@ import java.util.Date
 fun DatePickerField(
     date: LocalDateTime,
     label: String,
-    onDateChanged: (date: LocalDateTime) -> Unit,
-    modifier: Modifier = Modifier,
+    onDateChanged: (LocalDateTime) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    // Use for the text the variable that we get from out
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.YEAR, date.year)
-    calendar.set(Calendar.MONTH, date.monthValue - 1) // Calendar months are zero-based
-    calendar.set(Calendar.DAY_OF_MONTH, date.dayOfMonth)
-    calendar.set(Calendar.HOUR_OF_DAY, date.hour)
-    calendar.set(Calendar.MINUTE, date.minute)
-    calendar.set(Calendar.SECOND, date.second)
-    calendar.set(Calendar.MILLISECOND, date.nano / 1_000_000)
-    val textFieldDateState = calendar.timeInMillis
-
-    // Whether to show the dialog or not
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val enabled = true
+    // For displaying, use user's local zone
+    val zoneId = ZoneId.systemDefault()
+    val displayedDate = date.atZone(zoneId)
+        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+    // Convert the incoming date to a UTC epoch for DatePicker
+    val initialMillis = date.atZone(zoneId).toInstant().toEpochMilli()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+
     Box(modifier = modifier.height(IntrinsicSize.Min)) {
-        val formatter = SimpleDateFormat("dd/MM/yyyy", LocalConfiguration.current.locales.get(0))
-        val formattedDate = formatter.format(Date(textFieldDateState))
         OutlinedTextField(
             label = { Text(label) },
-            value = formattedDate,
-            enabled = true,
+            value = displayedDate,
+            onValueChange = {},
             modifier = Modifier.fillMaxWidth(),
-            onValueChange = { },
             readOnly = true,
         )
         Surface(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(top = 8.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .clickable(enabled = enabled) {
-                        showDatePicker = true
-                    },
-            color = Color.Transparent,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .clickable { showDatePicker = true },
+            color = Color.Transparent
         ) {}
     }
 
     if (showDatePicker) {
-        val datePickerState =
-            rememberDatePickerState(
-                initialSelectedDateMillis = calendar.timeInMillis,
-            )
         DatePickerDialog(
-            onDismissRequest = {
-                showDatePicker = false
-            },
+            onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     showDatePicker = false
-                    onDateChanged(
-                        convertToLocalDateTimeViaInstant(
-                            Date(datePickerState.selectedDateMillis!!),
-                        ),
-                    )
+                    val pickedMillis = datePickerState.selectedDateMillis ?: return@TextButton
+                    // Interpret selected date as UTC, then fix the date part to user zone
+                    val pickedDayUtc = Instant.ofEpochMilli(pickedMillis)
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate()
+                    // Attach the original time but keep the new day
+                    onDateChanged(pickedDayUtc.atTime(date.toLocalTime()))
                 }) {
-                    Text(text = "Confirm")
+                    Text("Confirm")
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showDatePicker = false
-                }) {
-                    Text(text = "Cancel")
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
                 }
-            },
+            }
         ) {
-            DatePicker(
-                state = datePickerState,
-            )
+            DatePicker(state = datePickerState)
         }
     }
 }
+
+
 
 fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime =
     dateToConvert
